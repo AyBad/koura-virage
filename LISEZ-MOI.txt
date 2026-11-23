@@ -12,16 +12,12 @@ Safari > Partager > « Sur l'écran d'accueil ». Plein écran, mises à jour au
 VERSION : APP_VERSION dans www/index.html (affichée en bas à gauche du menu).
 Chaque modification incrémente la version ; l'APK se met à jour sans désinstaller (signature fixe).
 
-RÉGLAGES DU JEU (www/index.html) :
-- SP : super pouvoirs (prix, effets) ; niveau = utilisations par match, rechargées à chaque match.
-- CHARS : personnages (3am Hamadi au départ, figures historiques à acheter ou à gagner).
-- GEAR : accessoires du vestiaire (chaussures, bandeau, brassard, khomsa) et prix en dinars.
-- MISSIONS / rollChest : missions du jour et contenu des coffres.
-- CLUBS : 16 clubs de Ligue 1 2026-2027, couleurs (c1, c2), motif d'écusson, stade.
-- DERBIES : derbies qui tournent chaque semaine (points du club x2).
-- DIVS : points de montée (pr) et de maintien (rl) par division ; Division 1 = 24 pts.
-- MAXT / REGEN : nombre de jetons et temps de recharge (5 jetons, 1 toutes les 15 min).
-- ADMAX : nombre de pubs récompensées par jour.
+STRUCTURE (www/) :
+- data.js : clubs, derbies, personnages (figures historiques + légendes 78), super pouvoirs, améliorations, missions
+- art.js  : dessin cartoon (têtes, chaussures, supporters, stades, buts, boutons)
+- game.js : moteur de match (physique, IA, pouvoirs, écran VS, intro)
+- ui.js   : sauvegarde, sons, pubs, écrans (accueil, boutique, coffres, résultats)
+- fonts/  : polices Lilita One et Luckiest Guy (licence SIL OFL)
 
 PUBLICITÉ (Android) : Google AdMob avec des identifiants de TEST.
 Avant publication, remplacer ADMOB_APP_ID dans .github/workflows/build-apk.yml
