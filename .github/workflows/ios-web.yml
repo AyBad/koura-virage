@@ -20,7 +20,7 @@ jobs:
 
       - name: Préparer le site
         run: |
-          VER=$(grep -oP "APP_VERSION = '\K[0-9.]+" www/index.html)
+          VER=$(grep -oP "APP_VERSION = '\K[0-9.]+" www/data.js)
           mkdir out
           cp -r www/. out/
           sed -i "s/var CACHE = 'kv-v1';/var CACHE = 'kv-$VER-${{ github.run_number }}';/" out/sw.js
