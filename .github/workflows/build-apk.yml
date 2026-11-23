@@ -151,8 +151,8 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" kawarjia-test.apk --clobber
           else
-            gh release create "$TAG" kawarjia-test.apk \\
-              --target "${{ github.sha }}" --prerelease \\
-              --title "Kawarjia - APK de test Android" \\
+            gh release create "$TAG" kawarjia-test.apk \
+              --target "${{ github.sha }}" --prerelease \
+              --title "Kawarjia - APK de test Android" \
               --notes "Version expérimentale des animations et du rendu 2.5D. Branche feature/kawarjia-match-animations."
           fi
