@@ -1,5 +1,5 @@
 // ================= KOURA VIRAGE – DONNÉES =================
-var APP_VERSION = '0.4';
+var APP_VERSION = '0.5';
 // Ligue 1 tunisienne 2026-2027 (16 clubs). Écussons : formes neutres aux couleurs du club uniquement.
 const CLUBS=[
  {id:'est',n:'Espérance de Tunis',s:'EST',st:'Stade Hammadi-Agrebi (Radès)',c1:'#c8102e',c2:'#ffcc00',p:'rayures',pop:1},

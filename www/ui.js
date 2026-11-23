@@ -129,7 +129,7 @@ function home(){seasonSync();missionsSync();ui.dataset.v='home';if(!S.cgu||!S.ac
  <div class="ver">V${APP_VERSION} • Syphax Apps</div></div>`;
  paintCanvases(ui);countUp();
  ui.onclick=e=>{const t=e.target.closest('[data-a]');if(!t)return;au();sfx('tap');const a=t.dataset.a;
-  if(a.startsWith('shop:'))return shop(a.slice(5));
+  if(a==='shop:chars')return vest('char');if(a==='shop:gear')return vest('boots');if(a.startsWith('shop:'))return shop(a.slice(5));
   const F={champ:champScreen,derby:derbyScreen,table:tableScreen,quick:quickScreen,duo:duoScreen,train:()=>startMatch(trainSetup()),chests:chestScreen,set:settings,tok:()=>tokScreen(),watch:watchEarn,lvl:levelInfo}[a];if(F)F();};
  checkDaily();}
 setInterval(()=>{const e=document.getElementById('tkt');if(e){tokSync();if(S.tok>=MAXT&&!M&&!document.getElementById('mdl'))home();else e.textContent=mmss(nextTok());}},1000);
@@ -166,6 +166,40 @@ function openChest(){if(!S.chests.length){chestScreen();return;}const type=S.che
 function chestScreen(){missionsSync();const ms=S.mis.list.map(m=>`<div class="mis ${m.c?'ok':''}"><span class="mi">${m.c?'✅':'🎯'}</span><div class="mt"><b>${m.t}</b><div class="xpb"><i style="width:${m.p/m.n*100}%"></i><span>${m.p}/${m.n}</span></div></div><span class="mr">🎁</span></div>`).join('');
  const cc={};S.chests.forEach(c=>cc[c]=(cc[c]||0)+1);
  modal(`<div class="hdr">Missions du jour</div>${ms}<div class="txt sm">Chaque mission réussie en match classé = un coffre en argent. Nouvelles missions demain.</div><div class="row">${S.chests.length?`<button class="bt y" data-a="open">🎁 Ouvrir (${Object.entries(cc).map(([k,v])=>v+' '+CHN[k]).join(', ')})</button>`:'<div class="txt sm">Aucun coffre à ouvrir pour le moment.</div>'}</div>`,a=>{if(a==='open')openChest();},false,'blue');}
+// ----- vestiaire plein écran (style Head Ball 2) : personnage au centre, stats à droite, objets en bas -----
+const VTABS={char:{n:'Personnages',e:'👤'},boots:{n:'Chaussures',e:'👟'},hat:{n:'Chapeaux',e:'🎩'},glasses:{n:'Lunettes',e:'🕶️'}};
+function vest(slot){if(slot)VST.slot=slot;const sl=VST.slot,isC=sl==='char';
+ const list=isC?CHARS:EQUIP.filter(e=>e.slot===sl);
+ if(isC){if(!CHARS.some(c=>c.id===VST.sel))VST.sel=S.char;}else if(!EQ(VST.sel)||EQ(VST.sel).slot!==sl)VST.sel=S.load[sl];
+ const it=isC?CH(VST.sel):EQ(VST.sel),own=isC?S.own.includes(it.id):!!S.inv[it.id],lv=isC?1:(S.inv[it.id]||1),eqd=isC?S.char===it.id:S.load[sl]===it.id;
+ const chId=isC?it.id:S.char,tryG=isC?myGear():Object.assign(myGear(),{[sl]:it.id}),cur=stats(S.char,myGear()),nxt=stats(chId,tryG);
+ const pw=o=>((o.kp+o.spd+o.jmp+o.hd)/4*6-1).toFixed(1).replace('.',',');
+ const bar=(lab,k,ic,col)=>{const a=Math.round(cur[k]*100),b=Math.round(nxt[k]*100),df=b-a,wa=Math.max(4,Math.min(100,(Math.min(a,b)-70)/80*100)),wd=Math.min(100-wa,Math.abs(df)/80*100);
+  return `<div class="vb"><span class="vi" style="background:${col}">${ic}</span><div class="vbw"><small>${lab}</small><div class="vbb"><i style="width:${wa}%"></i>${df?`<em class="${df>0?'':'dn'}" style="left:${wa}%;width:${wd}%"></em>`:''}</div></div><b>${b}${df?`<small class="${df>0?'up':'dn'}">${df>0?'+':''}${df}</small>`:''}</b></div>`;};
+ const bon=isC?it.sub:(Object.entries(it.b).map(([k,v])=>`${{kp:'Tir',spd:'Vitesse',jmp:'Saut',hd:'Tête'}[k]} +${Math.round(v*(1+.5*(lv-1)))}%`).join(' • ')||'Style uniquement, aucun bonus');
+ const upc=!isC&&own&&lv<5&&it.pr?Math.round(it.pr*EQUP(lv)):0;
+ const icon=isC?`<canvas data-c="${it.id}" data-k="${it.l78?'ca':S.club}"></canvas>`:`<canvas data-item="${it.id}"></canvas>`;
+ const left=`<div class="vcard" style="--rc:${RCOL[it.r]}"><div class="vstack"><span></span><span></span><div>${icon}</div></div>
+  ${isC?`<div class="vlv">${own?'Débloqué':'Verrouillé'}</div>`:it.pr?`<div class="vlv">${own?'★'.repeat(lv)+'☆'.repeat(5-lv)+` <small>Niv. ${lv}/5</small>`:'Niveau max 5'}</div>`:''}
+  ${upc?`<button class="bt g vup" data-a="up:${it.id}">⬆ Améliorer<small>💵 ${fmt(upc)}</small></button>`:(!isC&&own&&lv>=5&&it.pr?'<div class="vmax">NIVEAU MAX</div>':'')}</div>`;
+ const main=!own?`<button class="bt y vgo" data-a="buy:${it.id}">Acheter • 💵 ${fmt(it.pr)}</button>`:eqd?'<div class="vgo done">✔ Équipé</div>':`<button class="bt o vgo" data-a="eq:${it.id}">${isC?'Choisir':'Équiper'}</button>`;
+ const cards=list.map(x=>{const o=isC?S.own.includes(x.id):!!S.inv[x.id],q=isC?S.char===x.id:S.load[sl]===x.id;
+  return `<button class="vc ${x.id===it.id?'sel':''} ${o?'':'lock'}" data-a="v:${x.id}" style="--rc:${RCOL[x.r]}">${isC?`<canvas data-c="${x.id}" data-k="${x.l78?'ca':S.club}"></canvas>`:`<canvas data-item="${x.id}"></canvas>`}${q?'<span class="chk">✔</span>':''}${!o?`<span class="vpr">💵 ${fmt(x.pr)}</span>`:(!isC&&x.pr?`<span class="vst">${'★'.repeat(S.inv[x.id])}</span>`:'')}<span class="vr">${x.r}</span></button>`;}).join('');
+ const html=`<div class="vbeam b1"></div><div class="vbeam b2"></div><div class="vbeam b3"></div>
+ <div class="vhead"><div class="vname">${it.n}</div><div class="vsub">${bon}</div></div>
+ <div class="vmid">${left}<div class="vhero"><canvas class="live" data-c="${chId}" data-try='${JSON.stringify(isC?{}:{[sl]:it.id})}'></canvas><div class="vspot"></div>${main}</div>
+  <div class="vstats"><div class="vpw">⚡ Puissance : <b>${pw(nxt)}</b>${pw(nxt)!==pw(cur)?`<small class="${nxt.kp+nxt.spd+nxt.jmp+nxt.hd>cur.kp+cur.spd+cur.jmp+cur.hd?'up':'dn'}">(${pw(cur)})</small>`:''}</div>${bar('Vitesse','spd','⚡','#2c8cf0')}${bar('Saut','jmp','🦘','#3fae1a')}${bar('Tir','kp','🦶','#ff6a00')}${bar('Tête','hd','🧠','#a64df0')}</div></div>
+ <div class="vtabs">${Object.entries(VTABS).map(([k,v])=>`<button class="vt ${k===sl?'on':''}" data-a="sl:${k}"><span>${v.e}</span><i>${v.n}</i></button>`).join('')}<span class="pill vdt"><span class="ico">💵</span><b>${fmt(S.dt)}</b></span></div>
+ <div class="vstrip">${cards}</div>`;
+ const d=modal(html,a=>{
+  if(a.startsWith('sl:')){VST.slot=a.slice(3);VST.sel=null;vest();}
+  else if(a.startsWith('v:')){VST.sel=a.slice(2);sfx('tap');vest();}
+  else if(a.startsWith('eq:')){const id=a.slice(3);if(isC){S.char=id;toast(CH(id).n+' choisi !');}else{const e=EQ(id);S.load[e.slot]=e.id;toast(e.n+' équipé !');}save();sfx('chest');vest();}
+  else if(a.startsWith('buy:')){const id=a.slice(4);if(isC){const c=CH(id);if(S.dt<c.pr)return toast('Il te manque '+fmt(c.pr-S.dt)+' DT');S.dt-=c.pr;S.own.push(id);S.char=id;save();sfx('chest');rewardCard([{k:'char',id}],()=>vest());return;}
+   const e=EQ(id);if(S.dt<e.pr)return toast('Il te manque '+fmt(e.pr-S.dt)+' DT');S.dt-=e.pr;S.inv[e.id]=1;S.load[e.slot]=e.id;save();sfx('chest');toast(e.n+' acheté et équipé !');vest();}
+  else if(a.startsWith('up:')){const e=EQ(a.slice(3)),l=S.inv[e.id],c_=Math.round(e.pr*EQUP(l));if(S.dt<c_)return toast('Il te manque '+fmt(c_-S.dt)+' DT');S.dt-=c_;S.inv[e.id]=l+1;save();sfx('chest');toast(e.n+' niveau '+(l+1)+' !');vest();}
+ },false,'vst');
+ const s=d.querySelector('.vc.sel');if(s)s.scrollIntoView({inline:'center',block:'nearest'});}
 // ----- boutique : personnages, super pouvoirs, améliorations -----
 let VST={slot:'boots',sel:null};
 function shop(tab){tab=tab||'chars';const T=`<div class="tabs"><button class="tab ${tab==='chars'?'on':''}" data-a="t:chars">👑 Personnages</button><button class="tab ${tab==='sp'?'on':''}" data-a="t:sp">⚡ Super pouvoirs</button><button class="tab ${tab==='gear'?'on':''}" data-a="t:gear">👟 Vestiaire</button><span class="pill"><span class="ico">💵</span><b>${fmt(S.dt)}</b></span></div>`;let body='';
@@ -181,7 +215,7 @@ function shop(tab){tab=tab||'chars';const T=`<div class="tabs"><button class="ta
   <div class="vright"><div class="slots">${Object.entries(SLOTS).map(([k,v])=>`<button class="slot ${k===sl?'on':''}" data-a="sl:${k}"><span>${v.e}</span>${v.n}</button>`).join('')}</div>
   <div class="eqgrid">${list.map(x=>`<button class="eqc ${x.id===e.id?'sel':''} ${S.inv[x.id]?'':'lock'}" data-a="v:${x.id}" style="--rc:${RCOL[x.r]}"><canvas data-item="${x.id}"></canvas>${S.load[sl]===x.id?'<span class="eqb">✔</span>':''}${S.inv[x.id]&&x.pr?`<span class="lvb">${'★'.repeat(S.inv[x.id])}</span>`:''}${S.inv[x.id]?'':`<span class="prb">💵 ${fmt(x.pr)}</span>`}</button>`).join('')}</div>
   <div class="vdet" style="--rc:${RCOL[e.r]}"><div><b>${e.n}</b><span class="rt">${e.r}</span>${own&&e.pr?`<span class="lvt">Niveau ${lv}/5</span>`:''}<div class="bon">${bon}</div></div><div class="row">${!own?`<button class="bt y" data-a="buy:${e.id}">Acheter • ${fmt(e.pr)} DT</button>`:eqd?'<span class="tagok">✔ Équipé</span>':`<button class="bt g" data-a="eq:${e.id}">Équiper</button>`}${upc?`<button class="bt" data-a="up:${e.id}">Améliorer • ${fmt(upc)} DT</button>`:''}</div></div></div></div>`;}
- modal(T+body,a=>{if(a.startsWith('t:'))return shop(a.slice(2));
+ modal(T+body,a=>{if(a==='t:gear')return vest('boots');if(a==='t:chars')return vest('char');if(a.startsWith('t:'))return shop(a.slice(2));
   if(a.startsWith('b:')){const id=a.slice(2),lv=spLvl(id),pr=Math.round(SP[id].pr*(1+lv*1.5));if(S.dt<pr)return toast('Il te manque '+fmt(pr-S.dt)+' DT');S.dt-=pr;S.sp[id]=lv+1;if(!S.eq.includes(id)&&S.eq.length<3)S.eq.push(id);save();sfx('coin');shop('sp');}
   else if(a.startsWith('e:')){const id=a.slice(2);if(S.eq.includes(id))S.eq=S.eq.filter(x=>x!==id);else{if(S.eq.length>=3)return toast('3 super pouvoirs maximum : retire-en un');S.eq.push(id);}save();shop('sp');}
   else if(a.startsWith('h:')){const id=a.slice(2),c=CH(id);if(S.own.includes(id)){S.char=id;save();shop('chars');}else if(S.dt>=c.pr){S.dt-=c.pr;S.own.push(id);S.char=id;save();sfx('chest');rewardCard([{k:'char',id}],()=>shop('chars'));}else toast('Il te manque '+fmt(c.pr-S.dt)+' DT');}
