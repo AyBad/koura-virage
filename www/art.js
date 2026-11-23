@@ -30,8 +30,8 @@ function shieldImg(club){if(SHC[club.id])return SHC[club.id];const im=new Image(
 // ---------- Tête cartoon ----------
 // ---------- images illustrées (objets, boutons) ----------
 const IMG={};function img(p){let im=IMG[p];if(!im){im=IMG[p]=new Image();im.onload=()=>{HREADY++;};im.src=p;}return (im.complete&&im.naturalWidth)?im:null;}
-const EQI=id=>img('img/eq/'+id+'.webp');
-['b_base','b_medina','b_jasmin','b_harissa','b_sahara','b_neptune','b_fluo','b_carthage','h_casq','h_bob','h_mdhalla','h_bonnet','h_laurier','h_chechia','g_sun','g_ronde','g_sport','g_ski','g_star','s_rb','s_nb','s_tn','s_jn','s_vb','s_kef','ba_cl','ba_zel','ba_ice','ba_volt','ba_fire','ba_or'].forEach(EQI);
+const EQI=id=>EQ_HAS.has(id)?img('img/eq/'+id+'.webp'):null;
+const EQ_HAS=new Set(['b_base','b_medina','b_jasmin','b_harissa','b_sahara','b_neptune','b_fluo','b_carthage','h_casq','h_bob','h_mdhalla','h_bonnet','h_laurier','h_chechia','g_sun','g_ronde','g_sport','g_ski','g_star','s_rb','s_nb','s_tn','s_jn','s_vb','s_kef','ba_cl','ba_zel','ba_ice','ba_volt','ba_fire','ba_or']);EQ_HAS.forEach(id=>img('img/eq/'+id+'.webp'));
 ['left','right','jump','kick','lob','pause'].forEach(n=>img('img/ui/'+n+'.webp'));
 // ---------- têtes illustrées (4 expressions : neutre, cri, sonné, joie) ----------
 const HIMG={};let HREADY=0;

@@ -160,7 +160,7 @@ function step(){if(!M||M.paused)return;
  M.tap={};}
 // ----- rendu -----
 function sprite(kind,r,col){const key=kind+r+col;if(BTNC[key])return BTNC[key];return BTNC[key]=mkBtnSprite(kind==='round'?'round':'sq',r,col,Math.max(1,DPR*SC));}
-function drawBtn(b,on,dim,cnt){const [k,side,x,y,r,col,shape]=b;const bim=img('img/ui/'+({l:'left',r:'right',j:'jump',lo:'kick',hi:'lob',pause:'pause'}[k]||'_')+'.webp');if(bim&&!dim){const s=(on?.9:1)*r*2.35;g.drawImage(bim,x-s/2,y-s/2+(on?3:0),s,s);return;}const sp=sprite(shape||'sq',r,col);const s=on?.9:1;g.globalAlpha=dim?.4:1;g.drawImage(sp.c,x-sp.m*s,y-sp.m*s+(on?3:0),sp.m*2*s,sp.m*2*s);
+function drawBtn(b,on,dim,cnt){const [k,side,x,y,r,col,shape]=b;const bn={l:'left',r:'right',j:'jump',lo:'kick',hi:'lob',pause:'pause'}[k],bim=bn&&img('img/ui/'+bn+'.webp');if(bim&&!dim){const s=(on?.9:1)*r*2.35;g.drawImage(bim,x-s/2,y-s/2+(on?3:0),s,s);return;}const sp=sprite(shape||'sq',r,col);const s=on?.9:1;g.globalAlpha=dim?.4:1;g.drawImage(sp.c,x-sp.m*s,y-sp.m*s+(on?3:0),sp.m*2*s,sp.m*2*s);
  if(k[0]==='s'&&k.length===2){const s_=M.P[0].sps[+k[1]];g.font=(r*1.05|0)+'px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(SP[s_.id].e,x,y+2);g.textBaseline='alphabetic';}
  else btnIcon(g,k,x,y+(on?3:0),r);g.globalAlpha=1;
  if(cnt!=null){g.beginPath();g.arc(x+r*.8,y-r*.8,10,0,7);g.fillStyle=cnt>0?'#e70013':'#666';g.fill();g.lineWidth=2.5;g.strokeStyle=OUT;g.stroke();g.textAlign='center';textOut(g,String(cnt),x+r*.8,y-r*.8+5,13,'#fff',OUT,2.5);}}
