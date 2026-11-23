@@ -39,7 +39,7 @@ function loadHeads(ids){for(const id of ids){if(HIMG[id])continue;HIMG[id]=[0,1,
 const hasHead=id=>{const a=HIMG[id];return !!(a&&a[0].complete&&a[0].naturalWidth);};
 function drawHeadImg(c,ch,x,y,r,face,o){const a=HIMG[ch.id];const idx=o.mood==='joy'?3:(o.mood==='sad'||o.stun||o.frozen)?2:(o.mouth==='open'||o.mood==='angry')?1:0;
  let im=a[idx];if(!(im.complete&&im.naturalWidth))im=a[0];const h=r*2.5,w=h*im.naturalWidth/im.naturalHeight,b0=a[0],w0=h*b0.naturalWidth/b0.naturalHeight;
- c.save();c.translate(x,y);c.scale(face,1);c.drawImage(im,-w0*.5,-r*1.15,w,h);
+ c.save();c.translate(x,y);c.scale(face,1);c.drawImage(im,-w*.5,-r*1.15,w,h);
  if(o.frozen){c.globalAlpha=.38;c.fillStyle='#bfefff';c.beginPath();c.ellipse(0,r*.05,r*1.05,r*1.2,0,0,7);c.fill();c.globalAlpha=1;}
  const lw=Math.max(2,r*.085);
  if(o.glasses&&o.glasses.kind){const gi=EQI(o.glasses.id);if(gi){const w=r*1.5,h=w*gi.naturalHeight/gi.naturalWidth;c.drawImage(gi,-r*.3,-r*.2-h/2,w,h);}else{c.save();c.translate(r*.12,r*.02);drawGlasses(c,o.glasses,r*.95,-r*.12,lw);c.restore();}}
@@ -317,6 +317,8 @@ function mkScene(V,home,away){const S_={bands:null,layers:[]};const BG=BGI[V.t]&
  // taches de terre
  const blob=(cx,cy,rw,rh,col)=>{f.beginPath();for(let a=0;a<=14;a++){const t=a/14*Math.PI*2,k=.7+Math.random()*.5;f.lineTo(cx+Math.cos(t)*rw*k,cy+Math.sin(t)*rh*k);}f.closePath();f.fillStyle=col;f.fill();};
  // Pelouse de stade premium : supprimer les plaques de terre.
+ // Reflets subtils de la pelouse, calculés une seule fois dans le décor mis en cache.
+ if(V.t==='stade'){f.save();const sheen=f.createLinearGradient(0,352,0,470);sheen.addColorStop(0,'#c8ffb314');sheen.addColorStop(.48,'#ffffff06');sheen.addColorStop(1,'#001a191b');f.fillStyle=sheen;f.fillRect(-EX,352,DW+2*EX,118);f.strokeStyle='#ffffff0b';f.lineWidth=1;for(let i=0;i<18;i++){const yy=354+i*6.5;f.beginPath();f.moveTo(-EX,yy);f.lineTo(DW+EX,yy);f.stroke();}f.restore();}
  // lignes du terrain
  if(V.t!=='plage'){f.lineCap='round';f.lineJoin='round';const line=(pts,close)=>{f.beginPath();pts.forEach(([xx,yy],k)=>k?f.lineTo(xx,yy):f.moveTo(xx,yy));if(close)f.closePath();f.strokeStyle='#ffffff';f.lineWidth=4;f.stroke();};
   f.save();f.shadowColor='#ffffff66';f.shadowBlur=6;
@@ -332,6 +334,8 @@ function mkScene(V,home,away){const S_={bands:null,layers:[]};const BG=BGI[V.t]&
  f.fillStyle=V.t==='stade'?grad(f,0,470,0,DH,'#278d42','#104d32'):grad(f,0,470,0,DH,'#8a5428','#4e2d14');f.fillRect(-EX,470,DW+2*EX,DH-470);f.fillStyle=grad(f,0,466,0,476,'#2f9a2a','#5a3418');if(V.t==='stade')f.fillRect(-EX,466,DW+2*EX,8);
  if(V.t!=='stade')for(let i=0;i<100;i++){const rx=(Math.random()*(DW+2*EX)-EX),ry=480+Math.random()*55;f.beginPath();f.ellipse(rx,ry,3+Math.random()*5,2+Math.random()*2,0,0,7);f.fillStyle=Math.random()<.5?'#6b3e1c':'#a66a34';f.fill();}
  if(V.t!=='stade')for(let i=0;i<20;i++){const rx=(Math.random()*(DW+2*EX)-EX);f.fillStyle='#4fb83a';f.beginPath();f.moveTo(rx,474);f.lineTo(rx+4,462);f.lineTo(rx+7,474);f.lineTo(rx+11,464);f.lineTo(rx+13,474);f.fill();}
+ // Liseré lumineux du bord du terrain : apporte du volume sans WebGL.
+ if(V.t==='stade'){f.save();const rim=f.createLinearGradient(0,460,0,477);rim.addColorStop(0,'#ffffff00');rim.addColorStop(.45,'#d5ffba66');rim.addColorStop(1,'#173d27aa');f.fillStyle=rim;f.fillRect(-EX,460,DW+2*EX,17);f.restore();}
  S_.base=base;S_.front=front;S_.full=crowd.map(cw=>{const c=L(),x=c.getContext('2d');x.drawImage(base,0,0);x.drawImage(cw,0,0);x.drawImage(front,0,0);return c;});
  S_.bands=V.t==='stade'?[[0,80,'#7cc2ff'],[80,348,'#6b7484'],[348,470,G[0]],[470,DH,'#5e3719']]:V.t==='plage'?[[0,250,'#8ccdf5'],[250,348,'#1f7fc4'],[348,470,G[0]],[470,DH,'#5e3719']]:[[0,300,['#a8d8f5','#f9c98a','#9ccbe8'][V.sky||0]],[300,348,'#d4bf98'],[348,470,G[0]],[470,DH,'#5e3719']];
  return S_;}
