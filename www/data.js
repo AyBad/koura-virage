@@ -1,5 +1,5 @@
 // ================= KOURA VIRAGE – DONNÉES =================
-var APP_VERSION = '0.3';
+var APP_VERSION = '0.4';
 // Ligue 1 tunisienne 2026-2027 (16 clubs). Écussons : formes neutres aux couleurs du club uniquement.
 const CLUBS=[
  {id:'est',n:'Espérance de Tunis',s:'EST',st:'Stade Hammadi-Agrebi (Radès)',c1:'#c8102e',c2:'#ffcc00',p:'rayures',pop:1},
@@ -56,12 +56,37 @@ const SP={
  fennec:{n:'Tir Fennec',e:'🦊',c:'#ff8a3d',d:'Ton prochain tir zigzague.',pr:700}};
 const SHOUT={harissa:'HARISSA !',boutellis:'BOUTELLIS !',cage:'CAGE XXL !',bard:'BARD !',chlaka:'CHLAKA !',ras:'RAS KBIR !',kaskrout:'KASKROUT !',chergui:'CHERGUI !',fennec:'FENNEC !'};
 
-// Améliorations (difficiles à obtenir) : 5 niveaux chacune, prix élevés.
-const GEAR={
- shoes:{n:'Chaussures',e:'👟',d:'Puissance de tir',pr:[400,1200,3500,8000,18000],t:['Crampons bleus','Crampons rouges','Crampons verts fluo','Crampons argent','Crampons en or']},
- band:{n:'Bandeau',e:'🎽',d:'Hauteur de saut',pr:[300,1000,3000,7000,16000],t:['Bandeau blanc','Bandeau bleu','Bandeau rouge','Bandeau argent','Bandeau en or']},
- arm:{n:'Brassard',e:'💪',d:'Vitesse de course',pr:[300,1000,3000,7000,16000],t:['Brassard bleu','Brassard vert','Brassard capitaine','Brassard argent','Brassard en or']},
- khomsa:{n:'Khomsa',e:'🖐️',d:'Résistance aux pouvoirs',pr:[500,1500,4000,9000,20000],t:['Khomsa en cuivre','Khomsa en argent','Khomsa en or','Khomsa émeraude','Khomsa bénie']}};
+// Vestiaire : chaussures, chapeaux et lunettes. Chaque objet donne des bonus (%) et s'améliore jusqu'au niveau 5.
+// b : bonus au niveau 1 (kp tir, spd vitesse, jmp saut, hd tête) ; chaque niveau ajoute +50 % du bonus de base.
+const EQUIP=[
+ // chaussures : c1 dessus, c2 décor, so semelle, pat motif
+ {id:'b_base',slot:'boots',n:'Crampons noirs',r:'commun',pr:0,b:{},c1:'#2b2b2b',c2:'#ffffff',so:'#f4f4f4',pat:'eclair'},
+ {id:'b_medina',slot:'boots',n:'Crampons Médina',r:'commun',pr:600,b:{spd:3},c1:'#1f5fd1',c2:'#ffffff',so:'#f4f4f4',pat:'eclair'},
+ {id:'b_jasmin',slot:'boots',n:'Crampons Jasmin',r:'commun',pr:800,b:{jmp:3},c1:'#f4f4f4',c2:'#2cc26b',so:'#2cc26b',pat:'fleur'},
+ {id:'b_harissa',slot:'boots',n:'Crampons Harissa',r:'rare',pr:2500,b:{kp:5},c1:'#e8301c',c2:'#ffb000',so:'#1a1a1a',pat:'flamme'},
+ {id:'b_sahara',slot:'boots',n:'Crampons Sahara',r:'rare',pr:3000,b:{spd:4,jmp:2},c1:'#e2b06a',c2:'#7a4a1c',so:'#f4e4c0',pat:'dune'},
+ {id:'b_neptune',slot:'boots',n:'Crampons Neptune',r:'épique',pr:7000,b:{kp:5,spd:4},c1:'#18c6e8',c2:'#0a3d8f',so:'#ffffff',pat:'vague'},
+ {id:'b_fluo',slot:'boots',n:'Crampons Fluo 78',r:'épique',pr:8000,b:{spd:7,jmp:3},c1:'#b4ff1a',c2:'#ff2a7a',so:'#ffffff',pat:'eclair'},
+ {id:'b_carthage',slot:'boots',n:'Crampons de Carthage',r:'légendaire',pr:20000,b:{kp:9,spd:5,jmp:4},c1:'#ffc400',c2:'#8a5a00',so:'#fff6d0',pat:'etoile'},
+ // chapeaux
+ {id:'h_none',slot:'hat',n:'Sans chapeau',r:'commun',pr:0,b:{}},
+ {id:'h_casq',slot:'hat',n:'Casquette ultras',r:'commun',pr:700,b:{spd:2},col:'#e70013',kind:'casquette'},
+ {id:'h_mdhalla',slot:'hat',n:'Mdhalla (chapeau de paille)',r:'rare',pr:2200,b:{jmp:4},col:'#e8c06a',kind:'paille'},
+ {id:'h_bob',slot:'hat',n:'Bob du virage',r:'commun',pr:900,b:{hd:3},col:'#2c6fe0',kind:'bob'},
+ {id:'h_bonnet',slot:'hat',n:'Bonnet de supporter',r:'rare',pr:2600,b:{hd:4,kp:2},col:'#ffd200',kind:'bonnet'},
+ {id:'h_laurier',slot:'hat',n:'Couronne de laurier',r:'épique',pr:7500,b:{hd:6,jmp:3},col:'#3fae1a',kind:'laurier'},
+ {id:'h_chechia',slot:'hat',n:'Chéchia en or',r:'légendaire',pr:18000,b:{hd:8,kp:5,jmp:3},col:'#ffc400',kind:'chechia'},
+ // lunettes
+ {id:'g_none',slot:'glasses',n:'Sans lunettes',r:'commun',pr:0,b:{}},
+ {id:'g_sun',slot:'glasses',n:'Lunettes de soleil',r:'commun',pr:800,b:{kp:2},col:'#111',kind:'soleil'},
+ {id:'g_ronde',slot:'glasses',n:'Lunettes rondes',r:'rare',pr:2400,b:{hd:3,kp:2},col:'#c08a2a',kind:'ronde'},
+ {id:'g_sport',slot:'glasses',n:'Lunettes de sport',r:'rare',pr:2800,b:{spd:4},col:'#ff2a7a',kind:'sport'},
+ {id:'g_ski',slot:'glasses',n:'Masque de ski de Aïn Draham',r:'épique',pr:7000,b:{jmp:5,spd:3},col:'#18c6e8',kind:'ski'},
+ {id:'g_star',slot:'glasses',n:'Lunettes de star',r:'légendaire',pr:16000,b:{kp:6,hd:5,spd:3},col:'#ffc400',kind:'star'}];
+const EQ=id=>EQUIP.find(e=>e.id===id);
+const EQUP=lv=>[.6,1.2,2.2,3.5][lv-1]||0; // coût d'amélioration = prix × facteur (niveau actuel)
+const SLOTS={boots:{n:'Chaussures',e:'👟'},hat:{n:'Chapeaux',e:'🎩'},glasses:{n:'Lunettes',e:'🕶️'}};
+// couleurs de chaussures par défaut des adversaires
 const GCOL=['#2b2b2b','#2c6fe0','#e70013','#7ad61a','#c9d1db','#ffc400'];
 
 // Messages rapides que le joueur choisit d'afficher pendant le match

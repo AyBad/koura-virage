@@ -2,13 +2,16 @@
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 const DEF={cgu:0,acc:0,nick:'',club:null,char:'bey',own:['bey'],tok:MAXT,tokT:Date.now(),dt:300,lvl:1,xp:0,snd:1,vib:1,
  ch:{div:10,played:0,pts:0,res:[],best:10,titles:0,seasons:0},cs:'',contrib:0,stats:{w:0,d:0,l:0,gf:0,ga:0},lastDay:'',streak:0,adDay:'',adN:0,
- sp:{harissa:1},eq:['harissa'],gear:{shoes:0,band:0,arm:0,khomsa:0},chests:[],mis:{day:'',list:[]},tuto:0,form:[]};
+ sp:{harissa:1},eq:['harissa'],inv:{b_base:1,h_none:1,g_none:1},load:{boots:'b_base',hat:'h_none',glasses:'g_none'},chests:[],mis:{day:'',list:[]},tuto:0,form:[]};
 let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('kv1')||'{}'));}catch(e){S=Object.assign({},DEF);}
-['ch','stats','gear','mis'].forEach(k=>S[k]=Object.assign({},DEF[k],S[k]));if(!S.sp)S.sp={harissa:1};if(!Array.isArray(S.eq))S.eq=['harissa'];if(!Array.isArray(S.chests))S.chests=[];if(!Array.isArray(S.form))S.form=[];
+['ch','stats','mis','inv','load'].forEach(k=>S[k]=Object.assign({},DEF[k],S[k]));if(!S.sp)S.sp={harissa:1};if(!Array.isArray(S.eq))S.eq=['harissa'];if(!Array.isArray(S.chests))S.chests=[];if(!Array.isArray(S.form))S.form=[];
 if(S.coins!=null){S.dt=(S.dt||0)+S.coins;delete S.coins;if(S.club)S.acc=1;}
 if(S.acc)S.cgu=1;
 S.own=(S.own||[]).filter(id=>CHARS.some(c=>c.id===id));if(!S.own.includes('bey'))S.own.unshift('bey');if(!S.own.includes(S.char))S.char='bey';
-for(const k in S.gear)S.gear[k]=Math.min(5,S.gear[k]||0);
+// ancienne amélioration par niveaux : remboursée en dinars
+if(S.gear){const OLD={shoes:[400,1200,3500,8000,18000],band:[300,1000,3000,7000,16000],arm:[300,1000,3000,7000,16000],khomsa:[500,1500,4000,9000,20000]};let rb=0;for(const k in OLD)for(let i=0;i<Math.min(5,S.gear[k]||0);i++)rb+=OLD[k][i];S.dt+=rb;delete S.gear;}
+for(const sl in S.load)if(!S.inv[S.load[sl]])S.load[sl]=DEF.load[sl];
+function myGear(){return {boots:S.load.boots,hat:S.load.hat,glasses:S.load.glasses,lv:S.inv};}
 function save(){try{localStorage.setItem('kv1',JSON.stringify(S));}catch(e){}}
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
 const monthId=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1);};
@@ -73,12 +76,24 @@ function modal(html,cb,lock,cls){closeModal();const d=document.createElement('di
 function closeModal(){const d=document.getElementById('mdl');if(d)d.remove();}
 function refreshHome(){if(!M&&ui.dataset.v==='home')home();}
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2400);}
-function paintCanvases(root){root.querySelectorAll('canvas[data-c]').forEach(c=>preview(c,c.dataset.c,CL(c.dataset.k||S.club||'ca'),c.dataset.g?S.gear:{},c.dataset.m||''));}
+function paintCanvases(root){root.querySelectorAll('canvas[data-c]').forEach(c=>{if(c.classList.contains('live'))return;preview(c,c.dataset.c,CL(c.dataset.k||S.club||'ca'),c.dataset.g?myGear():{},c.dataset.m||'');});root.querySelectorAll('canvas[data-item]').forEach(c=>itemIcon(c,EQ(c.dataset.item)));}
+function itemIcon(cnv,e){const d=Math.min(2,devicePixelRatio||1),w=cnv.clientWidth||80,h=cnv.clientHeight||80;cnv.width=w*d;cnv.height=h*d;const c=cnv.getContext('2d');c.scale(d,d);c.lineJoin='round';
+ if(e.slot==='boots'){const s=Math.min(w/80,h/50);drawBoot(c,w/2-6*s,h*.78,s,1,e,0);}
+ else if(!e.kind){c.font=(h*.5|0)+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.globalAlpha=.5;c.fillText('🚫',w/2,h/2);}
+ else{const r=Math.min(w,h)*.42;c.save();c.translate(w/2,e.slot==='hat'?h*.92:h*.62);if(e.slot==='hat')drawHat(c,e,r,Math.max(2,r*.085));else drawGlasses(c,e,r*1.3,0,Math.max(2,r*.1));c.restore();}}
+// personnages animés (accueil, vestiaire) : il jongle avec le ballon de la tête
+function liveLoop(){requestAnimationFrame(liveLoop);const now=Date.now();if(!LIVEON)return;document.querySelectorAll('canvas.live').forEach(cnv=>{const d=Math.min(2,devicePixelRatio||1),w=cnv.clientWidth,h=cnv.clientHeight;if(!w||!h)return;if(cnv.width!==Math.round(w*d)){cnv.width=Math.round(w*d);cnv.height=Math.round(h*d);}
+ const c=cnv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);const s=Math.min(w/100,h/150),gear=cnv.dataset.try?Object.assign(myGear(),JSON.parse(cnv.dataset.try)):myGear();
+ const ph=(now%1100)/1100,hop=Math.sin(ph*Math.PI),ch=CH(cnv.dataset.c),baseY=h-6*s;
+ drawPlayerArt(c,ch,CL(S.club||'ca'),gear,w/2,baseY,s,1,{lx:.2,ly:-.9,mouth:hop>.8?'open':'',bob:-hop*4,blink:(Math.floor(now/120))%30===0});
+ const r=34*s,hy=baseY-26*s-r*.92-hop*4*s,by=hy-r*1.35-hop*(h*.32);drawBall(c,w/2+r*.15,by,now*.006,13*s);
+ c.fillStyle='rgba(0,0,0,.2)';});}
+let LIVEON=true;requestAnimationFrame(liveLoop);
 function showUI(){ui.classList.remove('hide');setOrient('landscape');home();}
 let BGURL={};
 function homeBg(){const k=S.club||'ca';if(BGURL[k])return BGURL[k];const sc=mkScene({t:'stade',n:CL(k).st},CL(k),CL(k==='est'?'ca':'est'));const c=document.createElement('canvas');c.width=960;c.height=540;const x=c.getContext('2d');x.drawImage(sc.base,0,0);x.drawImage(sc.crowd[0],0,0);x.drawImage(sc.front,0,0);return BGURL[k]=c.toDataURL('image/jpeg',.7);}
 // ----- premier lancement : conditions, compte, club, démo -----
-function onboard(){ui.classList.remove('hide');setOrient('landscape');ui.innerHTML=`<div class="scr bgimg" style="background-image:url(${homeBg()})"></div>`;
+function onboard(){ui.classList.remove('hide');setOrient('landscape');setMenuScene();ui.innerHTML=`<div class="scr"></div>`;
  if(!S.cgu){welcome();return;}if(!S.acc){account();return;}if(!S.club){pickClub(true);return;}if(!S.tuto){demo();return;}home();}
 function welcome(){modal(`<div class="hdr">Bienvenue</div><div class="white"><p>En appuyant sur « Accepter », je confirme avoir lu et accepté les conditions d'utilisation et la politique de confidentialité de Koura Virage.</p><div class="row"><a data-a="priv">Politique de confidentialité</a><a data-a="cgu">Conditions générales</a></div></div><div class="row"><button class="bt g big" data-a="ok">Accepter</button></div>`,a=>{
  if(a==='ok'){S.cgu=1;save();closeModal();onboard();}else if(a==='priv'||a==='cgu')legal(()=>welcome());},true,'blue');}
@@ -98,26 +113,28 @@ function xpBar(){const need=XPL(S.lvl);return `<div class="lvl" data-a="lvl"><di
 function home(){seasonSync();missionsSync();ui.dataset.v='home';if(!S.cgu||!S.acc||!S.club){onboard();return;}tokSync();
  const club=CL(S.club),ch=CH(S.char),d=derbyNow(),div=S.ch.div,D=DIVS[div],nc=S.chests.length,mdone=S.mis.list.filter(m=>m.c).length;
  let toks='';for(let i=0;i<Math.max(MAXT,S.tok);i++)toks+=`<span class="tk ${i<S.tok?'':'off'}">⚽</span>`;
- ui.innerHTML=`<div class="scr bgimg" style="background-image:url(${homeBg()})"><div class="topbar">${xpBar()}
-  <div class="pill" data-a="shop:sp"><span class="ico">💵</span><b>${fmt(S.dt)}</b><span class="plus">+</span></div>
+ setMenuScene();ui.innerHTML=`<div class="scr"><div class="topbar">${xpBar()}
+  <div class="pill" data-a="shop:sp"><span class="ico">💵</span><b class="cnt" data-v="${S.dt}">${fmt(LASTDT==null?S.dt:LASTDT)}</b><span class="plus">+</span></div>
   <div class="pill" data-a="tok">${toks}${S.tok<MAXT?`<small id="tkt">${mmss(nextTok())}</small>`:''}<span class="plus">+</span></div>
   <div class="pill" data-a="table"><span class="ico">📣</span><b>${fmt(S.contrib)}</b></div><div class="sp"></div>
   <button class="rb" data-a="chests">🎁${nc?`<span class="badge">${nc}</span>`:''}</button><button class="rb" data-a="set">⚙️</button></div>
  <div class="hm">
   <div class="lcol"><button class="side" data-a="shop:sp"><span class="e">🛒</span>Boutique</button><button class="side" data-a="chests"><span class="e">🎁</span>Coffres${nc?`<span class="badge">${nc}</span>`:''}</button><button class="side" data-a="watch"><span class="e">📺</span>Regarde<br>et gagne</button></div>
-  <div class="ped" data-a="shop:chars"><canvas class="hero" data-c="${S.char}" data-g="1" data-m="full"></canvas><div class="podium"></div><div class="nplate">${esc(S.nick)}</div><div class="rar" style="background:${RCOL[ch.r]}">${ch.n}</div></div>
+  <div class="ped" data-a="shop:chars"><canvas class="hero live" data-c="${S.char}"></canvas><div class="podium"></div><div class="nplate">${esc(S.nick)}</div><div class="rar" style="background:${RCOL[ch.r]}">${ch.n}</div></div>
   <div class="rcol"><button class="big card cg" data-a="champ"><div class="vsart"><canvas data-c="hannibal" data-k="est"></canvas><span class="vsb">VS</span><canvas data-c="${S.char}"></canvas></div><div class="ct"><h3>Championnat</h3><span>Division ${div} • ${S.ch.played}/10 • ${S.ch.pts} pts</span></div>${S.ch.played===0?'<span class="badge">1</span>':''}</button>
    <div class="duo"><button class="card co" data-a="derby"><h4>🔥 ${d[2]}</h4><span>${CL(d[0]).s} – ${CL(d[1]).s} • points ×2</span></button><button class="card cp" data-a="table"><h4>📊 Classement</h4><span>${club.s} : ${rankOf(club.id)}e • ${MOIS[new Date().getMonth()]}</span></button></div></div></div>
  <div class="bottom"><button class="play" data-a="champ"><span class="wh">📯</span>JOUER</button>
   <button class="ib" data-a="shop:chars"><span class="e">👑</span>Personnages</button><button class="ib" data-a="shop:sp"><span class="e">⚡</span>Super pouvoirs</button><button class="ib" data-a="chests"><span class="e">📋</span>Missions${S.mis.list.length-mdone?`<span class="badge g">${S.mis.list.length-mdone}</span>`:''}</button>
-  <button class="ib" data-a="shop:gear"><span class="e">👟</span>Améliorer</button><button class="ib" data-a="quick"><span class="e">⚽</span>Match rapide</button><button class="ib" data-a="duo"><span class="e">🤝</span>Duel à 2</button><button class="ib" data-a="train"><span class="e">🎯</span>Entraînement</button></div>
+  <button class="ib" data-a="shop:gear"><span class="e">👟</span>Vestiaire</button><button class="ib" data-a="quick"><span class="e">⚽</span>Match rapide</button><button class="ib" data-a="duo"><span class="e">🤝</span>Duel à 2</button><button class="ib" data-a="train"><span class="e">🎯</span>Entraînement</button></div>
  <div class="ver">V${APP_VERSION} • Syphax Apps</div></div>`;
- paintCanvases(ui);
+ paintCanvases(ui);countUp();
  ui.onclick=e=>{const t=e.target.closest('[data-a]');if(!t)return;au();sfx('tap');const a=t.dataset.a;
   if(a.startsWith('shop:'))return shop(a.slice(5));
   const F={champ:champScreen,derby:derbyScreen,table:tableScreen,quick:quickScreen,duo:duoScreen,train:()=>startMatch(trainSetup()),chests:chestScreen,set:settings,tok:()=>tokScreen(),watch:watchEarn,lvl:levelInfo}[a];if(F)F();};
  checkDaily();}
 setInterval(()=>{const e=document.getElementById('tkt');if(e){tokSync();if(S.tok>=MAXT&&!M&&!document.getElementById('mdl'))home();else e.textContent=mmss(nextTok());}},1000);
+let LASTDT=null;
+function countUp(){const e=ui.querySelector('.cnt');if(!e)return;const to=+e.dataset.v,from=LASTDT==null?to:LASTDT;LASTDT=to;if(from===to)return;const t0=performance.now();sfx('coin');const st=()=>{const k=Math.min(1,(performance.now()-t0)/900);e.textContent=fmt(from+(to-from)*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(st);else{e.classList.add('bump');setTimeout(()=>e.classList.remove('bump'),400);}};st();}
 function rankOf(id){return clubTable().findIndex(r=>r.c.id===id)+1;}
 function levelInfo(){modal(`<div class="hdr">Niveau ${S.lvl}</div><div class="txt">Gagne de l'expérience à chaque match (victoire +100, nul +50, défaite +25).<br>Chaque niveau gagné = un <b class="y">coffre en argent</b>, tous les 5 niveaux = un <b class="y">coffre en or</b>.</div><div class="xpb wide"><i style="width:${Math.min(100,S.xp/XPL(S.lvl)*100)}%"></i><span>${fmt(S.xp)}/${fmt(XPL(S.lvl))}</span></div>`,null,false,'blue');}
 function watchEarn(){const left=ADMAX-(S.adDay===today()?S.adN:0);modal(`<div class="hdr">Regarde et gagne</div><div class="txt">Regarde une courte vidéo pour gagner <b class="y">60 DT</b>.<br><span class="sm">${left} vidéo(s) encore disponible(s) aujourd'hui.</span></div><div class="row"><button class="bt g" data-a="go" ${left>0?'':'disabled'}>▶ Regarder</button></div>`,a=>{if(a==='go')watchAd(()=>{rewardCard([{k:'dt',n:60}],()=>home());});},false,'blue');}
@@ -150,17 +167,29 @@ function chestScreen(){missionsSync();const ms=S.mis.list.map(m=>`<div class="mi
  const cc={};S.chests.forEach(c=>cc[c]=(cc[c]||0)+1);
  modal(`<div class="hdr">Missions du jour</div>${ms}<div class="txt sm">Chaque mission réussie en match classé = un coffre en argent. Nouvelles missions demain.</div><div class="row">${S.chests.length?`<button class="bt y" data-a="open">🎁 Ouvrir (${Object.entries(cc).map(([k,v])=>v+' '+CHN[k]).join(', ')})</button>`:'<div class="txt sm">Aucun coffre à ouvrir pour le moment.</div>'}</div>`,a=>{if(a==='open')openChest();},false,'blue');}
 // ----- boutique : personnages, super pouvoirs, améliorations -----
-function shop(tab){tab=tab||'chars';const T=`<div class="tabs"><button class="tab ${tab==='chars'?'on':''}" data-a="t:chars">👑 Personnages</button><button class="tab ${tab==='sp'?'on':''}" data-a="t:sp">⚡ Super pouvoirs</button><button class="tab ${tab==='gear'?'on':''}" data-a="t:gear">👟 Améliorer</button><span class="pill"><span class="ico">💵</span><b>${fmt(S.dt)}</b></span></div>`;let body='';
+let VST={slot:'boots',sel:null};
+function shop(tab){tab=tab||'chars';const T=`<div class="tabs"><button class="tab ${tab==='chars'?'on':''}" data-a="t:chars">👑 Personnages</button><button class="tab ${tab==='sp'?'on':''}" data-a="t:sp">⚡ Super pouvoirs</button><button class="tab ${tab==='gear'?'on':''}" data-a="t:gear">👟 Vestiaire</button><span class="pill"><span class="ico">💵</span><b>${fmt(S.dt)}</b></span></div>`;let body='';
  if(tab==='chars'){body=`<div class="cards">${CHARS.map(c=>{const own=S.own.includes(c.id),sel=S.char===c.id;return `<button class="pc ${sel?'on':''} ${own?'':'lock'}" data-a="h:${c.id}" style="--rc:${RCOL[c.r]}"><div class="rtag">${c.r}</div><canvas data-c="${c.id}" data-k="${c.l78?'ca':S.club}"></canvas><b>${c.n}</b><small>${c.sub}</small><div class="st3"><span>⚡${Math.round(c.spd*100)}</span><span>🦘${Math.round(c.jmp*100)}</span><span>🦶${Math.round(c.kp*100)}</span></div><div class="pp">${own?(sel?'✔ Sélectionné':'Choisir'):'💵 '+fmt(c.pr)}</div></button>`;}).join('')}</div><div class="txt sm">Les personnages s'obtiennent avec des dinars ou, très rarement, dans les coffres. Les légendes de 78 sont les plus difficiles à obtenir.</div>`;}
  else if(tab==='sp'){body=`<div class="txt sm">Équipe jusqu'à 3 super pouvoirs : ils sont en haut à gauche pendant le match et se rechargent à chaque match. Niveau = nombre d'utilisations par match.</div><div class="items">${Object.entries(SP).map(([id,s])=>{const lv=spLvl(id),eq=S.eq.includes(id),pr=Math.round(s.pr*(1+lv*1.5));
   return `<div class="it ${eq?'on':''}"><div class="ic" style="background:${s.c}">${s.e}</div><div class="iw"><b>${s.n}</b><i>${s.d}</i><div class="lv">${[1,2,3].map(i=>`<span class="${i<=lv?'on':''}"></span>`).join('')}</div><div class="row l">${lv<3?`<button class="bt y sm" data-a="b:${id}">${lv?'Niv. '+(lv+1):'Acheter'} • ${fmt(pr)} DT</button>`:''}${lv?`<button class="bt ${eq?'g':'s'} sm" data-a="e:${id}">${eq?'★ Équipé':'Équiper'}</button>`:''}</div></div></div>`;}).join('')}</div>`;}
- else{const gr=S.gear,st=stats(S.char,gr);body=`<div class="gearw"><div class="gprev"><canvas data-c="${S.char}" data-g="1" data-m="full"></canvas><div class="stats"><div>Vitesse<b>${Math.round(st.spd*100)}</b></div><div>Saut<b>${Math.round(st.jmp*100)}</b></div><div>Tir<b>${Math.round(st.kp*100)}</b></div><div>Résistance<b>${Math.round((2-st.res)*100)}</b></div></div></div><div class="items g2">${Object.entries(GEAR).map(([id,it])=>{const lv=gr[id];
-  return `<div class="it"><div class="ic" style="background:${GCOL[lv]||'#555'}">${it.e}</div><div class="iw"><b>${it.n} <span class="sm">niv. ${lv}/5</span></b><i>${it.d} • ${lv?it.t[lv-1]:'Aucun'}</i><div class="lv">${[1,2,3,4,5].map(i=>`<span class="${i<=lv?'on':''}"></span>`).join('')}</div>${lv<5?`<button class="bt y sm" data-a="g:${id}">${it.t[lv]} • ${fmt(it.pr[lv])} DT</button>`:'<i class="y">NIVEAU MAX</i>'}</div></div>`;}).join('')}</div></div>`;}
+ else{const sl=VST.slot,list=EQUIP.filter(e=>e.slot===sl);if(!EQ(VST.sel)||EQ(VST.sel).slot!==sl)VST.sel=S.load[sl];const e=EQ(VST.sel),own=S.inv[e.id],lv=own||1,eqd=S.load[sl]===e.id;
+  const cur=stats(S.char,myGear()),tryG=Object.assign(myGear(),{[sl]:e.id}),nxt=stats(S.char,tryG);
+  const bar=(lab,k,ic)=>{const a=Math.round(cur[k]*100),b=Math.round(nxt[k]*100),df=b-a;return `<div class="sbar"><span>${ic} ${lab}</span><div class="sb"><i style="width:${Math.min(100,(a-80)/70*100)}%"></i>${df>0?`<em style="left:${Math.min(100,(a-80)/70*100)}%;width:${Math.min(100,df/70*100)}%"></em>`:''}</div><b>${a}${df?`<small class="${df>0?'up':'dn'}">${df>0?'+':''}${df}</small>`:''}</b></div>`;};
+  const bon=Object.entries(e.b).map(([k,v])=>`${{kp:'Tir',spd:'Vitesse',jmp:'Saut',hd:'Tête'}[k]} +${Math.round(v*(1+.5*(lv-1)))}%`).join(' • ')||'Aucun bonus';
+  const upc=own&&lv<5&&e.pr?Math.round(e.pr*EQUP(lv)):0;
+  body=`<div class="vest"><div class="vprev"><canvas class="live" data-c="${S.char}" data-try='${JSON.stringify({[sl]:e.id})}'></canvas><div class="podium sm"></div><div class="sbars">${bar('Tir','kp','🦶')}${bar('Vitesse','spd','⚡')}${bar('Saut','jmp','🦘')}${bar('Tête','hd','🧠')}</div></div>
+  <div class="vright"><div class="slots">${Object.entries(SLOTS).map(([k,v])=>`<button class="slot ${k===sl?'on':''}" data-a="sl:${k}"><span>${v.e}</span>${v.n}</button>`).join('')}</div>
+  <div class="eqgrid">${list.map(x=>`<button class="eqc ${x.id===e.id?'sel':''} ${S.inv[x.id]?'':'lock'}" data-a="v:${x.id}" style="--rc:${RCOL[x.r]}"><canvas data-item="${x.id}"></canvas>${S.load[sl]===x.id?'<span class="eqb">✔</span>':''}${S.inv[x.id]&&x.pr?`<span class="lvb">${'★'.repeat(S.inv[x.id])}</span>`:''}${S.inv[x.id]?'':`<span class="prb">💵 ${fmt(x.pr)}</span>`}</button>`).join('')}</div>
+  <div class="vdet" style="--rc:${RCOL[e.r]}"><div><b>${e.n}</b><span class="rt">${e.r}</span>${own&&e.pr?`<span class="lvt">Niveau ${lv}/5</span>`:''}<div class="bon">${bon}</div></div><div class="row">${!own?`<button class="bt y" data-a="buy:${e.id}">Acheter • ${fmt(e.pr)} DT</button>`:eqd?'<span class="tagok">✔ Équipé</span>':`<button class="bt g" data-a="eq:${e.id}">Équiper</button>`}${upc?`<button class="bt" data-a="up:${e.id}">Améliorer • ${fmt(upc)} DT</button>`:''}</div></div></div></div>`;}
  modal(T+body,a=>{if(a.startsWith('t:'))return shop(a.slice(2));
   if(a.startsWith('b:')){const id=a.slice(2),lv=spLvl(id),pr=Math.round(SP[id].pr*(1+lv*1.5));if(S.dt<pr)return toast('Il te manque '+fmt(pr-S.dt)+' DT');S.dt-=pr;S.sp[id]=lv+1;if(!S.eq.includes(id)&&S.eq.length<3)S.eq.push(id);save();sfx('coin');shop('sp');}
   else if(a.startsWith('e:')){const id=a.slice(2);if(S.eq.includes(id))S.eq=S.eq.filter(x=>x!==id);else{if(S.eq.length>=3)return toast('3 super pouvoirs maximum : retire-en un');S.eq.push(id);}save();shop('sp');}
   else if(a.startsWith('h:')){const id=a.slice(2),c=CH(id);if(S.own.includes(id)){S.char=id;save();shop('chars');}else if(S.dt>=c.pr){S.dt-=c.pr;S.own.push(id);S.char=id;save();sfx('chest');rewardCard([{k:'char',id}],()=>shop('chars'));}else toast('Il te manque '+fmt(c.pr-S.dt)+' DT');}
-  else if(a.startsWith('g:')){const id=a.slice(2),lv=S.gear[id],pr=GEAR[id].pr[lv];if(S.dt<pr)return toast('Il te manque '+fmt(pr-S.dt)+' DT');S.dt-=pr;S.gear[id]=lv+1;save();sfx('coin');toast(GEAR[id].t[lv]+' !');shop('gear');}},false,'blue wide');}
+  else if(a.startsWith('sl:')){VST.slot=a.slice(3);VST.sel=S.load[VST.slot];shop('gear');}
+  else if(a.startsWith('v:')){VST.sel=a.slice(2);sfx('tap');shop('gear');}
+  else if(a.startsWith('eq:')){const e=EQ(a.slice(3));S.load[e.slot]=e.id;save();sfx('chest');toast(e.n+' équipé !');shop('gear');}
+  else if(a.startsWith('buy:')){const e=EQ(a.slice(4));if(S.dt<e.pr)return toast('Il te manque '+fmt(e.pr-S.dt)+' DT');S.dt-=e.pr;S.inv[e.id]=1;S.load[e.slot]=e.id;save();sfx('chest');toast(e.n+' acheté et équipé !');shop('gear');}
+  else if(a.startsWith('up:')){const e=EQ(a.slice(3)),lv=S.inv[e.id],c_=Math.round(e.pr*EQUP(lv));if(S.dt<c_)return toast('Il te manque '+fmt(c_-S.dt)+' DT');S.dt-=c_;S.inv[e.id]=lv+1;save();sfx('chest');toast(e.n+' niveau '+(lv+1)+' !');shop('gear');}},false,'blue wide');}
 function settings(){modal(`<div class="hdr">Paramètres</div><div class="row"><button class="bt ${S.snd?'g':'s'}" data-a="snd">Son : ${S.snd?'oui':'non'}</button><button class="bt ${S.vib?'g':'s'}" data-a="vib">Vibrations : ${S.vib?'oui':'non'}</button></div>
  <div class="row"><input id="nk2" maxlength="14" value="${esc(S.nick)}" style="width:40%"><button class="bt s" data-a="nick">Changer le pseudo</button></div>
  <div class="row"><button class="bt s" data-a="club">Changer de club</button><button class="bt s" data-a="help">Commandes</button><button class="bt s" data-a="demo">Match démo</button><button class="bt s" data-a="legal">Conditions</button>${Ads.ok?'<button class="bt s" data-a="consent">Confidentialité pub</button>':''}</div>
@@ -177,10 +206,11 @@ function tokScreen(cont){tokSync();const left=ADMAX-(S.adDay===today()?S.adN:0);
  const iv=setInterval(()=>{const e=document.getElementById('tk2');if(!e){clearInterval(iv);return;}tokSync();e.textContent=mmss(nextTok());},1000);}
 function needTok(go){tokSync();if(S.tok>0){go();return;}tokScreen(go);}
 // ----- modes de jeu -----
-function aiGear(d){const l=Math.min(5,Math.floor(d*5.5));return {shoes:l,band:Math.max(0,l-1),arm:l,khomsa:Math.max(0,l-2)};}
+function aiGear(d){const R=['commun','rare','épique','légendaire'],maxR=d<.35?0:d<.6?1:d<.85?2:3,lv=Math.max(1,Math.round(d*5)),g={lv:{}};
+ for(const sl of ['boots','hat','glasses']){const pool=EQUIP.filter(e=>e.slot===sl&&R.indexOf(e.r)<=maxR&&(e.kind||sl==='boots'));const e=pool.length&&Math.random()<.85?pick(pool):EQUIP.find(x=>x.slot===sl);g[sl]=e.id;g.lv[e.id]=lv;}return g;}
 function aiSps(d){const n=d<.3?0:d<.6?1:2;return Object.keys(SP).sort(()=>Math.random()-.5).slice(0,n);}
 function oppFor(div){const d=clamp(.2+(10-div)*.075+(Math.random()-.5)*.08,.15,.95);const cl=CLUBS[Math.random()*CLUBS.length|0];const pool=CHARS.filter(c=>c.pr<=1000+(10-div)*1400);return {name:pick(NICKS),club:cl.id,char:pick(pool).id,ai:d,lv:Math.max(1,S.lvl+Math.round((Math.random()-.5)*4))};}
-function me(o){return Object.assign({c1:S.char,k1:S.club,n1:S.nick,g1:S.gear,lv1:S.lvl},o);}
+function me(o){return Object.assign({c1:S.char,k1:S.club,n1:S.nick,g1:myGear(),lv1:S.lvl},o);}
 function champScreen(){const C=S.ch,D=DIVS[C.div];let lad='';for(let i=10;i>=1;i--)lad+=`<div class="ld ${i===C.div?'on':i>C.div?'done':''}">${i}</div>`;
  const max=Math.max(30,D.pr);const pct=v=>Math.min(100,v/max*100);let dots='';for(let i=0;i<10;i++){const r=C.res[i];dots+=`<div class="dot ${r?r.r:''}">${r?r.s:i+1}</div>`;}
  const goal=C.div===1?`Division 1 : <b class="y">24 pts</b> sur 10 matchs pour garder sa place et gagner le titre, sinon retour en Division 2.`:`Montée dès <b class="y">${D.pr} pts</b>${D.rl!=null?` • relégation sous <b class="r">${D.rl} pts</b> après 10 matchs`:' • pas de relégation en Division 10'}.`;
@@ -206,7 +236,7 @@ function quickScreen(){const diffs=['Facile','Moyen','Difficile','Légende'];con
 function trainSetup(){return me({mode:'train',cost:0,noVs:1,c2:pick(CHARS.slice(0,4)).id,k2:pick(CLUBS).id,n2:'Weld el 7ouma',ai2:.35,venue:pick(VAGUES),label:'Entraînement'});}
 function duoScreen(){let c2=pick(CLUBS.filter(c=>c.id!==S.club)).id,h2=pick(CHARS.filter(c=>!c.l78)).id;
  const render=()=>modal(`<div class="hdr">Duel à 2</div><div class="clubs">${CLUBS.map(c=>`<button class="cb ${c2===c.id?'on':''}" data-a="o:${c.id}">${shieldSVG(c)}<span>${c.s}</span></button>`).join('')}</div><div class="sel">${CHARS.filter(c=>!c.l78).map(c=>`<button class="opt sm ${h2===c.id?'on':''}" data-a="h:${c.id}">${c.n}</button>`).join('')}</div><div class="row"><button class="bt g big" data-a="go">Jouer (gratuit)</button></div>`,a=>{
-  if(a.startsWith('o:')){c2=a.slice(2);render();}else if(a.startsWith('h:')){h2=a.slice(2);render();}else if(a==='go'){closeModal();startMatch({mode:'duo',duo:1,noVs:1,cost:0,c1:S.char,k1:S.club,n1:'Joueur 1',g1:S.gear,c2:h2,k2:c2,n2:'Joueur 2',venue:pick([...VAGUES,{t:'stade',n:CL(S.club).st}]),label:'Duel à 2'});}},false,'blue');render();}
+  if(a.startsWith('o:')){c2=a.slice(2);render();}else if(a.startsWith('h:')){h2=a.slice(2);render();}else if(a==='go'){closeModal();startMatch({mode:'duo',duo:1,noVs:1,cost:0,c1:S.char,k1:S.club,n1:'Joueur 1',g1:myGear(),c2:h2,k2:c2,n2:'Joueur 2',venue:pick([...VAGUES,{t:'stade',n:CL(S.club).st}]),label:'Duel à 2'});}},false,'blue');render();}
 function launch(o){if(o.cost&&!spendTok()){tokScreen();return;}closeModal();startMatch(o);}
 function startMatch(o){ui.classList.add('hide');closeModal();au();newMatch(o);}
 // ----- écran de résultat -----

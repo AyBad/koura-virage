@@ -13,7 +13,7 @@ VERSION : APP_VERSION dans www/index.html (affichée en bas à gauche du menu).
 Chaque modification incrémente la version ; l'APK se met à jour sans désinstaller (signature fixe).
 
 STRUCTURE (www/) :
-- data.js : clubs, derbies, personnages (figures historiques + légendes 78), super pouvoirs, améliorations, missions
+- data.js : clubs, derbies, personnages (figures historiques + légendes 78), super pouvoirs, vestiaire (EQUIP : chaussures, chapeaux, lunettes), missions
 - art.js  : dessin cartoon (têtes, chaussures, supporters, stades, buts, boutons)
 - game.js : moteur de match (physique, IA, pouvoirs, écran VS, intro)
 - ui.js   : sauvegarde, sons, pubs, écrans (accueil, boutique, coffres, résultats)
