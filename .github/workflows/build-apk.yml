@@ -3,7 +3,7 @@ name: Build APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feature/kawarjia-match-animations]
 
 permissions:
   contents: write
@@ -121,11 +121,11 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: koura-virage-apk
+          name: kawarjia-test-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Publier l'APK (lien de téléchargement fixe)
-        if: github.ref_name != 'test'
+        if: github.ref_name == 'main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -140,3 +140,19 @@ jobs:
           # garder les 10 dernières versions
           gh release list --limit 100 --json tagName,createdAt -q '[.[] | select(.tagName != "test")] | sort_by(.createdAt) | reverse | .[10:] | .[].tagName' |
             while read -r t; do gh release delete "$t" --yes --cleanup-tag; done
+
+      - name: Publier APK de test Kawarjia (lien direct)
+        if: github.ref_name == 'feature/kawarjia-match-animations'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk kawarjia-test.apk
+          TAG="kawarjia-test"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" kawarjia-test.apk --clobber
+          else
+            gh release create "$TAG" kawarjia-test.apk \
+              --target "${{ github.sha }}" --prerelease \
+              --title "Kawarjia - APK de test Android" \
+              --notes "Version expérimentale des animations et du rendu 2.5D. Branche feature/kawarjia-match-animations."
+          fi
