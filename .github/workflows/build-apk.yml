@@ -115,6 +115,13 @@ jobs:
           cp kawarjia-reboot/index.html www/index.html
           sed -i 's|../www/img/|img/|g' www/index.html
 
+      - name: Forcer le mode paysage Android (Kawarjia Reboot)
+        if: github.ref_name == 'feature/kawarjia-reboot'
+        run: |
+          MANIFEST=android/app/src/main/AndroidManifest.xml
+          sed -i 's|android:name=".MainActivity"|android:name=".MainActivity" android:screenOrientation="landscape"|' "$MANIFEST"
+          grep -q 'android:screenOrientation="landscape"' "$MANIFEST"
+
       - name: Copier le jeu
         run: npx cap sync android
 
