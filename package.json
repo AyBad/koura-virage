@@ -1,6 +1,6 @@
 {
   "name": "koura-virage",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@capacitor-community/admob": "^6.2.0",

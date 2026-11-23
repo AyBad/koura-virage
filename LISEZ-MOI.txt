@@ -25,3 +25,13 @@ et const ADMOB dans www/index.html (testing:false).
 
 EN LIGNE : en V0.1, les adversaires du championnat et le classement des clubs sont simulés
 sur le téléphone. Le vrai multijoueur et le classement partagé nécessitent un serveur (Supabase).
+
+
+=== V1.0 : nouveau projet (novembre 2026) ===
+Le jeu a été réécrit entièrement avec le moteur graphique PixiJS (WebGL) :
+- www/lib/ : PixiJS 7.4.2 et pixi-filters 5.3.0 (fichiers locaux, aucun téléchargement)
+- www/data.js : personnages, chaussures, version (APP_VERSION)
+- www/game.js : match (physique, animation, effets, caméra, IA, démo guidée)
+- www/ui.js : menus (titre, accueil, personnages, chaussures, VS, résultat), sauvegarde, sons
+- www/img/ : illustrations (têtes à 4 expressions, chaussures, décors peints, boutons)
+L'ancienne version (V0.8) est conservée dans l'étiquette git « ancien-v0.8 ».
