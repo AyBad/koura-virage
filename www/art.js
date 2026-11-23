@@ -129,7 +129,7 @@ function drawCollar(c,x,y,r,face,club,l78){c.save();c.translate(x,y);c.scale(fac
 // grosse chaussure
 function bootModel(m){if(!m)return EQ('b_base');if(typeof m==='string')return {c1:m,c2:'#fff',so:'#f4f4f4',pat:'eclair'};return m;}
 function drawBoot(c,x,y,s,face,model,ang){const m=bootModel(model);const bi=m&&m.id&&EQI(m.id);
- if(bi){const w=80*s,h=w*bi.naturalHeight/bi.naturalWidth;c.save();c.translate(x-face*24*s,y);c.scale(face,1);c.rotate(-(ang||0));c.drawImage(bi,-8*s,4*s-h,w,h);c.restore();return;}
+ if(bi){const w=80*s,h=w*bi.naturalHeight/bi.naturalWidth;c.save();c.translate(x+face*24*s,y);c.scale(-face,1);c.rotate(ang||0);c.drawImage(bi,-w+8*s,4*s-h,w,h);c.restore();return;}
  c.save();c.translate(x-face*24*s,y);c.scale(face,1);c.rotate(-(ang||0));c.lineJoin='round';c.lineCap='round';const lw=Math.max(2,3*s);
  c.beginPath();c.moveTo(-4*s,-2*s);c.lineTo(58*s,-2*s);c.quadraticCurveTo(67*s,-2*s,64*s,-10*s);c.lineTo(-6*s,-8*s);c.closePath();fillStroke(c,m.so,lw);
  c.fillStyle='#2a2a2a';for(let i=0;i<4;i++){c.beginPath();rrc(c,(4+i*15)*s,-1*s,6*s,5*s,1.5*s);c.fill();}
@@ -355,7 +355,9 @@ function drawGoalBack(c,side,gt,gw,wob,t){const d=side?-1:1,mouth=side?DW-gw:gw,
 function drawGoalFront(c,side,gt,gw,col,wob,t){const d=side?-1:1,mouth=side?DW-gw:gw,back=side?DW+40:-40;c.save();
  c.strokeStyle='#ffffffa0';c.lineWidth=1.3;netMesh(c,[mouth,gt],[mouth-d*GD.dx,gt-GD.dy],[mouth-d*GD.dx,GY-GD.dy],[mouth,GY],2,9,wob*.4,t);
  c.strokeStyle='#ffffff90';netMesh(c,[back,gt],[mouth-d*GD.dx,gt-GD.dy],[mouth,gt],[back,gt+8],4,2,0,t);
- postLine(c,[[mouth,GY+3],[mouth,gt],[back,gt+4]],10,col||'#ffffff');postLine(c,[[mouth,gt],[mouth-d*GD.dx,gt-GD.dy]],8,col||'#ffffff');
+ postLine(c,[[mouth,GY+3],[mouth,gt],[back,gt+4]],12,col||'#ffffff');postLine(c,[[mouth,gt],[mouth-d*GD.dx,gt-GD.dy]],9,col||'#ffffff');
+  // Reflet métallique et épaisseur des montants pour des cages plus lisibles.
+  c.save();c.globalAlpha=.65;c.strokeStyle='#ffffff';c.lineWidth=2;c.beginPath();c.moveTo(mouth-d*3,GY);c.lineTo(mouth-d*3,gt+4);c.lineTo(back,gt+4);c.stroke();c.restore();
  c.fillStyle=OUT;c.beginPath();c.ellipse(mouth,GY+3,9,4,0,0,7);c.fill();c.restore();}
 
 loadHeads(['bey','chebbi','haddad','aziza','ibnk','kahena','jugurtha','hamilcar','elissa','hannibal','l78gk','l78dh','l78ag','l78ka','l78la']);
