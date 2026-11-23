@@ -209,7 +209,7 @@ function draw(al){g.setTransform(1,0,0,1,0,0);g.fillStyle='#101320';g.fillRect(0
  const sh=M.shake>.5?(Math.random()-.5)*M.shake:0;g.setTransform(DPR*SC,0,0,DPR*SC,DPR*(OX+sh),DPR*(OY+sh*.6));
  if(OX>1||OY>1){const ex=OX/SC+4,ey=OY/SC+4;for(const [y0,y1,cc] of SCN.bands){g.fillStyle=cc;g.fillRect(-ex,y0-(y0===0?ey:0),W+ex*2,y1-y0+(y0===0?ey:0)+(y1===H?ey:0));}}
  g.save();if(M.zoom){const k=Math.sin(Math.min(1,(150-M.zoom.t)/20)*Math.PI/2)*Math.min(1,M.zoom.t/30),z=1+.14*k;g.translate(M.zoom.x,M.zoom.y);g.scale(z,z);g.translate(-M.zoom.x,-M.zoom.y);}
- const now=Date.now(),fr=(M.state==='goal'?Math.floor(now/110):Math.floor(now/420))%2;g.drawImage(SCN.full[fr],-EX,0);drawLive(now,M.V,M.state==='goal');
+ const now=Date.now(),fr=(M.state==='goal'?Math.floor(now/110):Math.floor(now/420))%2;g.drawImage(SCN.full[fr],-EX,0);drawLive(now,M.V,M.state==='goal');drawStadiumAtmosphere(now);
  goalSprite(0,gtop(0),'b');goalSprite(1,gtop(1),'b');
  for(const w of M.walls){const x0=w.side?W-GW-34:GW+6,top=gtop(w.side)-10;g.beginPath();rrc(g,x0,top,28,GY-top,10);g.fillStyle='#e8b86a';g.fill();g.lineWidth=3;g.strokeStyle=OUT;g.stroke();g.fillStyle='#7ab648';g.fillRect(x0+3,top+30,22,10);g.fillStyle='#d23b2b';g.fillRect(x0+3,top+65,22,8);g.fillStyle='#f2e3a0';g.fillRect(x0+3,top+100,22,10);}
  if(M.V.t==='stade')drawStadiumLight(now);
@@ -243,6 +243,8 @@ function draw(al){g.setTransform(1,0,0,1,0,0);g.fillStyle='#101320';g.fillRect(0
   drawBtn(bb,held(side,k),false);}
  if(M.chatOpen){g.fillStyle='#000a';g.fillRect(0,0,W,H);for(const r of chatRects()){g.beginPath();rrc(g,r.x,r.y,r.w,r.h,14);g.fillStyle='#fff';g.fill();g.lineWidth=4;g.strokeStyle=OUT;g.stroke();g.textAlign='center';g.font='19px '+FONT;g.fillStyle=OUT;g.fillText(r.t,r.x+r.w/2,r.y+29);}g.textAlign='left';textOut(g,'Choisis un message :',60,105,22,'#fff',OUT,4);}
  for(const [o,x,y] of sv){o.x=x;o.y=y;}}
+// Atmosphère de match : halos des projecteurs et bandeaux de lumière à faible coût.
+function drawStadiumAtmosphere(now){if(M.V.t!=='stade')return;g.save();g.globalCompositeOperation='screen';for(const x of [95,W-95]){const pulse=.65+.35*Math.sin(now*.0018+x);const halo=g.createRadialGradient(x,20,3,x,20,105);halo.addColorStop(0,'rgba(255,252,219,'+(.34*pulse)+')');halo.addColorStop(.32,'rgba(216,238,255,'+(.10*pulse)+')');halo.addColorStop(1,'rgba(216,238,255,0)');g.fillStyle=halo;g.fillRect(x-105,-85,210,210);}g.restore();}
 // Éclairage de stade 2.5D, sans moteur 3D.
 function drawStadiumLight(now){g.save();g.globalCompositeOperation='screen';const t=now*.00045;for(const [x,dir] of [[95,1],[W-95,-1]]){const drift=Math.sin(t+(dir>0?0:1.8))*25;const beam=g.createLinearGradient(x,12,x+dir*230+drift,330);beam.addColorStop(0,'rgba(255,250,210,.19)');beam.addColorStop(1,'rgba(255,250,210,0)');g.fillStyle=beam;g.beginPath();g.moveTo(x-18,0);g.lineTo(x+18,0);g.lineTo(x+dir*290+drift,342);g.lineTo(x+dir*90+drift,342);g.closePath();g.fill();}g.restore();}
 // ----- décor vivant -----
