@@ -2,16 +2,16 @@
 function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
 const DEF={cgu:0,acc:0,nick:'',club:null,char:'bey',own:['bey'],tok:MAXT,tokT:Date.now(),dt:300,lvl:1,xp:0,snd:1,vib:1,
  ch:{div:10,played:0,pts:0,res:[],best:10,titles:0,seasons:0},cs:'',contrib:0,stats:{w:0,d:0,l:0,gf:0,ga:0},lastDay:'',streak:0,adDay:'',adN:0,
- sp:{harissa:1},eq:['harissa'],inv:{b_base:1,h_none:1,g_none:1},load:{boots:'b_base',hat:'h_none',glasses:'g_none'},chests:[],mis:{day:'',list:[]},tuto:0,form:[]};
+ sp:{harissa:1},eq:['harissa'],inv:{b_base:1,h_none:1,g_none:1,s_none:1,ba_cl:1,c_flag:1},load:{boots:'b_base',hat:'h_none',glasses:'g_none',scarf:'s_none',ball:'ba_cl',celeb:'c_flag'},clv:{},chests:[],mis:{day:'',list:[]},tuto:0,form:[]};
 let S;try{S=Object.assign({},DEF,JSON.parse(localStorage.getItem('kv1')||'{}'));}catch(e){S=Object.assign({},DEF);}
-['ch','stats','mis','inv','load'].forEach(k=>S[k]=Object.assign({},DEF[k],S[k]));if(!S.sp)S.sp={harissa:1};if(!Array.isArray(S.eq))S.eq=['harissa'];if(!Array.isArray(S.chests))S.chests=[];if(!Array.isArray(S.form))S.form=[];
+['ch','stats','mis','inv','load','clv'].forEach(k=>S[k]=Object.assign({},DEF[k],S[k]));if(!S.sp)S.sp={harissa:1};if(!Array.isArray(S.eq))S.eq=['harissa'];if(!Array.isArray(S.chests))S.chests=[];if(!Array.isArray(S.form))S.form=[];
 if(S.coins!=null){S.dt=(S.dt||0)+S.coins;delete S.coins;if(S.club)S.acc=1;}
 if(S.acc)S.cgu=1;
 S.own=(S.own||[]).filter(id=>CHARS.some(c=>c.id===id));if(!S.own.includes('bey'))S.own.unshift('bey');if(!S.own.includes(S.char))S.char='bey';
 // ancienne amélioration par niveaux : remboursée en dinars
 if(S.gear){const OLD={shoes:[400,1200,3500,8000,18000],band:[300,1000,3000,7000,16000],arm:[300,1000,3000,7000,16000],khomsa:[500,1500,4000,9000,20000]};let rb=0;for(const k in OLD)for(let i=0;i<Math.min(5,S.gear[k]||0);i++)rb+=OLD[k][i];S.dt+=rb;delete S.gear;}
 for(const sl in S.load)if(!S.inv[S.load[sl]])S.load[sl]=DEF.load[sl];
-function myGear(){return {boots:S.load.boots,hat:S.load.hat,glasses:S.load.glasses,lv:S.inv};}
+function myGear(){const g={lv:S.inv,clv:S.clv};for(const sl of GSLOTS)g[sl]=S.load[sl];return g;}
 function save(){try{localStorage.setItem('kv1',JSON.stringify(S));}catch(e){}}
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();};
 const monthId=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1);};
@@ -78,6 +78,9 @@ function refreshHome(){if(!M&&ui.dataset.v==='home')home();}
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2400);}
 function paintCanvases(root){root.querySelectorAll('canvas[data-c]').forEach(c=>{if(c.classList.contains('live'))return;preview(c,c.dataset.c,CL(c.dataset.k||S.club||'ca'),c.dataset.g?myGear():{},c.dataset.m||'');});root.querySelectorAll('canvas[data-item]').forEach(c=>itemIcon(c,EQ(c.dataset.item)));}
 function itemIcon(cnv,e){const d=Math.min(2,devicePixelRatio||1),w=cnv.clientWidth||80,h=cnv.clientHeight||80;cnv.width=w*d;cnv.height=h*d;const c=cnv.getContext('2d');c.scale(d,d);c.lineJoin='round';
+ if(e.slot==='ball'){const r=Math.min(w,h)*.3;drawBall(c,w/2,h/2,.3,r,e.kind);return;}
+ if(e.slot==='celeb'){const s=Math.min(w,h)/80;drawCeleb(c,e.kind,w/2,h*.55,s,600);return;}
+ if(e.slot==='scarf'&&e.kind){const r=Math.min(w,h)*.42;drawScarf(c,e,w/2+r*.25,h*.38,r,1,0);return;}
  if(e.slot==='boots'){const s=Math.min(w/80,h/50);drawBoot(c,w/2-6*s,h*.78,s,1,e,0);}
  else if(!e.kind){c.font=(h*.5|0)+'px sans-serif';c.textAlign='center';c.textBaseline='middle';c.globalAlpha=.5;c.fillText('🚫',w/2,h/2);}
  else{const r=Math.min(w,h)*.42;c.save();c.translate(w/2,e.slot==='hat'?h*.92:h*.62);if(e.slot==='hat')drawHat(c,e,r,Math.max(2,r*.085));else drawGlasses(c,e,r*1.3,0,Math.max(2,r*.1));c.restore();}}
@@ -85,8 +88,9 @@ function itemIcon(cnv,e){const d=Math.min(2,devicePixelRatio||1),w=cnv.clientWid
 function liveLoop(){requestAnimationFrame(liveLoop);const now=Date.now();if(!LIVEON)return;document.querySelectorAll('canvas.live').forEach(cnv=>{const d=Math.min(2,devicePixelRatio||1),w=cnv.clientWidth,h=cnv.clientHeight;if(!w||!h)return;if(cnv.width!==Math.round(w*d)){cnv.width=Math.round(w*d);cnv.height=Math.round(h*d);}
  const c=cnv.getContext('2d');c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);const s=Math.min(w/100,h/150),gear=cnv.dataset.try?Object.assign(myGear(),JSON.parse(cnv.dataset.try)):myGear();
  const ph=(now%1100)/1100,hop=Math.sin(ph*Math.PI),ch=CH(cnv.dataset.c),baseY=h-6*s;
- drawPlayerArt(c,ch,CL(S.club||'ca'),gear,w/2,baseY,s,1,{lx:.2,ly:-.9,mouth:hop>.8?'open':'',bob:-hop*4,blink:(Math.floor(now/120))%30===0});
- const r=34*s,hy=baseY-26*s-r*.92-hop*4*s,by=hy-r*1.35-hop*(h*.32);drawBall(c,w/2+r*.15,by,now*.006,13*s);
+ drawPlayerArt(c,ch,CL(S.club||'ca'),gear,w/2,baseY,s,1,{lx:.2,ly:-.9,mouth:hop>.8?'open':'',bob:-hop*4,blink:(Math.floor(now/120))%30===0,aura:(gear.clv&&gear.clv[ch.id])||1});
+ const r=34*s,hy=baseY-26*s-r*.92-hop*4*s,by=hy-r*1.35-hop*(h*.32);drawBall(c,w/2+r*.15,by,now*.006,13*s,(EQ(gear.ball)||{}).kind);
+ if(cnv.dataset.cel){const ce=EQ(gear.celeb);if(ce&&ce.kind)drawCeleb(c,ce.kind,w/2+r*1.45,hy-r*.6,s*.9,now);}
  c.fillStyle='rgba(0,0,0,.2)';});}
 let LIVEON=true;requestAnimationFrame(liveLoop);
 function showUI(){ui.classList.remove('hide');setOrient('landscape');home();}
@@ -166,12 +170,16 @@ function openChest(){if(!S.chests.length){chestScreen();return;}const type=S.che
 function chestScreen(){missionsSync();const ms=S.mis.list.map(m=>`<div class="mis ${m.c?'ok':''}"><span class="mi">${m.c?'✅':'🎯'}</span><div class="mt"><b>${m.t}</b><div class="xpb"><i style="width:${m.p/m.n*100}%"></i><span>${m.p}/${m.n}</span></div></div><span class="mr">🎁</span></div>`).join('');
  const cc={};S.chests.forEach(c=>cc[c]=(cc[c]||0)+1);
  modal(`<div class="hdr">Missions du jour</div>${ms}<div class="txt sm">Chaque mission réussie en match classé = un coffre en argent. Nouvelles missions demain.</div><div class="row">${S.chests.length?`<button class="bt y" data-a="open">🎁 Ouvrir (${Object.entries(cc).map(([k,v])=>v+' '+CHN[k]).join(', ')})</button>`:'<div class="txt sm">Aucun coffre à ouvrir pour le moment.</div>'}</div>`,a=>{if(a==='open')openChest();},false,'blue');}
+// ----- animation de montée de niveau (fond rouge, flèches, flash blanc, étincelles) -----
+function levelUp(chId,lv,done){closeModal();const d=document.createElement('div');d.className='lvup';d.innerHTML=`<div class="lvar"></div><div class="lvhero"><canvas class="live" data-c="${chId}"></canvas><div class="lvsp"></div></div><div class="lvrib">Niveau <b>${lv}</b></div><div class="lvtxt">${CH(chId).n} évolue ! +${CLVB[lv-1]}% sur toutes ses stats</div>`;document.body.appendChild(d);sfx('chest');
+ setTimeout(()=>{d.classList.add('flash');sfx('goal');vib(60);},900);setTimeout(()=>d.classList.add('done'),1500);
+ const end=()=>{d.remove();done&&done();};setTimeout(()=>d.addEventListener('click',end),1500);setTimeout(()=>{if(d.isConnected)end();},4200);}
 // ----- vestiaire plein écran (style Head Ball 2) : personnage au centre, stats à droite, objets en bas -----
-const VTABS={char:{n:'Personnages',e:'👤'},boots:{n:'Chaussures',e:'👟'},hat:{n:'Chapeaux',e:'🎩'},glasses:{n:'Lunettes',e:'🕶️'}};
+const VTABS=Object.assign({char:{n:'Personnages',e:'👤'}},SLOTS);
 function vest(slot){if(slot)VST.slot=slot;const sl=VST.slot,isC=sl==='char';
  const list=isC?CHARS:EQUIP.filter(e=>e.slot===sl);
  if(isC){if(!CHARS.some(c=>c.id===VST.sel))VST.sel=S.char;}else if(!EQ(VST.sel)||EQ(VST.sel).slot!==sl)VST.sel=S.load[sl];
- const it=isC?CH(VST.sel):EQ(VST.sel),own=isC?S.own.includes(it.id):!!S.inv[it.id],lv=isC?1:(S.inv[it.id]||1),eqd=isC?S.char===it.id:S.load[sl]===it.id;
+ const it=isC?CH(VST.sel):EQ(VST.sel),own=isC?S.own.includes(it.id):!!S.inv[it.id],lv=isC?(S.clv[it.id]||1):(S.inv[it.id]||1),eqd=isC?S.char===it.id:S.load[sl]===it.id;
  const chId=isC?it.id:S.char,tryG=isC?myGear():Object.assign(myGear(),{[sl]:it.id}),cur=stats(S.char,myGear()),nxt=stats(chId,tryG);
  const pw=o=>((o.kp+o.spd+o.jmp+o.hd)/4*6-1).toFixed(1).replace('.',',');
  const bar=(lab,k,ic,col)=>{const a=Math.round(cur[k]*100),b=Math.round(nxt[k]*100),df=b-a,wa=Math.max(4,Math.min(100,(Math.min(a,b)-70)/80*100)),wd=Math.min(100-wa,Math.abs(df)/80*100);
@@ -180,14 +188,14 @@ function vest(slot){if(slot)VST.slot=slot;const sl=VST.slot,isC=sl==='char';
  const upc=!isC&&own&&lv<5&&it.pr?Math.round(it.pr*EQUP(lv)):0;
  const icon=isC?`<canvas data-c="${it.id}" data-k="${it.l78?'ca':S.club}"></canvas>`:`<canvas data-item="${it.id}"></canvas>`;
  const left=`<div class="vcard" style="--rc:${RCOL[it.r]}"><div class="vstack"><span></span><span></span><div>${icon}</div></div>
-  ${isC?`<div class="vlv">${own?'Débloqué':'Verrouillé'}</div>`:it.pr?`<div class="vlv">${own?'★'.repeat(lv)+'☆'.repeat(5-lv)+` <small>Niv. ${lv}/5</small>`:'Niveau max 5'}</div>`:''}
+  ${isC?`<div class="vlv">${own?'★'.repeat(lv)+'☆'.repeat(CLVMAX-lv)+` <small>Évolution ${lv}/${CLVMAX}</small>`:'Verrouillé'}</div>${own&&lv<CLVMAX?`<button class="bt g vup" data-a="evo:${it.id}">✨ Évoluer<small>💵 ${fmt(CLVC(it,lv))} • +${CLVB[lv]}% partout</small></button>`:own?'<div class="vmax">ÉVOLUTION MAX</div>':''}`:it.pr?`<div class="vlv">${own?'★'.repeat(lv)+'☆'.repeat(5-lv)+` <small>Niv. ${lv}/5</small>`:'Niveau max 5'}</div>`:''}
   ${upc?`<button class="bt g vup" data-a="up:${it.id}">⬆ Améliorer<small>💵 ${fmt(upc)}</small></button>`:(!isC&&own&&lv>=5&&it.pr?'<div class="vmax">NIVEAU MAX</div>':'')}</div>`;
  const main=!own?`<button class="bt y vgo" data-a="buy:${it.id}">Acheter • 💵 ${fmt(it.pr)}</button>`:eqd?'<div class="vgo done">✔ Équipé</div>':`<button class="bt o vgo" data-a="eq:${it.id}">${isC?'Choisir':'Équiper'}</button>`;
  const cards=list.map(x=>{const o=isC?S.own.includes(x.id):!!S.inv[x.id],q=isC?S.char===x.id:S.load[sl]===x.id;
   return `<button class="vc ${x.id===it.id?'sel':''} ${o?'':'lock'}" data-a="v:${x.id}" style="--rc:${RCOL[x.r]}">${isC?`<canvas data-c="${x.id}" data-k="${x.l78?'ca':S.club}"></canvas>`:`<canvas data-item="${x.id}"></canvas>`}${q?'<span class="chk">✔</span>':''}${!o?`<span class="vpr">💵 ${fmt(x.pr)}</span>`:(!isC&&x.pr?`<span class="vst">${'★'.repeat(S.inv[x.id])}</span>`:'')}<span class="vr">${x.r}</span></button>`;}).join('');
  const html=`<div class="vbeam b1"></div><div class="vbeam b2"></div><div class="vbeam b3"></div>
  <div class="vhead"><div class="vname">${it.n}</div><div class="vsub">${bon}</div></div>
- <div class="vmid">${left}<div class="vhero"><canvas class="live" data-c="${chId}" data-try='${JSON.stringify(isC?{}:{[sl]:it.id})}'></canvas><div class="vspot"></div>${main}</div>
+ <div class="vmid">${left}<div class="vhero"><canvas class="live" data-c="${chId}" data-try='${JSON.stringify(isC?{}:{[sl]:it.id})}'${sl==='celeb'?' data-cel="1"':''}></canvas><div class="vspot"></div>${main}</div>
   <div class="vstats"><div class="vpw">⚡ Puissance : <b>${pw(nxt)}</b>${pw(nxt)!==pw(cur)?`<small class="${nxt.kp+nxt.spd+nxt.jmp+nxt.hd>cur.kp+cur.spd+cur.jmp+cur.hd?'up':'dn'}">(${pw(cur)})</small>`:''}</div>${bar('Vitesse','spd','⚡','#2c8cf0')}${bar('Saut','jmp','🦘','#3fae1a')}${bar('Tir','kp','🦶','#ff6a00')}${bar('Tête','hd','🧠','#a64df0')}</div></div>
  <div class="vtabs">${Object.entries(VTABS).map(([k,v])=>`<button class="vt ${k===sl?'on':''}" data-a="sl:${k}"><span>${v.e}</span><i>${v.n}</i></button>`).join('')}<span class="pill vdt"><span class="ico">💵</span><b>${fmt(S.dt)}</b></span></div>
  <div class="vstrip">${cards}</div>`;
@@ -197,6 +205,7 @@ function vest(slot){if(slot)VST.slot=slot;const sl=VST.slot,isC=sl==='char';
   else if(a.startsWith('eq:')){const id=a.slice(3);if(isC){S.char=id;toast(CH(id).n+' choisi !');}else{const e=EQ(id);S.load[e.slot]=e.id;toast(e.n+' équipé !');}save();sfx('chest');vest();}
   else if(a.startsWith('buy:')){const id=a.slice(4);if(isC){const c=CH(id);if(S.dt<c.pr)return toast('Il te manque '+fmt(c.pr-S.dt)+' DT');S.dt-=c.pr;S.own.push(id);S.char=id;save();sfx('chest');rewardCard([{k:'char',id}],()=>vest());return;}
    const e=EQ(id);if(S.dt<e.pr)return toast('Il te manque '+fmt(e.pr-S.dt)+' DT');S.dt-=e.pr;S.inv[e.id]=1;S.load[e.slot]=e.id;save();sfx('chest');toast(e.n+' acheté et équipé !');vest();}
+  else if(a.startsWith('evo:')){const c=CH(a.slice(4)),l=S.clv[c.id]||1,co=CLVC(c,l);if(l>=CLVMAX)return;if(S.dt<co)return toast('Il te manque '+fmt(co-S.dt)+' DT');S.dt-=co;S.clv[c.id]=l+1;save();levelUp(c.id,l+1,()=>vest());}
   else if(a.startsWith('up:')){const e=EQ(a.slice(3)),l=S.inv[e.id],c_=Math.round(e.pr*EQUP(l));if(S.dt<c_)return toast('Il te manque '+fmt(c_-S.dt)+' DT');S.dt-=c_;S.inv[e.id]=l+1;save();sfx('chest');toast(e.n+' niveau '+(l+1)+' !');vest();}
  },false,'vst');
  const s=d.querySelector('.vc.sel');if(s)s.scrollIntoView({inline:'center',block:'nearest'});}
@@ -240,8 +249,8 @@ function tokScreen(cont){tokSync();const left=ADMAX-(S.adDay===today()?S.adN:0);
  const iv=setInterval(()=>{const e=document.getElementById('tk2');if(!e){clearInterval(iv);return;}tokSync();e.textContent=mmss(nextTok());},1000);}
 function needTok(go){tokSync();if(S.tok>0){go();return;}tokScreen(go);}
 // ----- modes de jeu -----
-function aiGear(d){const R=['commun','rare','épique','légendaire'],maxR=d<.35?0:d<.6?1:d<.85?2:3,lv=Math.max(1,Math.round(d*5)),g={lv:{}};
- for(const sl of ['boots','hat','glasses']){const pool=EQUIP.filter(e=>e.slot===sl&&R.indexOf(e.r)<=maxR&&(e.kind||sl==='boots'));const e=pool.length&&Math.random()<.85?pick(pool):EQUIP.find(x=>x.slot===sl);g[sl]=e.id;g.lv[e.id]=lv;}return g;}
+function aiGear(d){const R=['commun','rare','épique','légendaire'],maxR=d<.35?0:d<.6?1:d<.85?2:3,lv=Math.max(1,Math.round(d*5)),g={lv:{},clv:Object.fromEntries(CHARS.map(c=>[c.id,d<.5?1:d<.8?2:3]))};
+ for(const sl of GSLOTS){const pool=EQUIP.filter(e=>e.slot===sl&&R.indexOf(e.r)<=maxR&&(e.kind||sl==='boots'));const e=pool.length&&Math.random()<.85?pick(pool):EQUIP.find(x=>x.slot===sl);g[sl]=e.id;g.lv[e.id]=lv;}return g;}
 function aiSps(d){const n=d<.3?0:d<.6?1:2;return Object.keys(SP).sort(()=>Math.random()-.5).slice(0,n);}
 function oppFor(div){const d=clamp(.2+(10-div)*.075+(Math.random()-.5)*.08,.15,.95);const cl=CLUBS[Math.random()*CLUBS.length|0];const pool=CHARS.filter(c=>c.pr<=1000+(10-div)*1400);return {name:pick(NICKS),club:cl.id,char:pick(pool).id,ai:d,lv:Math.max(1,S.lvl+Math.round((Math.random()-.5)*4))};}
 function me(o){return Object.assign({c1:S.char,k1:S.club,n1:S.nick,g1:myGear(),lv1:S.lvl},o);}

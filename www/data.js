@@ -1,5 +1,5 @@
 // ================= KOURA VIRAGE – DONNÉES =================
-var APP_VERSION = '0.5';
+var APP_VERSION = '0.6';
 // Ligue 1 tunisienne 2026-2027 (16 clubs). Écussons : formes neutres aux couleurs du club uniquement.
 const CLUBS=[
  {id:'est',n:'Espérance de Tunis',s:'EST',st:'Stade Hammadi-Agrebi (Radès)',c1:'#c8102e',c2:'#ffcc00',p:'rayures',pop:1},
@@ -82,10 +82,36 @@ const EQUIP=[
  {id:'g_ronde',slot:'glasses',n:'Lunettes rondes',r:'rare',pr:2400,b:{hd:3,kp:2},col:'#c08a2a',kind:'ronde'},
  {id:'g_sport',slot:'glasses',n:'Lunettes de sport',r:'rare',pr:2800,b:{spd:4},col:'#ff2a7a',kind:'sport'},
  {id:'g_ski',slot:'glasses',n:'Masque de ski de Aïn Draham',r:'épique',pr:7000,b:{jmp:5,spd:3},col:'#18c6e8',kind:'ski'},
- {id:'g_star',slot:'glasses',n:'Lunettes de star',r:'légendaire',pr:16000,b:{kp:6,hd:5,spd:3},col:'#ffc400',kind:'star'}];
+ {id:'g_star',slot:'glasses',n:'Lunettes de star',r:'légendaire',pr:16000,b:{kp:6,hd:5,spd:3},col:'#ffc400',kind:'star'},
+ // écharpes
+ {id:'s_none',slot:'scarf',n:'Sans écharpe',r:'commun',pr:0,b:{}},
+ {id:'s_rb',slot:'scarf',n:'Écharpe rouge et blanche',r:'commun',pr:700,b:{hd:2},c1:'#e70013',c2:'#ffffff',kind:'raye'},
+ {id:'s_nb',slot:'scarf',n:'Écharpe noire et blanche',r:'commun',pr:900,b:{spd:2},c1:'#1a1a1a',c2:'#ffffff',kind:'raye'},
+ {id:'s_jn',slot:'scarf',n:'Écharpe jaune et noire',r:'rare',pr:2600,b:{jmp:4},c1:'#ffd200',c2:'#1a1a1a',kind:'raye'},
+ {id:'s_tn',slot:'scarf',n:'Écharpe Tunisie',r:'rare',pr:2400,b:{kp:3,spd:2},c1:'#e70013',c2:'#ffffff',kind:'etoile'},
+ {id:'s_vb',slot:'scarf',n:'Écharpe verte et blanche',r:'épique',pr:6500,b:{spd:4,jmp:3},c1:'#0a8a3e',c2:'#ffffff',kind:'raye'},
+ {id:'s_kef',slot:'scarf',n:'Keffieh du virage',r:'légendaire',pr:15000,b:{hd:5,kp:4,spd:3},c1:'#f4f1ea',c2:'#1a1a1a',kind:'kef'},
+ // ballons
+ {id:'ba_cl',slot:'ball',n:'Ballon classique',r:'commun',pr:0,b:{},kind:'classique'},
+ {id:'ba_zel',slot:'ball',n:'Ballon Zellige',r:'rare',pr:2800,b:{hd:3},kind:'zellige'},
+ {id:'ba_or',slot:'ball',n:'Ballon d\'or',r:'rare',pr:3000,b:{kp:3},kind:'or'},
+ {id:'ba_ice',slot:'ball',n:'Ballon glacé',r:'épique',pr:7000,b:{spd:4,hd:2},kind:'glace'},
+ {id:'ba_fire',slot:'ball',n:'Ballon de feu',r:'épique',pr:8000,b:{kp:5},kind:'feu'},
+ {id:'ba_volt',slot:'ball',n:'Ballon électrique',r:'légendaire',pr:15000,b:{kp:4,spd:4,jmp:2},kind:'volt'},
+ // célébrations (après un but)
+ {id:'c_flag',slot:'celeb',n:'Drapeau de la Tunisie',r:'commun',pr:0,b:{},kind:'drapeau'},
+ {id:'c_drum',slot:'celeb',n:'Tambour du virage',r:'commun',pr:800,b:{hd:1},kind:'tambour'},
+ {id:'c_mega',slot:'celeb',n:'Mégaphone',r:'rare',pr:2000,b:{spd:2},kind:'megaphone'},
+ {id:'c_smoke',slot:'celeb',n:'Fumigène',r:'rare',pr:2500,b:{kp:2},kind:'fumigene'},
+ {id:'c_conf',slot:'celeb',n:'Canon à confettis',r:'épique',pr:6000,b:{jmp:3},kind:'confettis'},
+ {id:'c_troph',slot:'celeb',n:'Trophée doré',r:'légendaire',pr:14000,b:{kp:3,hd:3},kind:'trophee'}];
+// évolution des personnages : niveau 1 → 3 (aura), coût selon le prix du personnage
+const CLVMAX=3,CLVB=[0,4,9];
+const CLVC=(c,lv)=>Math.round(((c.pr||800)*[.5,1.2][lv-1]+[1500,4000][lv-1])/100)*100;
 const EQ=id=>EQUIP.find(e=>e.id===id);
 const EQUP=lv=>[.6,1.2,2.2,3.5][lv-1]||0; // coût d'amélioration = prix × facteur (niveau actuel)
-const SLOTS={boots:{n:'Chaussures',e:'👟'},hat:{n:'Chapeaux',e:'🎩'},glasses:{n:'Lunettes',e:'🕶️'}};
+const SLOTS={boots:{n:'Chaussures',e:'👟'},hat:{n:'Chapeaux',e:'🎩'},glasses:{n:'Lunettes',e:'🕶️'},scarf:{n:'Écharpes',e:'🧣'},ball:{n:'Ballons',e:'⚽'},celeb:{n:'Célébrations',e:'🎉'}};
+const GSLOTS=Object.keys(SLOTS);
 // couleurs de chaussures par défaut des adversaires
 const GCOL=['#2b2b2b','#2c6fe0','#e70013','#7ad61a','#c9d1db','#ffc400'];
 
