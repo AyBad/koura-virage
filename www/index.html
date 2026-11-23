@@ -53,13 +53,19 @@ b,small,span,em{font-style:normal}
 /* personnage HTML animé */
 .hero{position:relative;width:20vh;height:24vh}
 .hero .hboot{position:absolute;left:18%;bottom:2%;width:76%;transform-origin:20% 90%}
-.hero .hhead{position:absolute;left:50%;bottom:16%;height:80%;transform:translateX(-50%);transform-origin:50% 90%}
+.hero .hboot{transform:scaleX(-1)}
+.hero .hhead{position:absolute;left:50%;bottom:22%;height:76%;aspect-ratio:245/260;transform:translateX(-50%);transform-origin:50% 90%}
+.hhead img{position:absolute}.hhead .hface{inset:0;width:100%;height:100%}
+.hhead .ahat{width:83%;left:48%;top:20%;transform:translate(-50%,-82%)}.hhead .ahat.h_mdhalla{width:110%}.hhead .ahat.h_laurier{width:79%}
+.hhead .aglass{width:53%;left:63%;top:39%;transform:translate(-50%,-50%)}
+.hhead .ascarf{width:77%;left:50%;top:92%;transform:translate(-50%,-50%)}
+.hero.evo2{filter:drop-shadow(0 0 2vh #b060ff)}.hero.evo3{filter:drop-shadow(0 0 2.5vh #ffc400)}
 .hero .hsh{position:absolute;left:12%;right:12%;bottom:-2%;height:9%;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
 .hero.big{width:30vh;height:36vh}
 .hero.flip{transform:scaleX(-1)}
 .hero.idle .hhead{animation:hbob 1.6s ease-in-out infinite}.hero.idle .hboot{animation:hbt 1.6s ease-in-out infinite}.hero.idle{animation:hsq 1.6s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes hbob{0%,100%{transform:translateX(-50%) rotate(-3deg)}50%{transform:translateX(-50%) translateY(-3%) rotate(3deg)}}
-@keyframes hbt{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+@keyframes hbt{0%,100%{transform:scaleX(-1) rotate(0)}50%{transform:scaleX(-1) rotate(4deg)}}
 @keyframes hsq{0%,100%{transform:scale(1.03,.97)}50%{transform:scale(.98,1.03)}}
 .hero.joy{animation:hjump .7s cubic-bezier(.3,0,.5,1) infinite;transform-origin:50% 100%}
 @keyframes hjump{0%,100%{transform:translateY(0) scale(1.08,.92)}15%{transform:scale(.94,1.08)}50%{transform:translateY(-18%) scale(.97,1.04) rotate(-4deg)}85%{transform:translateY(0) scale(1,1)}}
@@ -127,6 +133,74 @@ b,small,span,em{font-style:normal}
 .ubox{position:relative;display:flex;flex-direction:column;align-items:center;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
 .ut{font-family:"Luckiest Guy";font-size:7vh;color:#ffd200;text-shadow:var(--ts)}.un{font-size:4vh;text-shadow:var(--ts)}
 .toast{position:fixed;left:50%;top:14vh;transform:translateX(-50%);background:#0b1430f0;border:.4vh solid #ffd200;border-radius:3vh;padding:1.4vh 3vh;font-size:3vh;z-index:20;animation:pop .25s both;text-shadow:var(--ts)}
+
+/* V1.1 */
+.pill{cursor:pointer}.pic{width:4.6vh;height:4.6vh;object-fit:contain}.pill.jt{margin-left:auto}.pill.dt{margin-left:0}.pill.jt b{color:#ff7a8a}
+.plus{display:flex;align-items:center;justify-content:center;width:3.6vh;height:3.6vh;border-radius:50%;background:linear-gradient(#b4ff3c,#3fae1a);border:.3vh solid var(--o);font-style:normal;font-size:2.6vh;margin-left:.4vh}
+.pcr{width:4.8vh;height:4.8vh;object-fit:contain}
+.bic{width:5vh;height:5vh;object-fit:contain;vertical-align:middle}.bic.s{width:3.2vh;height:3.2vh}
+.mbtn .dot{position:absolute;right:1vh;top:-.8vh;width:3.6vh;height:3.6vh;border-radius:50%;background:#e70013;border:.3vh solid var(--o);font-style:normal;font-size:2.4vh;display:flex;align-items:center;justify-content:center;animation:pulse 1s infinite}
+.homeL{width:40vh;top:44%}.homeR{top:44%}
+.stagec{bottom:19vh}.stagec .hero.big{width:26vh;height:31vh}
+.divb{display:flex;align-items:center;gap:1.2vh;background:#0b1430d8;border:.4vh solid var(--o);border-radius:2vh;padding:.6vh 2vh .6vh 1vh;text-shadow:var(--ts)}.divb img{height:6vh}.divb b{display:block;font-size:2.8vh}.divb small{font-size:2vh;opacity:.9}
+.playbtn{height:18vh}.playbtn .pl1{font-size:7.5vh}
+.venue{background:#0b1430d8;border:.4vh solid var(--o);border-radius:3vh;padding:.8vh 2.4vh;font-size:2.4vh;text-shadow:var(--ts)}
+.derby{background:linear-gradient(90deg,#e70013,#ff8a1a);border:.4vh solid var(--o);border-radius:2vh;padding:.6vh 2vh;font-size:2.2vh;text-shadow:var(--ts);animation:pulse 1.4s infinite;text-align:center}
+.chestbar{position:absolute;left:50%;bottom:1.5vh;transform:translateX(-50%);display:flex;gap:1.6vh}
+.cslot{position:relative;width:17vh;height:15vh;border-radius:2vh;border:.45vh solid var(--o);background:linear-gradient(#2a3a6e,#121b3a);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:.6vh;box-shadow:0 .5vh 0 var(--o);text-shadow:var(--ts)}
+.cslot img{position:absolute;top:.4vh;height:8.4vh}.cslot b{font-size:2.3vh;z-index:1}.cslot small{font-size:1.7vh;opacity:.85;z-index:1}
+.cslot.empty{background:#0b143099;border-style:dashed;border-color:#fff4;justify-content:center;font-size:1.8vh;opacity:.8;box-shadow:none}
+.cslot.ready{background:linear-gradient(#ffd200,#e07800);animation:breathe 1.2s infinite}.cslot.ready img{animation:wob .9s infinite}
+@keyframes wob{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+/* popups */
+.pop{position:fixed;inset:0;z-index:12;background:#000a;display:flex;align-items:center;justify-content:center}
+.pbx{min-width:56vh;max-width:90vw;background:linear-gradient(#1d2a55,#0b1430);border:.6vh solid var(--o);border-radius:3vh;padding:2.4vh 3vh;display:flex;flex-direction:column;align-items:center;gap:1.2vh;text-align:center;text-shadow:var(--ts);animation:pop .25s both;box-shadow:inset 0 0 0 .4vh #ffd20066}
+.pbx h3{font-family:"Luckiest Guy";font-size:4.4vh;color:#ffd200}.pbx p{font-size:2.6vh}.sm{font-size:2vh!important;opacity:.85}
+.popimg{height:16vh;animation:wob 1.6s infinite}.prow{display:flex;gap:2vh;flex-wrap:wrap;justify-content:center}
+.days{display:flex;gap:1vh}.days i{width:5vh;height:5vh;border-radius:1.2vh;background:#0008;border:.3vh solid #fff4;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:2.4vh}.days i.ok{background:#3fae1a}.days i.now{background:#ffd200;color:#14171f;text-shadow:none;transform:scale(1.15)}
+.rew{display:flex;gap:2vh;justify-content:center;flex-wrap:wrap}.rw{display:flex;flex-direction:column;align-items:center;gap:.4vh;background:#0006;border-radius:2vh;padding:1.2vh 2vh;border:.4vh solid var(--o);animation:pop .4s both}.rw img{height:9vh}.rw b{font-size:3vh}.rw.item{box-shadow:inset 0 0 0 .4vh var(--rc)}.rw small{color:var(--rc)}
+.chshake{height:30vh;animation:shk .12s infinite}@keyframes shk{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(4deg) scale(1.06)}}
+/* pub */
+.adv{position:fixed;inset:0;z-index:30;background:#000;display:flex;align-items:center;justify-content:center}
+.adbox{position:relative;width:80vw;max-width:120vh;text-align:center;font-size:3vh}.adbox img{width:100%;border-radius:2vh;margin:1vh 0}.adbox small{opacity:.6;letter-spacing:.2em}
+.adc{position:absolute;right:1vh;top:4vh;width:7vh;height:7vh;border-radius:50%;background:#000a;border:.4vh solid #fff;display:flex;align-items:center;justify-content:center;font-size:3.4vh}
+/* panneaux */
+.panel{position:absolute;inset:10vh 4vh 3vh 4vh;background:#0b1430e0;border:.5vh solid var(--o);border-radius:3vh;padding:2vh 3vh;overflow-y:auto;text-shadow:var(--ts)}
+.panel h2{font-family:"Luckiest Guy";font-size:4.4vh;color:#ffd200;display:flex;align-items:center;gap:1.4vh;margin-bottom:1.4vh}.panel h2 img{height:6vh}
+.mrow{display:flex;align-items:center;gap:2vh;background:#ffffff12;border:.4vh solid var(--o);border-radius:2vh;padding:1.2vh 2vh;margin-bottom:1.2vh}.mrow.dn{box-shadow:inset 0 0 0 .4vh #7dff2c}.mrow.cl{opacity:.55}
+.mt{flex:1;display:flex;flex-direction:column;gap:.5vh}.mt b{font-size:2.8vh}.mt i{height:1.8vh;background:#0008;border-radius:1vh;overflow:hidden;border:.2vh solid var(--o)}.mt i em{display:block;height:100%;background:linear-gradient(90deg,#ffd200,#ff8a1a)}.mt small{font-size:1.9vh}
+.mr{display:flex;gap:1.4vh;font-size:2.6vh}.mr span{display:flex;align-items:center;gap:.4vh}.mr img{height:3.6vh}
+.mrow .mbtn{min-width:20vh}
+.tabs,.vtabs{display:flex;gap:1vh;margin-bottom:1.4vh;flex-wrap:wrap}
+.tabs button,.vtabs button{padding:1vh 2.4vh;border-radius:2vh 2vh .6vh .6vh;background:#22305c;border:.4vh solid var(--o);font-size:2.6vh;text-shadow:var(--ts)}.tabs button.on,.vtabs button.on{background:linear-gradient(#ffd200,#ff8a1a)}
+.vtabs{position:absolute;top:10.5vh;left:2vh;right:2vh;margin:0}.vestv .shop{inset:17vh 2vh 2vh}.vtabs button{font-size:2.2vh;padding:.8vh 1.8vh}
+.lgb{display:flex;gap:3vh}
+.ladder{display:flex;flex-direction:column;gap:.5vh;width:42vh}.lrow{display:flex;align-items:center;gap:1.4vh;padding:.3vh 1.4vh;border-radius:1.4vh;font-size:2.4vh;opacity:.6}.lrow img{height:4.4vh;width:8vh;object-fit:contain}.lrow.up{opacity:.9}
+.lrow.me{opacity:1;background:linear-gradient(90deg,#ffd20066,#0000);box-shadow:inset 0 0 0 .3vh #ffd200}.lrow span{margin-left:auto;display:flex;align-items:center;gap:.6vh;color:#ffd200}.lrow .pico{width:4vh;height:4vh}
+.sinfo{flex:1;display:flex;flex-direction:column;gap:1vh;font-size:2.6vh}.sinfo h3{font-family:"Luckiest Guy";font-size:3.6vh;color:#ffd200}
+.sres{display:flex;gap:.8vh}.sres i{width:5vh;height:5vh;border-radius:1vh;background:#0008;border:.3vh solid #fff3;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:2.2vh}.sres i.w{background:#3fae1a}.sres i.d{background:#c9a400}.sres i.l{background:#c8102e}
+.sres.mini i{width:2.6vh;height:2.6vh}
+.spts b{font-family:"Luckiest Guy";font-size:7vh;color:#ffd200}
+.ctab{flex:1;display:flex;flex-direction:column;gap:.6vh}.crow{display:flex;align-items:center;gap:1.4vh;background:#ffffff10;border-radius:1.4vh;padding:.4vh 1.6vh;font-size:2.5vh}.crow em{font-style:normal;width:4vh;color:#ffd200}.crow span{margin-left:auto;color:#ffe066}.crow.me{background:linear-gradient(90deg,#ffd20066,#ffffff10);box-shadow:inset 0 0 0 .3vh #ffd200}
+/* clubs */
+.clubw{position:absolute;inset:3vh 4vh;display:flex;flex-direction:column;align-items:center;gap:1vh;text-shadow:var(--ts)}.clubw h2{font-family:"Luckiest Guy";font-size:5.5vh;color:#ffd200}
+.clubs .clubw{top:10vh}
+.cgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:1.4vh;width:100%}
+.ccard{display:flex;flex-direction:column;align-items:center;padding:1vh .4vh;border-radius:2vh;border:.45vh solid var(--o);background:linear-gradient(160deg,var(--c1) 0 55%,var(--c2) 55%);box-shadow:0 .5vh 0 var(--o);transition:transform .15s}
+.ccard .crest{height:12vh;filter:drop-shadow(0 .5vh .4vh #0008)}.ccard b{font-family:"Luckiest Guy";font-size:3vh}.ccard small{font-size:1.6vh;line-height:1.1;text-align:center;min-height:3.5vh}.ccard.sel{transform:translateY(-1vh);box-shadow:0 0 0 .6vh #ffd200}
+/* vestiaire */
+.evop{height:22vh;border-radius:2vh;border:.4vh solid var(--o);margin-right:1vh;align-self:center;box-shadow:0 .6vh 1vh #0008}.evop.locked{filter:brightness(.2)}
+.evo{display:flex;align-items:center;gap:.6vh;font-size:2.4vh}.evo i{font-style:normal;color:#55607a;font-size:3.2vh}.evo i.on{color:#ffd200}.evo b{margin:0 1vh}.evo .mbtn{height:6.5vh;font-size:2.2vh;padding:0 2vh}
+.pwbig{height:26vh;align-self:center;animation:breathe 1.6s infinite}.ballbig{height:20vh;align-self:center;animation:spin 3s linear infinite}
+.card .cpw{position:absolute;left:12%;top:6%;width:76%}.card .none{position:absolute;inset:0 0 25%;display:flex;align-items:center;justify-content:center;font-size:7vh;opacity:.5}
+.card .ev{position:absolute;right:.6vh;top:.4vh;color:#ffd200;font-size:2.2vh;text-shadow:var(--ts)}
+.evobig{height:40vh;border-radius:3vh;border:.6vh solid #ffd200;box-shadow:0 0 6vh #ffd200aa}
+/* VS et résultat */
+.vscr{height:11vh;margin-bottom:-2vh;filter:drop-shadow(0 .6vh .6vh #000a)}
+.vsTag{position:absolute;left:50%;top:3vh;transform:translateX(-50%);background:#0b1430e0;border:.4vh solid var(--o);border-radius:2vh;padding:.8vh 3vh;font-size:2.6vh;text-shadow:var(--ts);white-space:nowrap}
+.rT{font-size:9vh}.rS{font-size:10vh}.rG{display:flex;align-items:center;gap:1vh}
+.rInfo{display:flex;gap:2vh;flex-wrap:wrap;justify-content:center;font-size:2.4vh;text-shadow:var(--ts)}.rInfo span{display:flex;align-items:center;gap:.8vh;background:#0009;border-radius:2vh;padding:.6vh 1.8vh}
+.send{font-family:"Luckiest Guy";font-size:4.4vh;padding:1vh 3vh;border-radius:2vh;border:.5vh solid var(--o);text-shadow:var(--ts);animation:pop .5s .6s both}.send.up,.send.title{background:linear-gradient(#ffd200,#e07800)}.send.down{background:#8a1424}.send.stay{background:#22305c}
 </style>
 </head>
 <body>
