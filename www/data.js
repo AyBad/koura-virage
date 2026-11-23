@@ -1,5 +1,5 @@
 // ================= KOURA VIRAGE – DONNÉES =================
-var APP_VERSION = '0.6';
+var APP_VERSION = '0.7';
 // Ligue 1 tunisienne 2026-2027 (16 clubs). Écussons : formes neutres aux couleurs du club uniquement.
 const CLUBS=[
  {id:'est',n:'Espérance de Tunis',s:'EST',st:'Stade Hammadi-Agrebi (Radès)',c1:'#c8102e',c2:'#ffcc00',p:'rayures',pop:1},
@@ -65,8 +65,8 @@ const EQUIP=[
  {id:'b_jasmin',slot:'boots',n:'Crampons Jasmin',r:'commun',pr:800,b:{jmp:3},c1:'#f4f4f4',c2:'#2cc26b',so:'#2cc26b',pat:'fleur'},
  {id:'b_harissa',slot:'boots',n:'Crampons Harissa',r:'rare',pr:2500,b:{kp:5},c1:'#e8301c',c2:'#ffb000',so:'#1a1a1a',pat:'flamme'},
  {id:'b_sahara',slot:'boots',n:'Crampons Sahara',r:'rare',pr:3000,b:{spd:4,jmp:2},c1:'#e2b06a',c2:'#7a4a1c',so:'#f4e4c0',pat:'dune'},
- {id:'b_neptune',slot:'boots',n:'Crampons Neptune',r:'épique',pr:7000,b:{kp:5,spd:4},c1:'#18c6e8',c2:'#0a3d8f',so:'#ffffff',pat:'vague'},
- {id:'b_fluo',slot:'boots',n:'Crampons Fluo 78',r:'épique',pr:8000,b:{spd:7,jmp:3},c1:'#b4ff1a',c2:'#ff2a7a',so:'#ffffff',pat:'eclair'},
+ {id:'b_neptune',slot:'boots',n:'Crampons Oasis',r:'épique',pr:7000,b:{kp:5,spd:4},c1:'#18c6e8',c2:'#0a3d8f',so:'#ffffff',pat:'vague'},
+ {id:'b_fluo',slot:'boots',n:'Crampons Royal',r:'épique',pr:8000,b:{spd:7,jmp:3},c1:'#b4ff1a',c2:'#ff2a7a',so:'#ffffff',pat:'eclair'},
  {id:'b_carthage',slot:'boots',n:'Crampons de Carthage',r:'légendaire',pr:20000,b:{kp:9,spd:5,jmp:4},c1:'#ffc400',c2:'#8a5a00',so:'#fff6d0',pat:'etoile'},
  // chapeaux
  {id:'h_none',slot:'hat',n:'Sans chapeau',r:'commun',pr:0,b:{}},
@@ -75,7 +75,7 @@ const EQUIP=[
  {id:'h_bob',slot:'hat',n:'Bob du virage',r:'commun',pr:900,b:{hd:3},col:'#2c6fe0',kind:'bob'},
  {id:'h_bonnet',slot:'hat',n:'Bonnet de supporter',r:'rare',pr:2600,b:{hd:4,kp:2},col:'#ffd200',kind:'bonnet'},
  {id:'h_laurier',slot:'hat',n:'Couronne de laurier',r:'épique',pr:7500,b:{hd:6,jmp:3},col:'#3fae1a',kind:'laurier'},
- {id:'h_chechia',slot:'hat',n:'Chéchia en or',r:'légendaire',pr:18000,b:{hd:8,kp:5,jmp:3},col:'#ffc400',kind:'chechia'},
+ {id:'h_chechia',slot:'hat',n:'Chéchia brodée d\'or',r:'légendaire',pr:18000,b:{hd:8,kp:5,jmp:3},col:'#ffc400',kind:'chechia'},
  // lunettes
  {id:'g_none',slot:'glasses',n:'Sans lunettes',r:'commun',pr:0,b:{}},
  {id:'g_sun',slot:'glasses',n:'Lunettes de soleil',r:'commun',pr:800,b:{kp:2},col:'#111',kind:'soleil'},
@@ -88,16 +88,16 @@ const EQUIP=[
  {id:'s_rb',slot:'scarf',n:'Écharpe rouge et blanche',r:'commun',pr:700,b:{hd:2},c1:'#e70013',c2:'#ffffff',kind:'raye'},
  {id:'s_nb',slot:'scarf',n:'Écharpe noire et blanche',r:'commun',pr:900,b:{spd:2},c1:'#1a1a1a',c2:'#ffffff',kind:'raye'},
  {id:'s_jn',slot:'scarf',n:'Écharpe jaune et noire',r:'rare',pr:2600,b:{jmp:4},c1:'#ffd200',c2:'#1a1a1a',kind:'raye'},
- {id:'s_tn',slot:'scarf',n:'Écharpe Tunisie',r:'rare',pr:2400,b:{kp:3,spd:2},c1:'#e70013',c2:'#ffffff',kind:'etoile'},
+ {id:'s_tn',slot:'scarf',n:'Écharpe rouge et jaune',r:'rare',pr:2400,b:{kp:3,spd:2},c1:'#e70013',c2:'#ffffff',kind:'etoile'},
  {id:'s_vb',slot:'scarf',n:'Écharpe verte et blanche',r:'épique',pr:6500,b:{spd:4,jmp:3},c1:'#0a8a3e',c2:'#ffffff',kind:'raye'},
- {id:'s_kef',slot:'scarf',n:'Keffieh du virage',r:'légendaire',pr:15000,b:{hd:5,kp:4,spd:3},c1:'#f4f1ea',c2:'#1a1a1a',kind:'kef'},
+ {id:'s_kef',slot:'scarf',n:'Écharpe bleue et blanche',r:'légendaire',pr:15000,b:{hd:5,kp:4,spd:3},c1:'#f4f1ea',c2:'#1a1a1a',kind:'kef'},
  // ballons
  {id:'ba_cl',slot:'ball',n:'Ballon classique',r:'commun',pr:0,b:{},kind:'classique'},
- {id:'ba_zel',slot:'ball',n:'Ballon Zellige',r:'rare',pr:2800,b:{hd:3},kind:'zellige'},
+ {id:'ba_zel',slot:'ball',n:'Ballon Virage',r:'rare',pr:2800,b:{hd:3},kind:'zellige'},
  {id:'ba_or',slot:'ball',n:'Ballon d\'or',r:'rare',pr:3000,b:{kp:3},kind:'or'},
- {id:'ba_ice',slot:'ball',n:'Ballon glacé',r:'épique',pr:7000,b:{spd:4,hd:2},kind:'glace'},
- {id:'ba_fire',slot:'ball',n:'Ballon de feu',r:'épique',pr:8000,b:{kp:5},kind:'feu'},
- {id:'ba_volt',slot:'ball',n:'Ballon électrique',r:'légendaire',pr:15000,b:{kp:4,spd:4,jmp:2},kind:'volt'},
+ {id:'ba_ice',slot:'ball',n:'Ballon étoilé',r:'épique',pr:7000,b:{spd:4,hd:2},kind:'glace'},
+ {id:'ba_fire',slot:'ball',n:'Ballon arc-en-ciel',r:'épique',pr:8000,b:{kp:5},kind:'feu'},
+ {id:'ba_volt',slot:'ball',n:'Ballon noir et or',r:'légendaire',pr:15000,b:{kp:4,spd:4,jmp:2},kind:'volt'},
  // célébrations (après un but)
  {id:'c_flag',slot:'celeb',n:'Drapeau de la Tunisie',r:'commun',pr:0,b:{},kind:'drapeau'},
  {id:'c_drum',slot:'celeb',n:'Tambour du virage',r:'commun',pr:800,b:{hd:1},kind:'tambour'},
