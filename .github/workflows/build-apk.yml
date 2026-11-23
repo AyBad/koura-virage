@@ -3,7 +3,7 @@ name: Build APK
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, feature/kawarjia-match-animations]
 
 permissions:
   contents: write
@@ -121,11 +121,11 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: koura-virage-apk
+          name: kawarjia-test-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Publier l'APK (lien de téléchargement fixe)
-        if: github.ref_name != 'test'
+        if: github.ref_name == 'main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
