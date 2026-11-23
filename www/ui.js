@@ -9,7 +9,7 @@ const WEEK = () => Math.floor((DAY() + 3) / 7);
 const DEF = () => ({
   nick: 'mle3bi_' + (1000 + Math.random() * 9000 | 0), dt: 300, jt: 5, own: ['bey'], char: 'bey', ownB: ['b_base'], boot: 'b_base', tuto: 0, wins: 0, played: 0, goals: 0, snd: 1, streak: 0,
   club: null, gear: { hat: 'h_none', glasses: 'g_none', scarf: 's_none', ball: 'ba_cl' }, ownA: ['h_none', 'g_none', 's_none', 'ba_cl'], evo: {}, pw: 'harissa', ownP: ['harissa'], venue: 'auto',
-  div: 10, best: 10, titles: 0, season: { n: 0, pts: 0, res: [] }, chests: [0, null, null, null], miss: { day: -1, list: [] }, daily: { day: -1, k: 0 }, cw: { week: -1, pts: 0 }, ads: { day: -1, n: 0 }
+  div: 10, best: 10, titles: 0, season: { n: 0, pts: 0, res: [] }, chests: [0, null, null, null], miss: { day: -1, list: [] }, daily: { day: -1, k: 0 }, cw: { week: -1, pts: 0 }, ads: { day: -1, n: 0 }, lv: {}, bestStreak: 0
 });
 function load() {
   try { SV = JSON.parse(localStorage.getItem('kw1') || 'null'); } catch (e) { SV = null; }
@@ -76,9 +76,16 @@ function vib(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e)
 
 // ---------- personnage HTML (tête + accessoires + chaussure) animé en CSS ----------
 function heroHTML(chId, bootId, cls, expr, gear) {
-  const g = gear || {}, has = id => id && AC_(id) && AC_(id).kind;
-  const acc = (has(g.scarf) ? `<img class="ascarf" src="img/eq/${g.scarf}.webp">` : '') + (has(g.glasses) ? `<img class="aglass" src="img/eq/${g.glasses}.webp">` : '') + (has(g.hat) ? `<img class="ahat ${g.hat}" src="img/eq/${g.hat}.webp">` : '');
-  return `<div class="hero ${cls || ''}"><div class="hsh"></div><img class="hboot" src="img/eq/${bootId}.webp"><div class="hhead"><img class="hface" src="img/h/${chId}_${expr || 0}.webp">${acc}</div></div>`;
+  const G = HGEO(chId), g = gear || {}, has = id => id && AC_(id) && AC_(id).kind, P = v => (v / G.w * 100).toFixed(1) + '%';
+  let acc = '', clip = '';
+  if (has(g.scarf)) acc += `<img class="acc" style="left:${P(G.nx)};top:90%;width:${(74 / G.w).toFixed(1)}%;transform:translate(-50%,-50%)" src="img/eq/${g.scarf}.webp">`;
+  if (has(g.glasses)) acc += `<img class="acc" style="left:${P(G.ex)};top:${G.ey * 100}%;width:${((GLW[g.glasses] || .5) * 100 / G.w).toFixed(1)}%;transform:translate(-50%,-50%)" src="img/eq/${g.glasses}.webp">`;
+  if (has(g.hat)) {
+    const h = HATG[g.hat] || { w: 1.2, ax: .5, ay: .8 }, cut = g.hat === 'h_laurier' && !G.hg ? 0 : G.cut;
+    if (cut) clip = `clip-path:inset(${(cut * 100).toFixed(1)}% -30% 0 -30%)`;
+    acc += `<img class="acc" style="left:${P(G.cx)};top:${G.cut * 100}%;width:${(h.w * G.hw * 100 / G.w).toFixed(1)}%;transform-origin:${h.ax * 100}% ${h.ay * 100}%;transform:translate(-${h.ax * 100}%,-${h.ay * 100}%)${h.flip ? ' scaleX(-1)' : ''}" src="img/eq/${g.hat}.webp">`;
+  }
+  return `<div class="hero ${cls || ''}"><div class="hsh"></div><img class="hboot" src="img/eq/${bootId}.webp"><div class="hhead" style="aspect-ratio:${G.w.toFixed(3)}"><img class="hface" style="${clip}" src="img/h/${chId}_${expr || 0}.webp">${acc}</div></div>`;
 }
 const myHero = (cls, expr) => heroHTML(SV.char, SV.boot, cls, expr, SV.gear);
 function headHTML(chId, cls) { return `<img class="${cls || 'mini'}" src="img/h/${chId}_0.webp">`; }
@@ -154,8 +161,8 @@ function openChest(i) {
   SV.dt += dt; SV.jt += jt; let item = null;
   if (Math.random() < ch.it) {
     const ok = ['commun', 'rare', 'épique', 'légendaire'].slice(0, 2 + (x.r >= 2) + (x.r >= 4));
-    const pool = [...ACC.filter(a => a.kind && !SV.ownA.includes(a.id)), ...BOOTS.filter(b => !SV.ownB.includes(b.id))].filter(a => ok.includes(a.r));
-    if (pool.length) { item = pick(pool); if (item.slot === 'boots') SV.ownB.push(item.id); else SV.ownA.push(item.id); }
+    const pool = [...ACC.filter(a => a.kind), ...BOOTS].filter(a => ok.includes(a.r) && (!ownsAny(a.id) || (SV.lv[a.id] || 1) < LVMAX));
+    if (pool.length) { item = pick(pool); if (!ownsAny(item.id)) { if (item.slot === 'boots') SV.ownB.push(item.id); else SV.ownA.push(item.id); item.isNew = 1; } else { SV.lv[item.id] = (SV.lv[item.id] || 1) + 1; item.isNew = 0; } }
   }
   save(); sfx('chest');
   const d = document.createElement('div'); d.className = 'unlock'; d.innerHTML = `<div class="urays"></div><div class="ubox"><img class="chshake" src="img/ch/${x.r}.webp"></div>`;
@@ -164,7 +171,7 @@ function openChest(i) {
     sfx('unlock'); vib(80);
     d.querySelector('.ubox').innerHTML = `<div class="ut">${ch.n.toUpperCase()}</div><div class="rew">
       <div class="rw"><img src="img/ic/coins.webp"><b>+${fmt(dt)} DT</b></div>${jt ? `<div class="rw"><img src="img/ic/gem.webp"><b>+${jt} jetons</b></div>` : ''}
-      ${item ? `<div class="rw item" style="--rc:${RCOL[item.r]}"><img src="img/eq/${item.id}.webp"><b>${item.n}</b><small>${RLAB[item.r]}</small></div>` : ''}</div><div class="un">Touche pour continuer</div>`;
+      ${item ? `<div class="rw item" style="--rc:${RCOL[item.r]}"><img src="img/eq/${item.id}.webp"><b>${item.n}</b><small>${item.isNew ? RLAB[item.r] : 'Niveau ' + SV.lv[item.id] + ' !'}</small></div>` : ''}</div><div class="un">Touche pour continuer</div>`;
     d.addEventListener('click', () => { d.remove(); home(); });
   }, 1300);
 }
@@ -239,32 +246,61 @@ let VT = 'char', VS = {};
 function listFor(t) { return t === 'char' ? CHARS : t === 'boots' ? BOOTS : t === 'pw' ? POWERS : ACC.filter(a => a.slot === t); }
 const owns = (t, id) => t === 'char' ? SV.own.includes(id) : t === 'boots' ? SV.ownB.includes(id) : t === 'pw' ? SV.ownP.includes(id) : SV.ownA.includes(id);
 const equipped = (t, id) => t === 'char' ? SV.char === id : t === 'boots' ? SV.boot === id : t === 'pw' ? SV.pw === id : SV.gear[t] === id;
+const ownsAny = id => SV.ownB.includes(id) || SV.ownA.includes(id) || SV.ownP.includes(id) || SV.own.includes(id);
+const itLv = id => SV.lv[id] || 1;
+const TICO = { char: () => `img/h/${SV.char}_0.webp`, boots: () => `img/eq/${SV.boot}.webp`, hat: () => 'img/eq/h_casq.webp', glasses: () => 'img/eq/g_sun.webp', scarf: () => 'img/eq/s_rb.webp', ball: () => 'img/eq/ba_cl.webp', pw: () => `img/pw/${SV.pw}.webp` };
+const STAT = [['spd', 'Vitesse', '⚡'], ['jmp', 'Saut', '⬆'], ['kp', 'Tir', '⚽'], ['hd', 'Tête', '🎯']];
+// statistiques façon Head Ball : base du joueur (avec évolution) + bonus des objets (avec leur niveau)
+function statsFor(chId, bootId, gear) {
+  const c = CH(chId), e = 1 + EVO_B[evoLv(chId) - 1] / 100, bon = { spd: 0, jmp: 0, kp: 0, hd: 0 };
+  const add = it => { if (!it) return; const b = lvB(it.b, itLv(it.id)); for (const k in b) bon[k] += b[k]; };
+  add(BT(bootId)); for (const sl of ['hat', 'glasses', 'scarf', 'ball']) add(AC_(gear[sl]));
+  const rows = STAT.map(([k]) => { const m = (c[k] || 1) * e; return { k, base: Math.round((m - .8) * 50), bo: Math.round(m * bon[k] / 100 * 50 * 10) / 10 }; });
+  return { rows, pow: Math.round(rows.reduce((a, r) => a + r.base + r.bo, 0) / 4 * 10) / 10 };
+}
 function vest() {
   const L = listFor(VT); let id = VS[VT]; if (!L.some(x => x.id === id)) id = VS[VT] = (VT === 'char' ? SV.char : VT === 'boots' ? SV.boot : VT === 'pw' ? SV.pw : SV.gear[VT]);
   const x = L.find(i => i.id === id) || L[0], own = owns(VT, x.id), eq = equipped(VT, x.id), rc = RCOL[x.r] || '#7a8599';
-  let stage, info, extra = '';
-  const prevGear = Object.assign({}, SV.gear); if (SLOTS[VT] && VT !== 'ball') prevGear[VT] = x.id;
-  if (VT === 'char') {
-    const lv = evoLv(x.id), st = k => Math.round((x[k] || 1) * (1 + EVO_B[lv - 1] / 100) * 100);
-    stage = `${EVO_IMG.has(x.id) ? `<img class="evop ${own ? '' : 'locked'}" src="img/evo/${x.id}_${lv}.webp">` : ''}${heroHTML(x.id, SV.boot, 'big idle' + (own ? '' : ' locked') + (lv > 1 ? ' evo' + lv : ''), 0, SV.gear)}`;
-    info = `<div class="shSub">${x.sub}</div>`;
-    extra = `<div class="stats">${[['Vitesse', 'spd'], ['Saut', 'jmp'], ['Tir', 'kp'], ['Tête', 'hd']].map(([n, k]) => `<div class="st"><span>${n}</span><i><b style="width:${Math.min(100, (st(k) - 80) * 1.8)}%"></b></i><em>${st(k)}</em></div>`).join('')}</div>
-     <div class="evo">${[1, 2, 3].map(i => `<i class="${i <= lv ? 'on' : ''}">★</i>`).join('')}<b>${EVO_N[lv - 1]}</b>${own && lv < 3 ? `<button class="mbtn orange small" data-a="evo:${x.id}">Évoluer • 💵 ${fmt(EVO_C(x, lv + 1))}</button>` : ''}</div>`;
-  } else if (VT === 'pw') {
-    stage = `<img class="pwbig" src="img/pw/${x.id}.webp">`; info = `<div class="shSub">${x.d}</div>`;
-  } else if (VT === 'ball') {
-    stage = `<img class="ballbig" src="img/eq/${x.id}.webp">`; info = `<div class="shSub">${bonTxt(x.b)}</div>`;
-  } else {
-    stage = heroHTML(SV.char, VT === 'boots' ? x.id : SV.boot, 'big idle', 0, prevGear); info = `<div class="shSub">${bonTxt(x.b)}</div>`;
+  // aperçu : le joueur porte l'objet sélectionné
+  const pg = Object.assign({}, SV.gear); let pc = SV.char, pb = SV.boot;
+  if (VT === 'char') pc = x.id; else if (VT === 'boots') pb = x.id; else if (SLOTS[VT]) pg[VT] = x.id;
+  const st = statsFor(pc, pb, pg), cur = statsFor(SV.char, SV.boot, SV.gear);
+  const lv = VT === 'char' ? evoLv(x.id) : itLv(x.id), max = VT === 'char' ? 3 : LVMAX;
+  let sub, cardImg, action = '';
+  if (VT === 'char') { sub = x.sub; cardImg = EVO_IMG.has(x.id) ? `<img class="vcimg evo" src="img/evo/${x.id}_${lv}.webp">` : `<img class="vcimg" src="img/h/${x.id}_0.webp">`; }
+  else if (VT === 'pw') { sub = x.d + (lv > 1 ? ` (effet +${Math.round((PWF(lv) - 1) * 100)} %)` : ''); cardImg = `<img class="vcimg" src="img/pw/${x.id}.webp">`; }
+  else { sub = x.kind || VT === 'boots' ? bonTxt(lvB(x.b, lv)) : 'Aucun bonus'; cardImg = x.kind || VT === 'boots' ? `<img class="vcimg" src="img/eq/${x.id}.webp">` : '<span class="none">∅</span>'; }
+  const canLv = own && (VT === 'char' || x.kind || VT === 'boots' || VT === 'pw');
+  if (!own) action = `<button class="mbtn yellow wide" data-a="buy:${x.id}">Acheter • ${fmt(x.pr)} DT</button>`;
+  else {
+    action = eq ? '<div class="mbtn gray wide">✔ Équipé</div>' : `<button class="mbtn green wide" data-a="eq:${x.id}">Équiper</button>`;
+    if (canLv) action += lv < max ? `<button class="mbtn orange wide" data-a="up:${x.id}">${VT === 'char' ? 'Évoluer' : 'Améliorer'} • ${fmt(VT === 'char' ? EVO_C(x, lv + 1) : UPC(x, lv))} DT</button>` : '<div class="mbtn gray wide small">Niveau max</div>';
   }
-  const btn = own ? (eq ? '<div class="mbtn gray wide">✔ Équipé</div>' : `<button class="mbtn green wide" data-a="eq:${x.id}">Équiper</button>`) : `<button class="mbtn yellow wide" data-a="buy:${x.id}">Acheter • 💵 ${fmt(x.pr)}</button>`;
-  const cardImg = i => VT === 'char' ? headHTML(i.id, 'chead') : VT === 'pw' ? `<img class="cpw" src="img/pw/${i.id}.webp">` : i.kind || VT === 'boots' ? `<img class="cboot" src="img/eq/${i.id}.webp">` : '<span class="none">∅</span>';
-  show(`<div class="bgimg" style="background-image:url(img/bg/vest.webp);filter:blur(3px) brightness(.5)"></div>
-  <div class="vtabs">${VTABS.map(([k, n]) => `<button class="${VT === k ? 'on' : ''}" data-a="vt:${k}">${n}</button>`).join('')}</div>
-  <div class="shop" style="--rc:${rc}">
-   <div class="shL"><div class="shName">${x.n}</div>${info}<div class="shStage"><div class="halo"></div>${stage}</div>${extra}${btn}</div>
-   <div class="shR"><div class="grid">${L.map(i => `<button class="card ${i.id === x.id ? 'sel' : ''} ${owns(VT, i.id) ? '' : 'lock'}" data-a="vs:${i.id}" style="--rc:${RCOL[i.r] || '#7a8599'}">${cardImg(i)}${equipped(VT, i.id) ? '<span class="chk">✔</span>' : ''}${VT === 'char' && evoLv(i.id) > 1 ? `<span class="ev">${'★'.repeat(evoLv(i.id))}</span>` : ''}<span class="cr">${owns(VT, i.id) ? (RLAB[i.r] || 'Commun') : '💵 ' + fmt(i.pr)}</span></button>`).join('')}</div></div>
-  </div><button class="back" data-a="home">◀</button>${topbar()}`, 'shopv vestv');
+  const lvTxt = VT === 'char' ? EVO_N[lv - 1] : 'Niveau ' + lv;
+  const stars = canLv || VT === 'char' ? `<div class="vlv"><b>${lvTxt}</b><span>${Array.from({ length: max }, (_, i) => `<i class="${i < lv ? 'on' : ''}">★</i>`).join('')}</span></div>` : '';
+  const bars = st.rows.map((r, i) => { const t = r.base + r.bo, d = Math.round((t - (cur.rows[i].base + cur.rows[i].bo)) * 10) / 10; return `<div class="vrow"><em>${STAT[i][2]}</em><div class="vsb"><small>${STAT[i][1]}</small><i><b style="width:${Math.min(100, r.base * 4)}%"></b><u style="width:${Math.min(100 - Math.min(100, r.base * 4), r.bo * 4)}%"></u></i></div><strong>${Math.round(t * 10) / 10}</strong>${d ? `<span class="${d > 0 ? 'p' : 'n'}">${d > 0 ? '+' : ''}${d}</span>` : ''}</div>`; }).join('');
+  const strip = L.map(i => { const o = owns(VT, i.id), l = VT === 'char' ? evoLv(i.id) : itLv(i.id);
+    const img = VT === 'char' ? `<img class="sh" src="img/h/${i.id}_0.webp">` : VT === 'pw' ? `<img class="sp" src="img/pw/${i.id}.webp">` : i.kind || VT === 'boots' ? `<img class="si" src="img/eq/${i.id}.webp">` : '<span class="none">∅</span>';
+    return `<button class="scard ${i.id === x.id ? 'sel' : ''} ${o ? '' : 'lock'}" data-a="vs:${i.id}" style="--rc:${RCOL[i.r] || '#7a8599'}">${img}${o && (l > 1 || VT === 'char') ? `<span class="slv">${'★'.repeat(l)}</span>` : ''}${equipped(VT, i.id) ? '<span class="chk">✔</span>' : ''}${o ? '' : `<span class="spr">${fmt(i.pr)}</span>`}<span class="sr">${RLAB[i.r] || 'Commun'}</span></button>`; }).join('');
+  show(`<div class="bgimg" style="background:radial-gradient(ellipse at 50% 35%,color-mix(in srgb,${rc} 45%,#1a2b5a),#0b1430 70%)"></div><div class="vgrid"></div>
+  <button class="back" data-a="home">◀</button>
+  <div class="vtitle"><h1>${x.n}</h1><p>${sub}</p></div>
+  <div class="vcard" style="--rc:${rc}"><div class="vcf">${cardImg}<span class="vr">${RLAB[x.r] || 'Commun'}</span></div>${stars}${action}</div>
+  <div class="vhero"><div class="halo" style="--rc:${rc}"></div>${heroHTML(pc, pb, 'big idle' + (VT === 'char' && !own ? ' locked' : '') + (evoLv(pc) > 1 ? ' evo' + evoLv(pc) : ''), 0, pg)}</div>
+  <div class="vstat"><h3><img src="img/ic/bolt.webp">Puissance : <b>${st.pow.toFixed(1).replace('.', ',')}</b></h3>${bars}</div>
+  <div class="vtabs2">${VTABS.map(([k, n]) => `<button class="${VT === k ? 'on' : ''}" data-a="vt:${k}"><img src="${TICO[k]()}"><small>${n}</small></button>`).join('')}</div>
+  <div class="vstrip">${strip}</div>
+  <div class="top vtop"><div class="pill jt" data-a="ad"><img class="pic" src="img/ic/gem.webp"><b id="jtv">${fmt(SV.jt)}</b><i class="plus">+</i></div><div class="pill dt"><img class="pic" src="img/ic/coins.webp"><b id="dtv">${fmt(SV.dt)}</b><small>DT</small></div></div>`, 'vest2');
+  const sel = ui.querySelector('.scard.sel'); if (sel) sel.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+// fiche du joueur (comme le profil Head Ball)
+function profile() {
+  const c = CH(SV.char), st = statsFor(SV.char, SV.boot, SV.gear), rate = SV.played ? Math.round(SV.wins / SV.played * 100) : 0;
+  popup(`<div class="prof"><div class="pfL">${myHero('big idle' + (evoLv(SV.char) > 1 ? ' evo' + evoLv(SV.char) : ''))}<div class="pfpow"><img src="img/ic/bolt.webp">${st.pow.toFixed(1).replace('.', ',')}</div></div>
+   <div class="pfR"><div class="pfn">${crest(SV.club || 'est', 'pcr')}<b>${SV.nick}</b><button class="mbtn blue small" data-a="nick">✎</button></div>
+   <div class="pfg">${[['Taux de victoires', rate + ' %'], ['Victoires', fmt(SV.wins)], ['Matchs', fmt(SV.played)], ['Buts', fmt(SV.goals)], ['Meilleure série', SV.bestStreak], ['Meilleure division', DIV_N[SV.best]], ['Titres', SV.titles], ['Club', CL(SV.club || 'est').s]].map(([k, v]) => `<div><small>${k}</small><b>${v}</b></div>`).join('')}</div>
+   <div class="pfp"><span>Pouvoir :</span><img src="img/pw/${SV.pw}.webp"><b>${PW(SV.pw).n} • Niv. ${itLv(SV.pw)}</b></div></div></div>`);
+  ui.querySelector('.pop')?.classList.add('wide'); document.querySelector('.pop')?.classList.add('wide');
 }
 function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1900); }
 function pay(pr) { if (SV.dt < pr) { toast('Il te manque ' + fmt(pr - SV.dt) + ' DT'); return false; } SV.dt -= pr; return true; }
@@ -275,13 +311,14 @@ function act(a, el) {
     case 'start': if (!SV.tuto) return startTuto(); if (!SV.club) return clubsScr(true); return home();
     case 'home': return home();
     case 'snd': SV.snd = SV.snd ? 0 : 1; save(); if (MASTER) MASTER.gain.value = SV.snd ? .8 : 0; el.textContent = SV.snd ? '🔊' : '🔇'; return;
-    case 'nick': { const n = prompt('Ton pseudo :', SV.nick); if (n && n.trim()) { SV.nick = n.trim().slice(0, 16); save(); ui.querySelector('.nick b').textContent = SV.nick; } return; }
+    case 'nick': { if (!document.querySelector('.prof')) return profile(); const n = prompt('Ton pseudo :', SV.nick); if (n && n.trim()) { SV.nick = n.trim().slice(0, 16); save(); closePop(); profile(); const e = ui.querySelector('.nick b'); if (e) e.textContent = SV.nick; } return; }
     case 'vest': return vest();
     case 'vt': VT = v; return vest();
     case 'vs': VS[VT] = v; return vest();
     case 'eq': if (VT === 'char') SV.char = v; else if (VT === 'boots') SV.boot = v; else if (VT === 'pw') SV.pw = v; else SV.gear[VT] = v; save(); sfx('coin'); return vest();
     case 'buy': { const x = listFor(VT).find(i => i.id === v); if (!pay(x.pr)) return; if (VT === 'char') { SV.own.push(v); SV.char = v; save(); sfx('unlock'); return unlockFx(v); } if (VT === 'boots') { SV.ownB.push(v); SV.boot = v; } else if (VT === 'pw') { SV.ownP.push(v); SV.pw = v; } else { SV.ownA.push(v); SV.gear[VT] = v; } save(); sfx('unlock'); toast(x.n + ' : débloqué !'); return vest(); }
-    case 'evo': { const c = CH(v), lv = evoLv(v); if (lv >= 3 || !pay(EVO_C(c, lv + 1))) return; SV.evo[v] = lv + 1; save(); sfx('unlock'); return evoFx(v, lv + 1); }
+    case 'evo': case 'up': { if (VT === 'char') { const c = CH(v), lv = evoLv(v); if (lv >= 3 || !pay(EVO_C(c, lv + 1))) return; SV.evo[v] = lv + 1; save(); sfx('unlock'); return evoFx(v, lv + 1); }
+      const x = listFor(VT).find(i => i.id === v), lv = itLv(v); if (lv >= LVMAX || !pay(UPC(x, lv))) return; SV.lv[v] = lv + 1; save(); sfx('unlock'); toast(x.n + ' : niveau ' + (lv + 1) + ' !'); return vest(); }
     case 'league': return leagueScr();
     case 'ltab': LTAB = v; return leagueScr();
     case 'clubs': return clubsScr(false);
@@ -321,7 +358,8 @@ function oppFor() {
   const club = isDerbyWeek() && riv.length && Math.random() < .6 ? pick(riv) : pick(CLUBS.filter(x => x.id !== SV.club)).id;
   const gear = { ball: 'ba_cl' }; for (const s of ['hat', 'glasses', 'scarf']) if (Math.random() < .25 + (10 - dv) * .06) gear[s] = pick(ACC.filter(a => a.slot === s && a.kind && a.pr <= 2500 + (10 - dv) * 2000)).id;
   const evo = 1 + (Math.random() < (10 - dv) * .08 ? 1 : 0) + (dv <= 3 && Math.random() < .3 ? 1 : 0);
-  return { ch: c.id, boot: pick(bp).id, name: pick(NICKS) + '_' + (10 + Math.random() * 89 | 0), club, gear, evo, power: pick(POWERS).id, ai: clamp(lvl + rnd(-.06, .06), .25, .95) };
+  const olv = {}, L = () => clamp(1 + Math.floor((10 - dv) / 2.5 + rnd(-1, 1)), 1, LVMAX), bootId = pick(bp).id; olv[bootId] = L(); for (const k in gear) olv[gear[k]] = L(); const pw = pick(POWERS).id; olv[pw] = L();
+  return { lv: olv, ch: c.id, boot: bootId, name: pick(NICKS) + '_' + (10 + Math.random() * 89 | 0), club, gear, evo, power: pw, ai: clamp(lvl + rnd(-.06, .06), .25, .95) };
 }
 async function vsScreen() {
   const o = oppFor(), me = CH(SV.char), op = CH(o.ch), derby = isDerbyWeek() && rivals(SV.club || '').includes(o.club), V = venueNow();
@@ -336,7 +374,7 @@ async function vsScreen() {
   const wait = Math.max(0, 2400 - (Date.now() - t0));
   setTimeout(() => {
     ui.className = ''; ui.innerHTML = '';
-    newMatch({ me: { ch: SV.char, boot: SV.boot, name: SV.nick, club: SV.club, gear: SV.gear, evo: evoLv(SV.char), power: SV.pw }, op: { ...o, name: o.name }, venue: V.id, derby });
+    newMatch({ me: { ch: SV.char, boot: SV.boot, name: SV.nick, club: SV.club, gear: SV.gear, evo: evoLv(SV.char), power: SV.pw, lv: SV.lv }, op: { ...o, name: o.name }, venue: V.id, derby });
   }, wait);
 }
 async function startTuto() {
@@ -353,7 +391,7 @@ function onPause() {
 function onMatchEnd(r) {
   const [a, b] = r.score, win = a > b, draw = a === b, st = r.stats || {};
   const mult = 1 + (10 - SV.div) * .1, gain = Math.round(((win ? 150 : draw ? 70 : 40) + a * 20) * mult / 10) * 10;
-  SV.played++; SV.goals += a; if (win) { SV.wins++; SV.streak++; } else SV.streak = 0; SV.dt += gain;
+  SV.played++; SV.goals += a; if (win) { SV.wins++; SV.streak++; SV.bestStreak = Math.max(SV.bestStreak, SV.streak); } else SV.streak = 0; SV.dt += gain;
   // championnat
   const s = SV.season; s.n++; s.pts += win ? 3 : draw ? 1 : 0; s.res.push(win ? 'w' : draw ? 'd' : 'l');
   // points pour le club (doublés pendant la semaine du derby)

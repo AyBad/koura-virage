@@ -1,5 +1,5 @@
 // Koura Virage — nouveau projet (V1). Contenu du jeu.
-const APP_VERSION = '1.1';
+const APP_VERSION = '1.2';
 const CHARS=[
  {id:'bey',n:'Ahmed Bey',sub:'Le Bey réformateur (1806-1855)',r:'commun',pr:0,sk:'#e0ab7e',h:'chechia',hc:'#2a1a10',bd:'court',mo:1,spd:1,jmp:1,kp:1,hd:1},
  {id:'chebbi',n:'Abou el Kacem Chebbi',sub:'Le poète de Tozeur (1909-1934)',r:'commun',pr:1500,sk:'#c98e5e',h:'raie',hc:'#16100a',mo:1,spd:1.04,jmp:1.02,kp:1,hd:1.02},
@@ -119,3 +119,21 @@ const MISSIONS=[
  {id:'shots',t:'Tire {n} fois',n:25,dt:200,jt:1}];
 // Derbys : rivalités historiques (points doublés pendant la semaine du derby)
 const DERBYS=[['est','ca'],['ess','est'],['css','ess'],['css','est'],['ca','st'],['usm','ess'],['cab','est'],['ess','eshs']];
+// Géométrie des têtes (en fraction de la hauteur de l'image) :
+// w = largeur/hauteur, cut = bas du couvre-chef ou ligne du front, cx = centre de la tête à cette ligne,
+// hw = largeur de la tête à cette ligne, ex/ey = place des lunettes, nx = cou (écharpe), hg = porte déjà un couvre-chef
+const HG={
+ bey:[245,.38,.48,.68,.70,.42,.44,1],chebbi:[214,.31,.43,.71,.62,.40,.40,0],haddad:[218,.38,.46,.68,.63,.42,.44,1],
+ aziza:[220,.30,.42,.70,.55,.42,.42,1],ibnk:[215,.38,.40,.72,.53,.42,.40,1],kahena:[210,.30,.40,.70,.59,.41,.40,1],
+ jugurtha:[200,.26,.38,.68,.59,.42,.40,1],hamilcar:[185,.42,.36,.64,.49,.45,.38,1],elissa:[183,.31,.34,.63,.49,.43,.36,1],
+ hannibal:[185,.42,.33,.64,.49,.44,.36,1],l78gk:[195,.31,.36,.70,.51,.38,.36,0],l78dh:[174,.31,.33,.68,.51,.39,.34,0],
+ l78ag:[187,.31,.32,.68,.51,.39,.34,0],l78ka:[185,.31,.32,.68,.51,.39,.34,0],l78la:[178,.31,.32,.68,.51,.39,.34,0]};
+const HGEO=id=>{const a=HG[id]||HG.bey;return {w:a[0]/260,cut:a[1],cx:a[2],hw:a[3],ex:a[4],ey:a[5],nx:a[6],hg:a[7]};};
+// Chapeaux : largeur (x largeur de la tête), point d'ancrage dans l'image, retourné pour regarder devant
+const HATG={h_casq:{w:1.5,ax:.58,ay:.74,flip:1},h_mdhalla:{w:1.65,ax:.5,ay:.68},h_bob:{w:1.2,ax:.5,ay:.9},h_bonnet:{w:1.1,ax:.5,ay:.93},h_laurier:{w:1.15,ax:.5,ay:.8},h_chechia:{w:1.15,ax:.45,ay:.86}};
+const GLW={g_sun:.5,g_ronde:.48,g_sport:.55,g_ski:.6,g_star:.62};
+// Niveaux des objets (chaussures, accessoires, pouvoirs) : chaque niveau augmente le bonus
+const LVMAX=5;
+const lvB=(b,L)=>{const o={};for(const k in b||{})o[k]=Math.round(b[k]*(1+.5*((L||1)-1))*10)/10;return o;};
+const UPC=(it,L)=>Math.round(((it.pr||400)*.4+250)*L/50)*50;
+const PWF=L=>1+.2*((L||1)-1);

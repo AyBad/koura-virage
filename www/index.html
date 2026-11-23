@@ -52,13 +52,10 @@ b,small,span,em{font-style:normal}
 .pico{width:5.4vh;height:5.4vh;object-fit:contain;background:#fff;border-radius:50%;border:.3vh solid var(--o)}
 /* personnage HTML animé */
 .hero{position:relative;width:20vh;height:24vh}
-.hero .hboot{position:absolute;left:18%;bottom:2%;width:76%;transform-origin:20% 90%}
+.hero .hboot{position:absolute;left:30%;bottom:0;width:66%;transform-origin:50% 90%}
 .hero .hboot{transform:scaleX(-1)}
-.hero .hhead{position:absolute;left:50%;bottom:22%;height:76%;aspect-ratio:245/260;transform:translateX(-50%);transform-origin:50% 90%}
+.hero .hhead{position:absolute;left:44%;bottom:23%;height:74%;aspect-ratio:245/260;transform:translateX(-50%);transform-origin:50% 90%}
 .hhead img{position:absolute}.hhead .hface{inset:0;width:100%;height:100%}
-.hhead .ahat{width:83%;left:48%;top:20%;transform:translate(-50%,-82%)}.hhead .ahat.h_mdhalla{width:110%}.hhead .ahat.h_laurier{width:79%}
-.hhead .aglass{width:53%;left:63%;top:39%;transform:translate(-50%,-50%)}
-.hhead .ascarf{width:77%;left:50%;top:92%;transform:translate(-50%,-50%)}
 .hero.evo2{filter:drop-shadow(0 0 2vh #b060ff)}.hero.evo3{filter:drop-shadow(0 0 2.5vh #ffc400)}
 .hero .hsh{position:absolute;left:12%;right:12%;bottom:-2%;height:9%;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
 .hero.big{width:30vh;height:36vh}
@@ -201,6 +198,47 @@ b,small,span,em{font-style:normal}
 .rT{font-size:9vh}.rS{font-size:10vh}.rG{display:flex;align-items:center;gap:1vh}
 .rInfo{display:flex;gap:2vh;flex-wrap:wrap;justify-content:center;font-size:2.4vh;text-shadow:var(--ts)}.rInfo span{display:flex;align-items:center;gap:.8vh;background:#0009;border-radius:2vh;padding:.6vh 1.8vh}
 .send{font-family:"Luckiest Guy";font-size:4.4vh;padding:1vh 3vh;border-radius:2vh;border:.5vh solid var(--o);text-shadow:var(--ts);animation:pop .5s .6s both}.send.up,.send.title{background:linear-gradient(#ffd200,#e07800)}.send.down{background:#8a1424}.send.stay{background:#22305c}
+
+/* V1.2 vestiaire façon Head Ball */
+.vest2 .bgimg{inset:0}
+.vgrid{position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,#0000 1px),linear-gradient(90deg,#ffffff08 1px,#0000 1px);background-size:5vh 5vh}
+.vtop{left:auto;right:2vh;top:2vh}
+.vtitle{position:absolute;left:13vh;top:2vh;max-width:60%;text-shadow:var(--ts)}.vtitle h1{font-family:"Luckiest Guy";font-size:7vh;color:#ffd200;line-height:1}.vtitle p{font-size:2.6vh;margin-top:.6vh;max-width:70vh}
+.vcard{position:absolute;left:3vh;top:19vh;width:36vh;display:flex;flex-direction:column;gap:1.2vh;align-items:stretch;background:#0b1430cc;border:.5vh solid var(--o);border-radius:2.4vh;padding:1.4vh}
+.vcf{position:relative;height:22vh;border-radius:1.6vh;border:.45vh solid var(--o);background:radial-gradient(circle at 50% 40%,#fff5,#0000 60%),linear-gradient(color-mix(in srgb,var(--rc) 85%,#fff 0%),color-mix(in srgb,var(--rc) 40%,#000));display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 .5vh 0 var(--o)}
+.vcimg{max-width:85%;max-height:80%;filter:drop-shadow(0 .6vh .5vh #0008)}.vcimg.evo{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:cover}
+.vr{position:absolute;left:0;right:0;bottom:0;background:#000a;text-align:center;font-size:2vh;padding:.3vh;text-shadow:var(--ts)}
+.vcf .none{font-size:10vh;opacity:.5}
+.vlv{display:flex;align-items:center;justify-content:space-between;font-size:2.6vh;text-shadow:var(--ts);padding:0 .6vh}.vlv i{font-style:normal;color:#55607a;font-size:3vh}.vlv i.on{color:#ffd200}
+.vcard .mbtn{height:7.5vh;font-size:2.6vh;padding:0 1vh}
+.vhero{position:absolute;left:50%;top:13vh;transform:translateX(-58%);width:50vh;height:52vh;display:flex;align-items:flex-end;justify-content:center}
+.vhero .hero.big{width:44vh;height:50vh}.vhero .halo{width:52vh;height:52vh;bottom:-4vh}
+.vstat{position:absolute;right:3vh;top:13vh;width:50vh;background:#0b1430d8;border:.5vh solid var(--o);border-radius:2.4vh;padding:1.4vh 2vh;text-shadow:var(--ts)}
+.vstat h3{display:flex;align-items:center;gap:1vh;font-size:3.4vh;color:#ffd200;margin-bottom:1vh}.vstat h3 img{height:4.4vh}.vstat h3 b{font-family:"Luckiest Guy";font-size:4.6vh;color:#fff}
+.vrow{display:flex;align-items:center;gap:1.2vh;margin:.8vh 0}.vrow em{font-style:normal;width:5vh;height:5vh;border-radius:1.2vh;background:linear-gradient(#ff7a3c,#c8102e);border:.3vh solid var(--o);display:flex;align-items:center;justify-content:center;font-size:2.6vh}
+.vsb{flex:1}.vsb small{display:block;font-size:2vh;text-align:center}.vsb i{display:flex;height:2.2vh;background:#000a;border-radius:1.2vh;overflow:hidden;border:.25vh solid var(--o)}.vsb i b{background:linear-gradient(#b4ff3c,#3fae1a)}.vsb i u{background:linear-gradient(#7ad7ff,#1f7ae0)}
+.vrow strong{width:5vh;text-align:right;font-size:3vh;color:#b4ff3c}.vrow span{width:5vh;font-size:2.2vh}.vrow span.p{color:#4fc3ff}.vrow span.n{color:#ff6b6b}
+.vtabs2{position:absolute;left:3vh;right:3vh;bottom:21.5vh;display:flex;justify-content:center;gap:1vh}
+.vtabs2 button{width:12vh;height:9vh;border-radius:1.6vh 1.6vh 0 0;background:#1b2b55;border:.4vh solid var(--o);border-bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-shadow:var(--ts)}
+.vtabs2 button img{height:5vh;max-width:9vh;object-fit:contain}.vtabs2 button small{font-size:1.5vh}.vtabs2 button.on{background:linear-gradient(#2fc6ff,#1373c8);transform:translateY(-.8vh);height:9.8vh}
+.vstrip{position:absolute;left:0;right:0;bottom:0;height:21.5vh;background:linear-gradient(#123a7a,#0b1d44);border-top:.5vh solid var(--o);display:flex;gap:1.2vh;padding:1.4vh 2vh;overflow-x:auto;overflow-y:hidden;touch-action:pan-x}
+.scard{position:relative;flex:0 0 17vh;height:18vh;border-radius:1.6vh;border:.45vh solid var(--o);background:radial-gradient(circle at 50% 35%,#ffffff40,#0000 65%),linear-gradient(#3a5a9a,#1a2b55);overflow:hidden;box-shadow:0 .5vh 0 var(--o)}
+.scard.sel{box-shadow:0 0 0 .5vh #2fff8a,0 .5vh 0 var(--o);transform:translateY(-.6vh)}
+.scard img{position:absolute;left:50%;transform:translateX(-50%)}.scard .sh{top:4%;height:72%}.scard .si{top:20%;width:80%}.scard .sp{top:6%;height:66%}
+.scard.lock img{filter:grayscale(1) brightness(.6)}
+.scard .sr{position:absolute;left:0;right:0;bottom:0;padding:.4vh 0;background:var(--rc);font-size:1.9vh;text-align:center;text-shadow:var(--ts)}
+.scard .slv{position:absolute;left:.6vh;top:.3vh;color:#ffd200;font-size:2.2vh;text-shadow:var(--ts)}
+.scard .chk{position:absolute;right:.6vh;top:.6vh;width:3.6vh;height:3.6vh;border-radius:1vh;background:linear-gradient(#b4ff3c,#3fae1a);border:.3vh solid var(--o);display:flex;align-items:center;justify-content:center;font-size:2.2vh}
+.scard .spr{position:absolute;right:.5vh;top:.4vh;font-size:1.9vh;background:#000b;border-radius:1vh;padding:.2vh .8vh;color:#ffe066}
+.scard .none{position:absolute;inset:0 0 25%;display:flex;align-items:center;justify-content:center;font-size:7vh;opacity:.5}
+/* profil */
+.pop.wide .pbx{min-width:120vh}
+.prof{display:flex;gap:3vh;align-items:center;text-align:left}
+.pfL{display:flex;flex-direction:column;align-items:center}.pfL .hero.big{width:30vh;height:34vh}
+.pfpow{display:flex;align-items:center;gap:.6vh;font-family:"Luckiest Guy";font-size:4vh;color:#ffd200}.pfpow img{height:4.4vh}
+.pfR{display:flex;flex-direction:column;gap:1.4vh}.pfn{display:flex;align-items:center;gap:1.4vh}.pfn b{font-family:"Luckiest Guy";font-size:5vh}.pfn .mbtn{height:6vh;padding:0 2vh}
+.pfg{display:grid;grid-template-columns:repeat(4,1fr);gap:1vh}.pfg div{background:#0008;border-radius:1.4vh;padding:.8vh 1.2vh;display:flex;flex-direction:column;align-items:center}.pfg small{font-size:1.8vh;color:#ffd200}.pfg b{font-size:3.2vh}
+.pfp{display:flex;align-items:center;gap:1vh;font-size:2.6vh}.pfp img{height:6vh}
 </style>
 </head>
 <body>

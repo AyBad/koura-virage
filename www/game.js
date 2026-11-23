@@ -110,7 +110,8 @@ class Player {
     this.side = side; this.face = side ? -1 : 1; this.ch = CH(o.ch); this.boot = BT(o.boot); this.name = o.name; this.ai = o.ai || 0;
     this.club = CL(o.club); this.gear = o.gear || {}; this.evo = o.evo || 1; this.power = o.power || 'harissa';
     const bon = { spd: 0, jmp: 0, kp: 0, hd: 0 }; const add = b => { for (const k in b || {}) bon[k] += b[k]; };
-    add(this.boot.b); for (const s in this.gear) { const a = AC_(this.gear[s]); if (a) add(a.b); }
+    const lv = o.lv || {}; add(lvB(this.boot.b, lv[this.boot.id])); for (const s in this.gear) { const a = AC_(this.gear[s]); if (a) add(lvB(a.b, lv[a.id])); }
+    this.pwf = PWF(lv[o.power || 'harissa']);
     const e = 1 + EVO_B[this.evo - 1] / 100, c = this.ch;
     this.spd = (c.spd || 1) * (1 + bon.spd / 100) * e; this.jmp = (c.jmp || 1) * (1 + bon.jmp / 100) * Math.sqrt(e);
     this.kp = (c.kp || 1) * (1 + bon.kp / 100) * e; this.hdp = (c.hd || 1) * (1 + bon.hd / 100) * e;
@@ -183,18 +184,24 @@ function mkPlayer(p) {
   const rig = new PIXI.Container(); root.addChild(rig);
   // chaussure (les images regardent vers la gauche : on les retourne pour qu'elles pointent vers l'adversaire)
   const bootC = new PIXI.Container(); rig.addChild(bootC);
-  const boot = new PIXI.Sprite(T('img/eq/' + p.boot.id + '.webp')); boot.anchor.set(.5, .93); const bk = BOOT_W / boot.texture.width; boot.scale.set(-bk * p.face, bk); boot.x = p.face * 8; bootC.addChild(boot);
-  // tête (4 expressions) + accessoires
+  const boot = new PIXI.Sprite(T('img/eq/' + p.boot.id + '.webp')); boot.anchor.set(.5, .93); const bk = BOOT_W / boot.texture.width; boot.scale.set(-bk * p.face, bk); boot.x = p.face * 22; bootC.addChild(boot);
+  // tête (4 expressions) + accessoires placés selon le visage de chaque personnage
   const head = new PIXI.Container(); rig.addChild(head); head.y = HEAD_Y;
-  const heads = [0, 1, 2, 3].map(i => { const s = new PIXI.Sprite(T('img/h/' + p.ch.id + '_' + i + '.webp')); s.anchor.set(.5, .86); const k = HEAD_H / s.texture.height; s.scale.set(k * p.face, k); s.visible = i === 0; head.addChild(s); return s; });
-  const g = p.gear, has = id => id && AC_(id) && AC_(id).kind;
-  if (has(g.scarf)) { const s = new PIXI.Sprite(T('img/eq/' + g.scarf + '.webp')); s.anchor.set(.5); const k = 72 / s.texture.width; s.scale.set(k * p.face, k); s.y = -6; head.addChild(s); }
-  if (has(g.glasses)) { const s = new PIXI.Sprite(T('img/eq/' + g.glasses + '.webp')); s.anchor.set(.5); const k = 50 / s.texture.width; s.scale.set(k * p.face, k); s.x = p.face * 12; s.y = -47; head.addChild(s); }
-  if (has(g.hat)) { const s = new PIXI.Sprite(T('img/eq/' + g.hat + '.webp')); s.anchor.set(.5, .82); const w = g.hat === 'h_mdhalla' ? 104 : g.hat === 'h_laurier' ? 74 : 78, k = w / s.texture.width; s.scale.set(k * p.face, k); s.y = -66; s.x = -p.face * 2; head.addChild(s); }
+  const G = HGEO(p.ch.id), Hh = HEAD_H, X = v => (v - .5 * G.w) * Hh * p.face, Y = v => (v - .86) * Hh;
+  const faceC = new PIXI.Container(); head.addChild(faceC);
+  const heads = [0, 1, 2, 3].map(i => { const s = new PIXI.Sprite(T('img/h/' + p.ch.id + '_' + i + '.webp')); s.anchor.set(.5, .86); const k = Hh / s.texture.height; s.scale.set(k * p.face, k); s.visible = i === 0; faceC.addChild(s); return s; });
+  const g = p.gear, has = id => id && AC_(id) && AC_(id).kind, tint = [...heads];
+  if (has(g.scarf)) { const s = new PIXI.Sprite(T('img/eq/' + g.scarf + '.webp')); s.anchor.set(.5); const k = .74 * Hh / s.texture.width; s.scale.set(k * p.face, k); s.x = X(G.nx); s.y = Y(.9); head.addChild(s); tint.push(s); }
+  if (has(g.glasses)) { const s = new PIXI.Sprite(T('img/eq/' + g.glasses + '.webp')); s.anchor.set(.5); const k = (GLW[g.glasses] || .5) * Hh / s.texture.width; s.scale.set(k * p.face, k); s.x = X(G.ex); s.y = Y(G.ey); head.addChild(s); tint.push(s); }
+  if (has(g.hat)) {
+    const hg = HATG[g.hat] || { w: 1.2, ax: .5, ay: .8 }, cut = g.hat === 'h_laurier' && !G.hg ? 0 : G.cut;
+    if (cut) { const m = new PIXI.Graphics(); m.beginFill(0xffffff); m.drawRect(-Hh * 1.5, Y(cut), Hh * 3, Hh * 1.5); m.endFill(); head.addChild(m); faceC.mask = m; }   // le chapeau remplace la chéchia / le casque
+    const s = new PIXI.Sprite(T('img/eq/' + g.hat + '.webp')); s.anchor.set(hg.ax, hg.ay); const k = hg.w * G.hw * Hh / s.texture.width; s.scale.set(k * p.face * (hg.flip ? -1 : 1), k); s.x = X(G.cx); s.y = Y(G.cut); head.addChild(s); tint.push(s);
+  }
   const ice = new PIXI.Sprite(T('img/fx/ice.webp')); ice.anchor.set(.5, .8); ice.width = 130; ice.height = 120; ice.alpha = 0; rig.addChild(ice);
   const honey = new PIXI.Sprite(T('img/fx/honey.webp')); honey.anchor.set(.5, .6); honey.width = 130; honey.height = 50; honey.alpha = 0; S.under.addChild(honey);
   try { rig.filters = [new PIXI.filters.DropShadowFilter({ offset: { x: 0, y: 3 }, color: 0x000000, alpha: .35, blur: 2, quality: 2 })]; } catch (e) { }
-  return { root, sh, aura, rig, head, heads, bootC, boot, ice, honey };
+  return { root, sh, aura, rig, head, heads, bootC, boot, ice, honey, tint };
 }
 
 // pelouse vue de côté avec bandes, lignes et terre usée (comme Head Ball)
@@ -345,7 +352,7 @@ function shoot(p, b) {
 }
 function afterShot(p, b, t) {
   b.last = p.side; b.lastT = t; b.hot = t === 'lo' ? 24 : 0; b.sq = .5; b.sqa = Math.atan2(b.vy, b.vx);
-  if (p.fireNext > 0) { p.fireNext = 0; b.fire = 80; b.vx *= 1.25; b.vy *= 1.1; b.fireBy = p.side; sfx('fire'); }
+  if (p.fireNext > 0) { p.fireNext = 0; b.fire = 80; const fm = 1.15 + .05 * (p.fireMul || 1); b.vx *= fm; b.vy *= 1.1; b.fireBy = p.side; sfx('fire'); }
   p.pw = Math.min(1, p.pw + .03);
 }
 function impact(x, y, hs, power) { M.hs = Math.max(M.hs, hs); M.shake = Math.max(M.shake, 5 * power); ring(x, y, power); sparks(x, y, 10 * power, 0xfff3b0); }
@@ -356,16 +363,17 @@ function usePower(p) {
   p.pw = 0; const o = M.P[1 - p.side], id = p.power; sfx('power'); M.flash = .25;
   ring(p.hx, p.hy, 1.4); sparks(p.hx, p.hy, 18, 0xffd200);
   showMsg(PW(id).n.toUpperCase() + ' !', p.side === 0 ? 0xffd200 : 0xff6b6b, 'small');
-  if (id === 'harissa') p.fireNext = 480;
-  else if (id === 'bard') { o.frz = 180; o.vx = 0; sfx('ice'); }
-  else if (id === 'boutellis') { o.glue = 180; o.vx = 0; }
-  else if (id === 'cage') { M.bigGoal[o.side] = 420; drawGoals(); }
-  else if (id === 'chlaka') { const sp = new PIXI.Sprite(T('img/fx/sandal.webp')); sp.anchor.set(.5); sp.width = 70; sp.height = 52; S.projL.addChild(sp); M.proj.push({ sp, x: p.hx, y: p.hy - 10, vx: p.face * 11, vy: -6, o: p.side, r: 0 }); }
-  else if (id === 'raskbir') p.big = 420;
+  const f = p.pwf || 1;
+  if (id === 'harissa') { p.fireNext = 480; p.fireMul = f; }
+  else if (id === 'bard') { o.frz = Math.round(150 * f); o.vx = 0; sfx('ice'); }
+  else if (id === 'boutellis') { o.glue = Math.round(150 * f); o.vx = 0; }
+  else if (id === 'cage') { M.bigGoal[o.side] = Math.round(330 * f); drawGoals(); }
+  else if (id === 'chlaka') { const sp = new PIXI.Sprite(T('img/fx/sandal.webp')); sp.anchor.set(.5); sp.width = 70; sp.height = 52; S.projL.addChild(sp); M.proj.push({ sp, x: p.hx, y: p.hy - 10, vx: p.face * 11, vy: -6, o: p.side, r: 0, st: Math.round(75 * f) }); }
+  else if (id === 'raskbir') p.big = Math.round(330 * f);
   if (p.side === 0) { M.ev.pw = 1; M.stats.pw++; }
 }
 function stepProj() {
-  for (const q of M.proj) { q.vy += .3; q.x += q.vx; q.y += q.vy; q.r += .3 * Math.sign(q.vx); const o = M.P[1 - q.o]; if (Math.hypot(q.x - o.hx, q.y - o.hy) < o.hr + 20) { o.stun = 90; q.dead = 1; sfx('bump'); impact(q.x, q.y, 3, .8); } if (q.y > GROUND || q.x < -50 || q.x > W + 50) q.dead = 1; }
+  for (const q of M.proj) { q.vy += .3; q.x += q.vx; q.y += q.vy; q.r += .3 * Math.sign(q.vx); const o = M.P[1 - q.o]; if (Math.hypot(q.x - o.hx, q.y - o.hy) < o.hr + 20) { o.stun = q.st || 90; q.dead = 1; sfx('bump'); impact(q.x, q.y, 3, .8); } if (q.y > GROUND || q.x < -50 || q.x > W + 50) q.dead = 1; }
   for (const q of M.proj) if (q.dead) q.sp.destroy();
   M.proj = M.proj.filter(q => !q.dead);
   for (const s of [0, 1]) if (M.bigGoal[s] > 0) { M.bigGoal[s]--; if (M.bigGoal[s] === 0 || M.bigGoal[s] % 6 === 0) drawGoals(); }
@@ -476,7 +484,7 @@ function renderPlayer(p, v, al) {
   const hd = p.hd > 0 ? Math.sin(p.hd / 14 * Math.PI) : 0, br = 1 + Math.sin(a.t * .07 + p.side * 2) * .02, big = p.big > 0 ? 1.45 : 1;
   v.head.x = p.face * hd * 14; v.head.y = HEAD_Y - a.ho * .55 + hd * 5; v.head.rotation = a.tilt * p.face; v.head.scale.set(br * big, (2 - br) * big);
   v.heads.forEach((s, i) => s.visible = i === p.expr);
-  for (const c of v.head.children) c.tint = p.frz > 0 ? 0x9fe6ff : 0xffffff;
+  for (const c of v.tint) c.tint = p.frz > 0 ? 0x9fe6ff : 0xffffff;
   v.ice.alpha += ((p.frz > 0 ? .9 : 0) - v.ice.alpha) * .3; v.ice.y = -24;
   v.honey.x = x; v.honey.y = GROUND + 4; v.honey.alpha += ((p.glue > 0 ? 1 : 0) - v.honey.alpha) * .3;
   const evoA = p.evo >= 3 ? .45 : p.evo === 2 ? .3 : 0, glow = Math.max(evoA + .1 * Math.sin(a.t * .08), p.fireNext > 0 ? .7 : 0, M.celeb && M.celeb.side === p.side ? .5 : 0);
