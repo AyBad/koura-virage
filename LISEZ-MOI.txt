@@ -1,0 +1,27 @@
+KOURA VIRAGE - foot 1 contre 1 à grosses têtes, ambiance tunisienne (Syphax Apps)
+
+ANDROID - lien direct (toujours la dernière version) :
+https://github.com/AyBad/koura-virage/releases/latest/download/koura-virage.apk
+Page de la dernière version (fichier koura-virage-vX.Y.apk) :
+https://github.com/AyBad/koura-virage/releases/latest
+
+IPHONE / NAVIGATEUR - version web installable :
+https://aybad.github.io/koura-virage/
+Safari > Partager > « Sur l'écran d'accueil ». Plein écran, mises à jour automatiques.
+
+VERSION : APP_VERSION dans www/index.html (affichée en bas à gauche du menu).
+Chaque modification incrémente la version ; l'APK se met à jour sans désinstaller (signature fixe).
+
+RÉGLAGES DU JEU (www/index.html) :
+- CLUBS : 16 clubs de Ligue 1 2026-2027, couleurs (c1, c2), motif d'écusson, stade.
+- DERBIES : derbies qui tournent chaque semaine (points du club x2).
+- DIVS : points de montée (pr) et de maintien (rl) par division ; Division 1 = 24 pts.
+- MAXT / REGEN : nombre de jetons et temps de recharge (5 jetons, 1 toutes les 15 min).
+- ADMAX : nombre de pubs récompensées par jour.
+
+PUBLICITÉ (Android) : Google AdMob avec des identifiants de TEST.
+Avant publication, remplacer ADMOB_APP_ID dans .github/workflows/build-apk.yml
+et const ADMOB dans www/index.html (testing:false).
+
+EN LIGNE : en V0.1, les adversaires du championnat et le classement des clubs sont simulés
+sur le téléphone. Le vrai multijoueur et le classement partagé nécessitent un serveur (Supabase).
