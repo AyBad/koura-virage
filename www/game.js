@@ -179,7 +179,7 @@ function bootSprite(p,kick){const d=Math.max(1,Math.min(3,DPR*SC)),q=Math.round(
 function drawPlayer(p){const b=M.b;
  if(p.glue>0){g.fillStyle='#e0a10acc';g.beginPath();g.ellipse(p.x,GY+2,46,9,0,0,7);g.fill();g.strokeStyle=OUT;g.lineWidth=2;g.stroke();}
  const kick=p.kick>0?Math.sin((1-p.kick/14)*Math.PI)*(p.kt==='high'?.95:.6):0;
- const air=clamp((GY-p.y)/120,0,1);g.fillStyle='rgba(0,0,0,'+(.38-air*.2)+')';g.beginPath();g.ellipse(p.x,GY+2,34-air*12,6-air*2,0,0,7);g.fill();
+ const air=clamp((GY-p.y)/120,0,1);g.fillStyle='rgba(7,22,31,'+(.36-air*.22)+')';g.beginPath();g.ellipse(p.x,GY+2,38-air*15,7-air*3,0,0,7);g.fill();
  {const cl=(p.gear.clv&&p.gear.clv[p.ch.id])||1;if(cl>1)drawAura(g,p.hx,p.hy,p.hr,cl,Date.now());}
  const sq=p.sq,sy=1+sq+p.land*.10-p.jumpPulse*.08,sx=1-sq*.6+p.jumpPulse*.07-p.land*.06,run=Math.abs(p.vx)>.5&&p.y>=GY-1?Math.abs(Math.sin(p.animT+p.side))*3:0;
  g.save();g.translate(p.x,p.y);g.scale(sx,sy);g.translate(-p.x,-p.y-run);
@@ -211,10 +211,9 @@ function draw(al){g.setTransform(1,0,0,1,0,0);g.fillStyle='#101320';g.fillRect(0
  const now=Date.now(),fr=(M.state==='goal'?Math.floor(now/110):Math.floor(now/420))%2;g.drawImage(SCN.full[fr],-EX,0);drawLive(now,M.V,M.state==='goal');
  goalSprite(0,gtop(0),'b');goalSprite(1,gtop(1),'b');
  for(const w of M.walls){const x0=w.side?W-GW-34:GW+6,top=gtop(w.side)-10;g.beginPath();rrc(g,x0,top,28,GY-top,10);g.fillStyle='#e8b86a';g.fill();g.lineWidth=3;g.strokeStyle=OUT;g.stroke();g.fillStyle='#7ab648';g.fillRect(x0+3,top+30,22,10);g.fillStyle='#d23b2b';g.fillRect(x0+3,top+65,22,8);g.fillStyle='#f2e3a0';g.fillRect(x0+3,top+100,22,10);}
- drawStadiumLight(now);
+ if(M.V.t==='stade')drawStadiumLight(now);
  // ombres
  const b=M.b;const shs=clamp(1-(GY-b.y)/380,.25,1);g.fillStyle='rgba(0,0,0,'+(.35*shs)+')';g.beginPath();g.ellipse(b.x,GY+3,BR*shs*1.2,4.5*shs,0,0,7);g.fill();
- for(const p of M.P){const altitude=Math.max(0,GY-p.y);const scale=clamp(1-altitude/440,.42,1);g.save();g.fillStyle='rgba(7,22,31,.30)';g.beginPath();g.ellipse(p.x,GY+4,39*scale,7*scale,0,0,Math.PI*2);g.fill();g.restore();}
  drawPlayer(M.P[0]);drawPlayer(M.P[1]);
  if(M.celeb&&M.state==='goal'){const p=M.P[M.celeb.side],nw=Date.now();drawCeleb(g,M.celeb.kind,p.hx,p.hy-p.hr-52-Math.abs(Math.sin(nw*.008))*10,1.25,nw);}
  for(const q of M.proj){g.save();g.translate(q.x,q.y);g.rotate(q.r);g.beginPath();rrc(g,-15,-6,30,12,6);g.fillStyle='#2c6fe0';g.fill();g.lineWidth=2.5;g.strokeStyle=OUT;g.stroke();g.restore();}
@@ -252,7 +251,7 @@ function drawLive(now,V,goal){
  if(V.t==='stade'){
   if(Math.random()<(goal?.6:.12))FLASH.push({x:Math.random()*W,y:130+Math.random()*180,l:8});
   for(const f of FLASH){f.l--;g.globalAlpha=f.l/8;g.fillStyle='#fffbe0';g.beginPath();for(let i=0;i<8;i++){const r=i%2?2:9;g.lineTo(f.x+Math.cos(i*Math.PI/4)*r,f.y+Math.sin(i*Math.PI/4)*r);}g.fill();}g.globalAlpha=1;FLASH=FLASH.filter(f=>f.l>0);
-  const msgs=['KOURA VIRAGE','SYPHAX APPS','ALLEZ '+(M?M.P[0].club.s:'')+' !','YA3TIK ESSA7A','LIGUE 1 • 2026-27'];
+  const msgs=['KAWARJIA','SYPHAX APPS','ALLEZ '+(M?M.P[0].club.s:'')+' !','YA3TIK ESSA7A','LIGUE 1 • 2026-27'];
   for(let i=-1;i<5;i++){const bx=i*240+6,by=318;g.save();g.beginPath();rrc(g,bx,by,228,30,5);g.clip();const hue=goal?['#ff2a2a','#ffd200','#2cc26b','#2c6fe0'][(Math.floor(now/150)+i+4)%4]:['#c4161c','#1d4fb8','#14171f','#1f8a4c'][(i+4)%4];g.fillStyle=hue;g.fillRect(bx,by,228,30);
    g.fillStyle='#ffffff10';for(let k=0;k<30;k+=3)g.fillRect(bx,by+k,228,1);const t=goal?'GOOOOOL !!!':msgs[(Math.floor(now/6000)+i+5)%msgs.length];g.font='16px '+FONT;const tw=g.measureText(t).width;const off=(now*.06+i*90)%(tw+228);g.textAlign='left';textOut(g,t,bx+228-off,by+21,16,goal?'#fff':'#ffd200',OUT,3);g.restore();g.beginPath();rrc(g,bx,by,228,30,5);g.lineWidth=3;g.strokeStyle=OUT;g.stroke();}}}
 let FLASH=[];
