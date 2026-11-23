@@ -66,9 +66,9 @@ function useSP(p,i){const s=p.sps[i];if(!s||s.n<=0||M.state!=='play')return;cons
  else if(k==='chergui'){M.b.wind=150;M.b.windDir=p.face;}}
 function shoot(p,b,type){const k=p.st.kp;
  if(p.chg>0){const kind=p.chgK;p.chg=0;if(kind==='harissa'){b.fire=90;b.vx=p.face*17;b.vy=type==='high'?-3:-.5;}else{b.zig=90;b.zt=0;b.vx=p.face*11.5;b.vy=0;}b.lt={s:p.side,t:kind};M.shake=8;return;}
- if(type==='head'){b.vx=p.face*8.2*p.st.hd+p.vx*.3;b.vy=p.kt==='high'?-7:1.5;}
- else if(type==='high'){b.vx=p.face*(6.6+Math.random())*k+p.vx*.3;b.vy=-11.2*Math.sqrt(k);}
- else{b.vx=p.face*(10.2+Math.random()*1.2)*k+p.vx*.35;b.vy=-3.4;}
+ if(type==='head'){b.vx=p.face*10.2*p.st.hd+p.vx*.3;b.vy=p.kt==='high'?-7:1.5;}
+ else if(type==='high'){b.vx=p.face*(8.1+Math.random())*k+p.vx*.3;b.vy=-11.2*Math.sqrt(k);}
+ else{b.vx=p.face*(12.1+Math.random()*1.2)*k+p.vx*.35;b.vy=-3.4;}
  b.lt={s:p.side,t:type};}
 function circ(b,cx,cy,cr,pvx,pvy,e){const dx=b.x-cx,dy=b.y-cy,d=Math.hypot(dx,dy),m=cr+BR;if(d>=m||d===0)return false;const nx=dx/d,ny=dy/d;b.x=cx+nx*m;b.y=cy+ny*m;const rvx=b.vx-pvx,rvy=b.vy-pvy,vn=rvx*nx+rvy*ny;
  if(vn<0){b.vx-=(1+e)*vn*nx;b.vy-=(1+e)*vn*ny;}b.vx+=pvx*.12;if(pvy<0)b.vy+=pvy*.25;return true;}
@@ -78,9 +78,9 @@ function dust(x,y,n){for(let i=0;i<n;i++)M.fx.push({x:x+(Math.random()-.5)*30,y:
 function burst(x,y,col){M.fx.push({x,y,l:12,burst:1,c:col||'#fff'});for(let i=0;i<8;i++){const a=Math.random()*7;M.fx.push({x,y,vx:Math.cos(a)*4,vy:Math.sin(a)*4,l:14,c:col||'#fff8c0',s:4});}}
 function stepPlayer(p,I){const b=M.b;
  for(const k of ['stun','frz','glue','big','chg','kick','kcd','hd'])if(p[k]>0)p[k]--;
- const can=p.stun<=0&&p.frz<=0&&M.state==='play',mv=can&&p.glue<=0,sp=3.7*p.st.spd;
+ const can=p.stun<=0&&p.frz<=0&&M.state==='play',mv=can&&p.glue<=0,sp=4.25*p.st.spd;
  let ax=0;if(mv){if(I.l)ax-=1;if(I.r)ax+=1;}
- p.vx+=(ax*sp-p.vx)*(p.y<GY-1?.12:.28);
+ p.vx+=(ax*sp-p.vx)*(p.y<GY-1?.15:.36);
  if(mv&&I.j&&p.y>=GY-.5){p.vy=-11.6*p.st.jmp;p.sq=.18;p.jumpPulse=1;if(p.side===0)M.ev.jump=1;sfx('jump');dust(p.x,GY,6);}
  if(can&&(I.lo||I.hi)&&p.kcd<=0){const t=I.hi?'high':'lo';p.kt=t;p.kcd=18;if(p.side===0)M.ev[t==='high'?'hi':'lo']=1;
   if(headZone(p,b)){p.hd=12;p.hitPulse=1;shoot(p,b,'head');sfx('head');burst(b.x,b.y,'#fff');if(p.side===0)M.ev.header=1;}else{p.kick=14;p.kd=false;p.hitPulse=.45;sfx('swish');}}
@@ -99,13 +99,15 @@ function stepAI(p){const o=M.P[1-p.side],b=M.b,d=p.ai,att=p.face;const I={l:0,r:
  const fd=Math.hypot(b.x-(p.x+att*30),b.y-(p.y-16));if(fd<58&&front&&Math.random()<.14+d*.45){const block=(o.x-p.x)*att>0&&Math.abs(o.x-p.x)<170;I[block&&Math.random()<.65?'hi':'lo']=1;}
  if(p.sps.length&&M.t>200&&Math.random()<.005+d*.005){const i=p.sps.findIndex(s=>s.n>0);if(i>=0){const k=p.sps[i].id;const ok=k==='kaskrout'?b.vx*att<-3:(k==='harissa'||k==='fennec')?Math.hypot(b.x-p.x,b.y-p.y)<200:true;if(ok)I.s[i]=1;}}
  if(d<.5&&Math.random()<(.5-d)*.3)I.l=I.r=0;return I;}
-function stepBall(){const b=M.b;const grav=(b.fire>0||b.zig>0)?0:.34;
+function stepBall(){const b=M.b;const grav=(b.fire>0||b.zig>0)?0:.31;
  if(b.fire>0)b.fire--;if(b.wind>0){b.wind--;b.vx+=b.windDir*.25;}
  if(b.zig>0){b.zig--;b.zt++;b.vy=Math.sin(b.zt*.3)*5;}
- b.vy+=grav;b.vx*=.996;const sp=Math.hypot(b.vx,b.vy),mx=b.fire>0?19:15;if(sp>mx){b.vx*=mx/sp;b.vy*=mx/sp;}
+ b.vy+=grav;b.vx*=.996;const sp=Math.hypot(b.vx,b.vy),mx=b.fire>0?21:18;if(sp>mx){b.vx*=mx/sp;b.vy*=mx/sp;}
+ // Rotation du ballon en vol et au sol, calculée à chaque pas de physique.
+ b.rot+=(b.vx*.035+b.vy*.009);if(Math.abs(b.rot)>Math.PI*2)b.rot%=Math.PI*2;
  const touched=[false,false];
  for(let sub=0;sub<2;sub++){b.x+=b.vx/2;b.y+=b.vy/2;
-  if(b.y>GY-BR){b.y=GY-BR;if(b.vy>0){b.vy*=-.6;if(Math.abs(b.vy)<1.2)b.vy=0;}b.vx*=.98;if(b.zig>0)b.zig=0;}
+  if(b.y>GY-BR){b.y=GY-BR;if(b.vy>0){b.vy*=-.6;if(Math.abs(b.vy)<1.2)b.vy=0;}b.vx*=.975;b.rot+=b.vx*.022;if(b.zig>0)b.zig=0;}
   if(b.y<BR){b.y=BR;b.vy=Math.abs(b.vy)*.6;}
   if(b.x<BR){b.x=BR;b.vx=Math.abs(b.vx)*.5;}if(b.x>W-BR){b.x=W-BR;b.vx=-Math.abs(b.vx)*.5;}
   seg(b,0,GW+4,gtop(0));seg(b,W-GW-4,W,gtop(1));
