@@ -1,5 +1,5 @@
-// Koura Virage — nouveau projet (V1). Contenu du jeu.
-const APP_VERSION = '1.2';
+// Kawarjia — contenu du jeu (V2)
+const APP_VERSION = '2.0';
 const CHARS=[
  {id:'bey',n:'Ahmed Bey',sub:'Le Bey réformateur (1806-1855)',r:'commun',pr:0,sk:'#e0ab7e',h:'chechia',hc:'#2a1a10',bd:'court',mo:1,spd:1,jmp:1,kp:1,hd:1},
  {id:'chebbi',n:'Abou el Kacem Chebbi',sub:'Le poète de Tozeur (1909-1934)',r:'commun',pr:1500,sk:'#c98e5e',h:'raie',hc:'#16100a',mo:1,spd:1.04,jmp:1.02,kp:1,hd:1.02},
@@ -19,45 +19,51 @@ const CHARS=[
  {id:'l78la',n:'Temime Lahzemi',sub:'Légende 78 • l\'ailier',r:'légende 78',l78:1,pr:35000,sk:'#c98e5e',h:'longs70',hc:'#22160c',mo:1,spd:1.22,jmp:1.1,kp:1.14,hd:1.08}];
 const CH=id=>CHARS.find(c=>c.id===id)||CHARS[0];
 const RCOL={'commun':'#7a8599','rare':'#2c8cf0','épique':'#a64df0','légendaire':'#f2a900','légende 78':'#e70013'};
+const NICKS=['Hamma_10','Dali.ES','Saber_CSS','Nour93','Yassine.Sahli','Kais_Bizerte','Rami_Virage','Aziz.Sfax','Wassim_7','Oussema.CA','Mehdi_Ultras','Firas.Ezz','Sofien_9','Bilel.Kef','Ghassen_TN','Malek.Marsa','Anis_Hlif','Taha_Zarzis','Skander.T','Chiheb_88','Amine.Bja','Houssem_ST','Zied.Monastir','Karim_Gafsa','Seif.Nabeul','Hedi_1978','Lotfi.Sousse','Mounir_10','Jasser.Tozeur','Raed_Jerba'];
+// Chaussures (cartes à collectionner : chaque carte fait progresser le bonus)
 const BOOTS=[
- {id:'b_base',slot:'boots',n:'Crampons noirs',r:'commun',pr:0,b:{},c1:'#2b2b2b',c2:'#ffffff',so:'#f4f4f4',pat:'eclair'},
- {id:'b_medina',slot:'boots',n:'Crampons Médina',r:'commun',pr:600,b:{spd:3},c1:'#1f5fd1',c2:'#ffffff',so:'#f4f4f4',pat:'eclair'},
- {id:'b_jasmin',slot:'boots',n:'Crampons Jasmin',r:'commun',pr:800,b:{jmp:3},c1:'#f4f4f4',c2:'#2cc26b',so:'#2cc26b',pat:'fleur'},
- {id:'b_harissa',slot:'boots',n:'Crampons Harissa',r:'rare',pr:2500,b:{kp:5},c1:'#e8301c',c2:'#ffb000',so:'#1a1a1a',pat:'flamme'},
- {id:'b_sahara',slot:'boots',n:'Crampons Sahara',r:'rare',pr:3000,b:{spd:4,jmp:2},c1:'#e2b06a',c2:'#7a4a1c',so:'#f4e4c0',pat:'dune'},
- {id:'b_neptune',slot:'boots',n:'Crampons Oasis',r:'épique',pr:7000,b:{kp:5,spd:4},c1:'#18c6e8',c2:'#0a3d8f',so:'#ffffff',pat:'vague'},
- {id:'b_fluo',slot:'boots',n:'Crampons Royal',r:'épique',pr:8000,b:{spd:7,jmp:3},c1:'#b4ff1a',c2:'#ff2a7a',so:'#ffffff',pat:'eclair'},
- {id:'b_carthage',slot:'boots',n:'Crampons de Carthage',r:'légendaire',pr:20000,b:{kp:9,spd:5,jmp:4},c1:'#ffc400',c2:'#8a5a00',so:'#fff6d0',pat:'etoile'}];
+ {id:'b_base',slot:'boots',n:'Crampons Classiques',r:'commun',pr:0,b:{spd:1}},
+ {id:'b_jasmin',slot:'boots',n:'Crampons Jasmin',r:'commun',pr:600,b:{jmp:3}},
+ {id:'b_harissa',slot:'boots',n:'Crampons Harissa',r:'commun',pr:800,b:{kp:3}},
+ {id:'b_neptune',slot:'boots',n:'Crampons Sidi Bou Saïd',r:'rare',pr:2500,b:{spd:4,jmp:1}},
+ {id:'b_oasis',slot:'boots',n:'Crampons Oasis',r:'rare',pr:2500,b:{jmp:4,hd:1}},
+ {id:'b_sahara',slot:'boots',n:'Crampons Sahara',r:'rare',pr:3000,b:{kp:4,spd:1}},
+ {id:'b_medina',slot:'boots',n:'Crampons Médina',r:'épique',pr:6000,b:{spd:5,kp:3}},
+ {id:'b_rose',slot:'boots',n:'Crampons Jasmin Rose',r:'épique',pr:6500,b:{jmp:5,hd:3}},
+ {id:'b_bleu',slot:'boots',n:'Crampons Lagune',r:'épique',pr:7000,b:{spd:6,jmp:2}},
+ {id:'b_fluo',slot:'boots',n:'Crampons Royal',r:'légendaire',pr:15000,b:{spd:6,kp:5,jmp:3}},
+ {id:'b_argent',slot:'boots',n:'Crampons d\'Argent',r:'légendaire',pr:16000,b:{kp:7,hd:4,spd:3}},
+ {id:'b_carthage',slot:'boots',n:'Crampons de Carthage',r:'légende 78',pr:0,b:{kp:8,spd:6,jmp:5}}];
 const BT=id=>BOOTS.find(b=>b.id===id)||BOOTS[0];
-const NICKS=['Hamma_10','Dali.ES','Saber_CSS','Nour93','Yassine.Sahli','Kais_Bizerte','Rami_Virage','Aziz.Sfax','Wassim_7','Oussema.CA','Mehdi_Ultras','Firas.Ezz','Sofien_9','Bilel.Kef','Ghassen_TN','Malek.Marsa','Anis_Hlif','Taha_Zarzis'];
-// Accessoires (chapeaux, lunettes, écharpes, ballons) : chacun donne un petit bonus
+// Accessoires (chapeaux, lunettes, écharpes, ballons)
 const ACC=[
  {id:'h_none',slot:'hat',n:'Sans chapeau',r:'commun',pr:0,b:{}},
- {id:'h_casq',slot:'hat',n:'Casquette ultras',r:'commun',pr:700,b:{spd:2},col:'#e70013',kind:'casquette'},
- {id:'h_mdhalla',slot:'hat',n:'Mdhalla (chapeau de paille)',r:'rare',pr:2200,b:{jmp:4},col:'#e8c06a',kind:'paille'},
- {id:'h_bob',slot:'hat',n:'Bob du virage',r:'commun',pr:900,b:{hd:3},col:'#2c6fe0',kind:'bob'},
- {id:'h_bonnet',slot:'hat',n:'Bonnet de supporter',r:'rare',pr:2600,b:{hd:4,kp:2},col:'#ffd200',kind:'bonnet'},
- {id:'h_laurier',slot:'hat',n:'Couronne de laurier',r:'épique',pr:7500,b:{hd:6,jmp:3},col:'#3fae1a',kind:'laurier'},
- {id:'h_chechia',slot:'hat',n:'Chéchia brodée d\'or',r:'légendaire',pr:18000,b:{hd:8,kp:5,jmp:3},col:'#ffc400',kind:'chechia'},
+ {id:'h_casq',slot:'hat',n:'Casquette Ultras',r:'commun',pr:700,b:{spd:2},kind:1},
+ {id:'h_bob',slot:'hat',n:'Bob du Virage',r:'commun',pr:900,b:{hd:3},kind:1},
+ {id:'h_mdhalla',slot:'hat',n:'Mdhalla (chapeau de paille)',r:'rare',pr:2200,b:{jmp:4},kind:1},
+ {id:'h_bonnet',slot:'hat',n:'Bonnet de supporter',r:'rare',pr:2600,b:{hd:4,kp:2},kind:1},
+ {id:'h_laurier',slot:'hat',n:'Couronne de laurier',r:'épique',pr:7500,b:{hd:6,jmp:3},kind:1},
+ {id:'h_chechia',slot:'hat',n:'Chéchia brodée d\'or',r:'légendaire',pr:18000,b:{hd:8,kp:5,jmp:3},kind:1},
  {id:'g_none',slot:'glasses',n:'Sans lunettes',r:'commun',pr:0,b:{}},
- {id:'g_sun',slot:'glasses',n:'Lunettes de soleil',r:'commun',pr:800,b:{kp:2},col:'#111',kind:'soleil'},
- {id:'g_ronde',slot:'glasses',n:'Lunettes rondes',r:'rare',pr:2400,b:{hd:3,kp:2},col:'#c08a2a',kind:'ronde'},
- {id:'g_sport',slot:'glasses',n:'Lunettes de sport',r:'rare',pr:2800,b:{spd:4},col:'#ff2a7a',kind:'sport'},
- {id:'g_ski',slot:'glasses',n:'Masque de ski de Aïn Draham',r:'épique',pr:7000,b:{jmp:5,spd:3},col:'#18c6e8',kind:'ski'},
- {id:'g_star',slot:'glasses',n:'Lunettes de star',r:'légendaire',pr:16000,b:{kp:6,hd:5,spd:3},col:'#ffc400',kind:'star'},
+ {id:'g_sun',slot:'glasses',n:'Lunettes de soleil',r:'commun',pr:800,b:{kp:2},kind:1},
+ {id:'g_ecaille',slot:'glasses',n:'Lunettes écaille',r:'commun',pr:900,b:{hd:2},kind:1},
+ {id:'g_ronde',slot:'glasses',n:'Lunettes rondes',r:'rare',pr:2400,b:{hd:3,kp:2},kind:1},
+ {id:'g_avia',slot:'glasses',n:'Lunettes d\'aviateur',r:'rare',pr:2800,b:{spd:4},kind:1},
+ {id:'g_club',slot:'glasses',n:'Lunettes de club',r:'épique',pr:7000,b:{jmp:5,spd:3},kind:1},
+ {id:'g_sport',slot:'glasses',n:'Lunettes de sport',r:'légendaire',pr:16000,b:{kp:6,hd:5,spd:3},kind:1},
  {id:'s_none',slot:'scarf',n:'Sans écharpe',r:'commun',pr:0,b:{}},
- {id:'s_rb',slot:'scarf',n:'Écharpe rouge et blanche',r:'commun',pr:700,b:{hd:2},c1:'#e70013',c2:'#ffffff',kind:'raye'},
- {id:'s_nb',slot:'scarf',n:'Écharpe noire et blanche',r:'commun',pr:900,b:{spd:2},c1:'#1a1a1a',c2:'#ffffff',kind:'raye'},
- {id:'s_jn',slot:'scarf',n:'Écharpe jaune et noire',r:'rare',pr:2600,b:{jmp:4},c1:'#ffd200',c2:'#1a1a1a',kind:'raye'},
- {id:'s_tn',slot:'scarf',n:'Écharpe rouge et jaune',r:'rare',pr:2400,b:{kp:3,spd:2},c1:'#e70013',c2:'#ffffff',kind:'etoile'},
- {id:'s_vb',slot:'scarf',n:'Écharpe verte et blanche',r:'épique',pr:6500,b:{spd:4,jmp:3},c1:'#0a8a3e',c2:'#ffffff',kind:'raye'},
- {id:'s_kef',slot:'scarf',n:'Écharpe bleue et blanche',r:'légendaire',pr:15000,b:{hd:5,kp:4,spd:3},c1:'#f4f1ea',c2:'#1a1a1a',kind:'kef'},
- {id:'ba_cl',slot:'ball',n:'Ballon classique',r:'commun',pr:0,b:{},kind:'classique'},
- {id:'ba_zel',slot:'ball',n:'Ballon Virage',r:'rare',pr:2800,b:{hd:3},kind:'zellige'},
- {id:'ba_or',slot:'ball',n:'Ballon d\'or',r:'rare',pr:3000,b:{kp:3},kind:'or'},
- {id:'ba_ice',slot:'ball',n:'Ballon étoilé',r:'épique',pr:7000,b:{spd:4,hd:2},kind:'glace'},
- {id:'ba_fire',slot:'ball',n:'Ballon arc-en-ciel',r:'épique',pr:8000,b:{kp:5},kind:'feu'},
- {id:'ba_volt',slot:'ball',n:'Ballon noir et or',r:'légendaire',pr:15000,b:{kp:4,spd:4,jmp:2},kind:'volt'}];
+ {id:'s_rb',slot:'scarf',n:'Écharpe rouge et blanche',r:'commun',pr:700,b:{hd:2},kind:1},
+ {id:'s_nb',slot:'scarf',n:'Écharpe noire et blanche',r:'commun',pr:900,b:{spd:2},kind:1},
+ {id:'s_kef',slot:'scarf',n:'Écharpe bleue et blanche',r:'rare',pr:2400,b:{jmp:4},kind:1},
+ {id:'s_vb',slot:'scarf',n:'Écharpe verte et blanche',r:'rare',pr:2600,b:{kp:3,spd:2},kind:1},
+ {id:'s_tn',slot:'scarf',n:'Écharpe rouge et jaune',r:'épique',pr:6500,b:{spd:4,jmp:3},kind:1},
+ {id:'s_rv',slot:'scarf',n:'Écharpe rouge et verte',r:'légendaire',pr:15000,b:{hd:5,kp:4,spd:3},kind:1},
+ {id:'ba_cl',slot:'ball',n:'Ballon classique',r:'commun',pr:0,b:{},kind:1},
+ {id:'ba_zel',slot:'ball',n:'Ballon rouge',r:'commun',pr:800,b:{kp:2},kind:1},
+ {id:'ba_ice',slot:'ball',n:'Ballon bleu',r:'rare',pr:2800,b:{hd:3},kind:1},
+ {id:'ba_vert',slot:'ball',n:'Ballon vert',r:'rare',pr:3000,b:{spd:3},kind:1},
+ {id:'ba_jaune',slot:'ball',n:'Ballon jaune',r:'épique',pr:7000,b:{kp:4,jmp:2},kind:1},
+ {id:'ba_or',slot:'ball',n:'Ballon d\'or',r:'légendaire',pr:15000,b:{kp:5,spd:3,hd:2},kind:1}];
 const AC_=id=>ACC.find(a=>a.id===id);
 const SLOTS={hat:'Chapeaux',glasses:'Lunettes',scarf:'Écharpes',ball:'Ballons'};
 // Clubs de Ligue 1 (noms et couleurs réels, écussons inventés)
@@ -80,60 +86,70 @@ const CLUBS=[
  {id:'psse',n:'PS Sakiet Eddaïer',s:'PSSE',c1:0x3fb0e8,c2:0xffffff,cr:10}];
 const CL=id=>CLUBS.find(c=>c.id===id)||CLUBS[0];
 const hex=n=>'#'+n.toString(16).padStart(6,'0');
-// Super pouvoirs : la jauge se remplit pendant le match, puis un bouton les déclenche
+// Super pouvoirs : chaque carte = 1 utilisation. On peut aussi en racheter en diamants pendant le match.
+// Améliorer un pouvoir (avec des cartes) allonge son effet.
 const POWERS=[
- {id:'harissa',n:'Tir Harissa',d:'Ton prochain tir part en boule de feu et assomme l\'adversaire.',pr:0},
- {id:'bard',n:'Bard (glace)',d:'L\'adversaire est gelé pendant 3 secondes.',pr:1500},
- {id:'boutellis',n:'Boutellis',d:'Du miel colle l\'adversaire au sol pendant 3 secondes.',pr:1800},
- {id:'cage',n:'Cage XXL',d:'La cage adverse grandit pendant 7 secondes.',pr:2500},
- {id:'chlaka',n:'Chlaka',d:'Tu lances une claquette qui assomme l\'adversaire.',pr:2200},
- {id:'raskbir',n:'Ras Kbir',d:'Ta tête devient énorme pendant 7 secondes.',pr:3000}];
+ {id:'harissa',n:'Tir Harissa',d:'Ton prochain tir part en boule de feu et assomme l\'adversaire.',r:'commun',gem:3,icon:'img/pw/harissa.webp'},
+ {id:'bard',n:'Bard (glace)',d:'L\'adversaire est gelé dans un bloc de glace.',r:'commun',gem:3,icon:'img/fx2/ice.webp'},
+ {id:'boutellis',n:'Boutellis',d:'Du miel colle l\'adversaire au sol.',r:'rare',gem:4,icon:'img/fx2/honey.webp'},
+ {id:'chlaka',n:'Chlaka',d:'Tu lances une claquette qui assomme l\'adversaire.',r:'rare',gem:4,icon:'img/pw/chlaka.webp'},
+ {id:'cage',n:'Cage XXL',d:'La cage adverse devient géante.',r:'épique',gem:5,icon:'img/pw/cage.webp'},
+ {id:'raskbir',n:'Ras Kbir',d:'Ta tête devient énorme.',r:'épique',gem:5,icon:'img/pw/raskbir.webp'}];
 const PW=id=>POWERS.find(p=>p.id===id)||POWERS[0];
-// Évolutions : niveau 1 → 3, bonus sur toutes les stats, portraits illustrés
-const EVO_IMG=new Set(['bey','haddad','aziza','ibnk','kahena','jugurtha','hamilcar','elissa','hannibal','l78dh','l78ag','l78ka','l78la']);
-const EVO_B=[0,6,12],EVO_C=(c,lv)=>Math.round(((c.pr||1000)*.6+1500)*lv/100)*100;
-const EVO_N=['Classique','Champion','Légendaire'];
-// Stades
+// Stades (tribunes ; la pelouse est dessinée par le jeu)
 const VENUES=[
- {id:'stade',n:'Stade de Radès',img:'img/bg/stade_top.webp',h:560,grass:[0x3fa52a,0x4cbb34],line:0xffffff,fy:520},
- {id:'plage',n:'Plage de Hammamet',img:'img/bg/plage.webp',h:470,grass:[0xe8c98a,0xdcb877],line:0xffffff,fy:455},
- {id:'medina',n:'Médina de Tunis',img:'img/bg/medina.webp',h:526,grass:[0xb9a58a,0xa8957a],line:0xf4f4f4,fy:500}];
-// Championnat en 10 divisions (saisons de 10 matchs)
-const DIVS={10:{up:10},9:{up:11,down:3},8:{up:12,down:4},7:{up:13,down:5},6:{up:14,down:6},5:{up:15,down:7},4:{up:16,down:8},3:{up:17,down:9},2:{up:19,down:11},1:{up:24,down:24}};
+ {id:'rades',n:'Stade de Radès',img:'img/bg/st_rades.webp',w:1671,h:876,grass:[0x3fa52a,0x4cbb34],line:0xffffff},
+ {id:'rouge',n:'Radès en rouge',img:'img/bg/st_rouge.webp',w:1670,h:911,grass:[0x3a9c27,0x47b231],line:0xffffff},
+ {id:'sfax',n:'Stade de Sfax',img:'img/bg/st_sfax.webp',w:1671,h:883,grass:[0x46ad2c,0x55c238],line:0xffffff},
+ {id:'plage',n:'Plage de Hammamet',img:'img/bg/plage.webp',w:1672,h:470,grass:[0xe8c98a,0xdcb877],line:0xffffff},
+ {id:'medina',n:'Médina de Tunis',img:'img/bg/medina.webp',w:1672,h:526,grass:[0xb9a58a,0xa8957a],line:0xf4f4f4}];
+// Championnat : on démarre en division 10. 13 points sur 10 matchs pour monter, 24 points pour rester en division 1.
+const DIVS={10:{up:13},9:{up:13,down:6},8:{up:13,down:6},7:{up:13,down:7},6:{up:13,down:7},5:{up:13,down:8},4:{up:13,down:8},3:{up:13,down:9},2:{up:13,down:9},1:{up:28,down:24}};
 const DIV_N={1:'Élite',2:'Nationale',3:'Professionnelle',4:'Fédérale',5:'Régionale',6:'Honneur',7:'Promotion',8:'District',9:'Espoir',10:'Amateur'};
-// Coffres : temps d'ouverture (minutes) et contenu
+// Coffres
 const CHESTS=[
- {n:'Coffre Bronze',min:15,dt:[120,220],jt:[0,1],it:.10},
- {n:'Coffre Argent',min:60,dt:[250,450],jt:[1,3],it:.25},
- {n:'Coffre Or',min:180,dt:[500,900],jt:[3,6],it:.45},
- {n:'Coffre Épique',min:360,dt:[1000,1800],jt:[6,10],it:.75},
- {n:'Coffre Légendaire',min:600,dt:[2200,3500],jt:[10,18],it:1}];
+ {n:'Coffre Bronze',min:15,dt:[80,160],gem:[0,1],cards:6,gemPrice:0},
+ {n:'Coffre Argent',min:60,dt:[180,320],gem:[1,2],cards:12,gemPrice:30},
+ {n:'Coffre Or',min:180,dt:[400,700],gem:[2,4],cards:24,gemPrice:80},
+ {n:'Coffre Épique',min:360,dt:[800,1400],gem:[4,8],cards:45,gemPrice:200},
+ {n:'Coffre Légendaire',min:600,dt:[1800,3000],gem:[8,15],cards:80,gemPrice:450}];
 // Missions du jour (3 tirées au sort chaque jour)
 const MISSIONS=[
- {id:'play',t:'Joue {n} matchs',n:3,dt:250,jt:1},
- {id:'win',t:'Gagne {n} matchs',n:2,dt:400,jt:2},
- {id:'goals',t:'Marque {n} buts',n:6,dt:300,jt:1},
- {id:'heads',t:'Marque {n} buts de la tête',n:2,dt:350,jt:2},
- {id:'pw',t:'Utilise {n} super pouvoirs',n:4,dt:300,jt:1},
- {id:'clean',t:'Gagne {n} match sans encaisser',n:1,dt:450,jt:3},
- {id:'shots',t:'Tire {n} fois',n:25,dt:200,jt:1}];
+ {id:'play',t:'Joue {n} matchs',n:3,dt:250,gem:1},
+ {id:'win',t:'Gagne {n} matchs',n:2,dt:400,gem:2},
+ {id:'goals',t:'Marque {n} buts',n:6,dt:300,gem:1},
+ {id:'heads',t:'Marque {n} buts de la tête',n:2,dt:350,gem:2},
+ {id:'pw',t:'Utilise {n} super pouvoirs',n:4,dt:300,gem:1},
+ {id:'clean',t:'Gagne {n} match sans encaisser',n:1,dt:450,gem:3},
+ {id:'shots',t:'Tire {n} fois',n:25,dt:200,gem:1}];
 // Derbys : rivalités historiques (points doublés pendant la semaine du derby)
 const DERBYS=[['est','ca'],['ess','est'],['css','ess'],['css','est'],['ca','st'],['usm','ess'],['cab','est'],['ess','eshs']];
-// Géométrie des têtes (en fraction de la hauteur de l'image) :
-// w = largeur/hauteur, cut = bas du couvre-chef ou ligne du front, cx = centre de la tête à cette ligne,
-// hw = largeur de la tête à cette ligne, ex/ey = place des lunettes, nx = cou (écharpe), hg = porte déjà un couvre-chef
-const HG={
- bey:[245,.38,.48,.68,.70,.42,.44,1],chebbi:[214,.31,.43,.71,.62,.40,.40,0],haddad:[218,.38,.46,.68,.63,.42,.44,1],
- aziza:[220,.30,.42,.70,.55,.42,.42,1],ibnk:[215,.38,.40,.72,.53,.42,.40,1],kahena:[210,.30,.40,.70,.59,.41,.40,1],
- jugurtha:[200,.26,.38,.68,.59,.42,.40,1],hamilcar:[185,.42,.36,.64,.49,.45,.38,1],elissa:[183,.31,.34,.63,.49,.43,.36,1],
- hannibal:[185,.42,.33,.64,.49,.44,.36,1],l78gk:[195,.31,.36,.70,.51,.38,.36,0],l78dh:[174,.31,.33,.68,.51,.39,.34,0],
- l78ag:[187,.31,.32,.68,.51,.39,.34,0],l78ka:[185,.31,.32,.68,.51,.39,.34,0],l78la:[178,.31,.32,.68,.51,.39,.34,0]};
-const HGEO=id=>{const a=HG[id]||HG.bey;return {w:a[0]/260,cut:a[1],cx:a[2],hw:a[3],ex:a[4],ey:a[5],nx:a[6],hg:a[7]};};
-// Chapeaux : largeur (x largeur de la tête), point d'ancrage dans l'image, retourné pour regarder devant
-const HATG={h_casq:{w:1.5,ax:.58,ay:.74,flip:1},h_mdhalla:{w:1.65,ax:.5,ay:.68},h_bob:{w:1.2,ax:.5,ay:.9},h_bonnet:{w:1.1,ax:.5,ay:.93},h_laurier:{w:1.15,ax:.5,ay:.8},h_chechia:{w:1.15,ax:.45,ay:.86}};
-const GLW={g_sun:.5,g_ronde:.48,g_sport:.55,g_ski:.6,g_star:.62};
-// Niveaux des objets (chaussures, accessoires, pouvoirs) : chaque niveau augmente le bonus
-const LVMAX=5;
-const lvB=(b,L)=>{const o={};for(const k in b||{})o[k]=Math.round(b[k]*(1+.5*((L||1)-1))*10)/10;return o;};
-const UPC=(it,L)=>Math.round(((it.pr||400)*.4+250)*L/50)*50;
-const PWF=L=>1+.2*((L||1)-1);
+// Géométrie des têtes (fraction de la largeur pour x, de la hauteur pour y) :
+// cx/hw = centre et largeur du haut du crâne, ex/ey = œil visible, mesurés sur chaque visage
+const HG={bey:[.529,.564,.66,.39],chebbi:[.614,.646,.71,.43],haddad:[.531,.584,.69,.37],aziza:[.519,.553,.58,.37],ibnk:[.525,.601,.72,.38],
+ kahena:[.481,.596,.63,.33],jugurtha:[.499,.58,.61,.33],hamilcar:[.468,.542,.62,.32],elissa:[.46,.695,.63,.32],hannibal:[.467,.559,.62,.33],
+ l78gk:[.514,.633,.65,.37],l78dh:[.521,.632,.62,.36],l78ag:[.525,.681,.66,.37],l78ka:[.467,.627,.58,.37],l78la:[.497,.644,.62,.37]};
+const HGW={bey:466/493,chebbi:444/494,haddad:459/492,aziza:512/492,ibnk:446/493,kahena:508/503,jugurtha:512/507,hamilcar:509/512,elissa:479/504,hannibal:1,l78gk:447/510,l78dh:468/512,l78ag:454/508,l78ka:501/512,l78la:497/509};
+const SIGHAT=new Set(['bey','haddad','aziza','ibnk','kahena','jugurtha','hamilcar','elissa','hannibal']);  // couvre-chef d'origine (img/hg)
+const HGEO=id=>{const a=HG[id]||HG.bey;return {w:HGW[id]||1,cx:a[0],hw:a[1],ex:a[2],ey:a[3],cut:a[3]-.17,sig:SIGHAT.has(id)};};
+// Chapeaux : largeur (x largeur du crâne), point d'ancrage (bas du chapeau) dans l'image
+const HATG={h_casq:{w:1.45,ax:.5,ay:.8},h_mdhalla:{w:1.65,ax:.5,ay:.7},h_bob:{w:1.4,ax:.5,ay:.86},h_bonnet:{w:1.3,ax:.5,ay:.9},h_laurier:{w:1.3,ax:.5,ay:.75,clip:0},h_chechia:{w:1.2,ax:.5,ay:.88}};
+const GLW={g_sun:.5,g_ecaille:.5,g_ronde:.48,g_avia:.52,g_club:.5,g_sport:.56};
+// ===== Cartes et progression =====
+// Chaque objet a une progression p (en cinquièmes d'étoile, de 0 à 25 = 5 étoiles).
+// Passer un cinquième coûte des cartes (4, 6, 8, 10, 12, +2 par étoile déjà gagnée) et un peu d'argent.
+const PMAX=25;
+const STEP_CARDS=p=>[4,6,8,10,12][p%5]+2*Math.floor(p/5);
+const STEP_DT=p=>(60+50*Math.floor(p/5))*((p%5)+1);
+const UNLOCK={'commun':3,'rare':6,'épique':10,'légendaire':15,'légende 78':25};   // cartes pour débloquer
+const CHAR_UNLOCK={'commun':10,'rare':20,'épique':30,'légendaire':40,'légende 78':50};
+const charMul=p=>1+.016*(p||0);                 // joueur : +1,6 % par cinquième
+const itemB=(b,p)=>{const o={},m=1+.12*(p||0);for(const k in b||{})o[k]=Math.round(b[k]*m*10)/10;return o;};
+const PWF=p=>1+.04*(p||0);                      // pouvoir : effet plus long
+const ALLITEMS=()=>[...CHARS.map(c=>({...c,type:'char'})),...BOOTS.map(b=>({...b,type:'boots'})),...ACC.filter(a=>a.kind).map(a=>({...a,type:a.slot})),...POWERS.map(p=>({...p,type:'pw'}))];
+const ITEM=id=>ALLITEMS().find(x=>x.id===id);
+const RARW={'commun':1,'rare':.4,'épique':.15,'légendaire':.05,'légende 78':.015};  // chance relative de tirer une carte
+// Couvre-chefs d'origine (dessinés à part) : posés comme les chapeaux ; clip = cache les cheveux dessous
+const SIGG={bey:{w:1.3,ax:.55,ay:.8,clip:1},haddad:{w:1.3,ax:.55,ay:.62,clip:1},ibnk:{w:1.25,ax:.5,ay:.62,clip:0},
+ hamilcar:{w:1.38,ax:.5,ay:.55,clip:1},hannibal:{w:1.38,ax:.5,ay:.55,clip:1},aziza:{w:1.4,ax:.5,ay:.4,clip:0},
+ elissa:{w:1.0,ax:.5,ay:.92,clip:0},jugurtha:{w:1.2,ax:.5,ay:.72,clip:0},kahena:{w:1.3,ax:.5,ay:.36,clip:0}};
