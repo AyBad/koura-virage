@@ -1,5 +1,5 @@
 // Kawarjia — contenu du jeu (V2)
-const APP_VERSION = '2.0';
+const APP_VERSION = '2.1';
 const CHARS=[
  {id:'bey',n:'Ahmed Bey',sub:'Le Bey réformateur (1806-1855)',r:'commun',pr:0,sk:'#e0ab7e',h:'chechia',hc:'#2a1a10',bd:'court',mo:1,spd:1,jmp:1,kp:1,hd:1},
  {id:'chebbi',n:'Abou el Kacem Chebbi',sub:'Le poète de Tozeur (1909-1934)',r:'commun',pr:1500,sk:'#c98e5e',h:'raie',hc:'#16100a',mo:1,spd:1.04,jmp:1.02,kp:1,hd:1.02},
@@ -65,7 +65,7 @@ const ACC=[
  {id:'ba_jaune',slot:'ball',n:'Ballon jaune',r:'épique',pr:7000,b:{kp:4,jmp:2},kind:1},
  {id:'ba_or',slot:'ball',n:'Ballon d\'or',r:'légendaire',pr:15000,b:{kp:5,spd:3,hd:2},kind:1}];
 const AC_=id=>ACC.find(a=>a.id===id);
-const SLOTS={hat:'Chapeaux',glasses:'Lunettes',scarf:'Écharpes',ball:'Ballons'};
+const SLOTS={ball:'Ballons'};
 // Clubs de Ligue 1 (noms et couleurs réels, écussons inventés)
 const CLUBS=[
  {id:'est',n:'Espérance de Tunis',s:'EST',c1:0xc8102e,c2:0xffcc00,cr:2},
@@ -146,7 +146,7 @@ const CHAR_UNLOCK={'commun':10,'rare':20,'épique':30,'légendaire':40,'légende
 const charMul=p=>1+.016*(p||0);                 // joueur : +1,6 % par cinquième
 const itemB=(b,p)=>{const o={},m=1+.12*(p||0);for(const k in b||{})o[k]=Math.round(b[k]*m*10)/10;return o;};
 const PWF=p=>1+.04*(p||0);                      // pouvoir : effet plus long
-const ALLITEMS=()=>[...CHARS.map(c=>({...c,type:'char'})),...BOOTS.map(b=>({...b,type:'boots'})),...ACC.filter(a=>a.kind).map(a=>({...a,type:a.slot})),...POWERS.map(p=>({...p,type:'pw'}))];
+const ALLITEMS=()=>[...CHARS.map(c=>({...c,type:'char'})),...BOOTS.map(b=>({...b,type:'boots'})),...ACC.filter(a=>a.kind&&a.slot==='ball').map(a=>({...a,type:'ball'})),...POWERS.map(p=>({...p,type:'pw'}))];
 const ITEM=id=>ALLITEMS().find(x=>x.id===id);
 const RARW={'commun':1,'rare':.4,'épique':.15,'légendaire':.05,'légende 78':.015};  // chance relative de tirer une carte
 // Couvre-chefs d'origine (dessinés à part) : posés comme les chapeaux ; clip = cache les cheveux dessous

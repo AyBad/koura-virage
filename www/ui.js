@@ -9,7 +9,7 @@ const WEEK = () => Math.floor((DAY() + 3) / 7);
 const weekFrac = () => Math.min(1, (((DAY() + 3) % 7) + (Date.now() % 864e5) / 864e5) / 7);
 const DEF = () => ({
   nick: 'mle3bi_' + (1000 + Math.random() * 9000 | 0), dt: 500, gem: 15, char: 'bey', boot: 'b_base',
-  gear: { hat: 'h_none', glasses: 'g_none', scarf: 's_none', ball: 'ba_cl' }, pws: ['harissa', 'bard'],
+  gear: { ball: 'ba_cl' }, pws: ['harissa', 'bard'],
   cd: { bey: { n: 0, p: 0, u: 1 }, b_base: { n: 0, p: 0, u: 1 }, ba_cl: { n: 0, p: 0, u: 1 }, harissa: { n: 10, p: 0, u: 1 }, bard: { n: 6, p: 0, u: 1 } },
   tuto: 0, snd: 1, wins: 0, played: 0, goals: 0, streak: 0, bestStreak: 0, club: null, venue: 'auto',
   div: 10, best: 10, titles: 0, cups: 0, season: { n: 0, pts: 0, res: [] }, chests: [{ r: 1, end: 0 }, null, null, null],
@@ -24,7 +24,7 @@ function load() {
       for (const id of o.own || []) if (CHARS.some(c => c.id === id)) SV.cd[id] = { n: 0, p: 0, u: 1 }; if (SV.cd[o.char]) SV.char = o.char; } } catch (e) { }
   }
   for (const k in d) if (SV[k] === undefined) SV[k] = d[k];
-  for (const k in d.gear) if (!SV.gear[k] || !(AC_(SV.gear[k]) || k === 'ball')) SV.gear[k] = d.gear[k];
+  SV.gear = { ball: AC_(SV.gear && SV.gear.ball) ? SV.gear.ball : 'ba_cl' };
   if (!CHARS.some(c => c.id === SV.char)) SV.char = 'bey'; if (!BOOTS.some(b => b.id === SV.boot)) SV.boot = 'b_base';
   save();
 }
@@ -62,7 +62,7 @@ const STAT = [['spd', 'Vitesse', 'img/ic2/coins.webp'], ['jmp', 'Saut', ''], ['k
 function statsFor(chId, bootId, gear, pf) {
   pf = pf || prog; const c = CH(chId), e = charMul(pf(chId)), bon = { spd: 0, jmp: 0, kp: 0, hd: 0 };
   const add = it => { if (!it) return; const b = itemB(it.b, pf(it.id)); for (const k in b) bon[k] += b[k]; };
-  add(BT(bootId)); for (const sl of ['hat', 'glasses', 'scarf', 'ball']) add(AC_(gear[sl]));
+  add(BT(bootId)); add(AC_(gear.ball));
   const rows = ['spd', 'jmp', 'kp', 'hd'].map(k => { const m = (c[k] || 1) * e; return { k, base: Math.round((m - .8) * 50 * 10) / 10, bo: Math.round(m * bon[k] / 100 * 50 * 10) / 10 }; });
   return { rows, pow: Math.round(rows.reduce((a, r) => a + r.base + r.bo, 0) / 4 * 10) / 10 };
 }
@@ -112,18 +112,8 @@ function vib(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e)
 
 
 // ---------- personnage HTML (tête + couvre-chef + accessoires + chaussure) ----------
-function heroHTML(chId, bootId, cls, expr, gear) {
-  const G = HGEO(chId), g = gear || {}, has = id => id && AC_(id) && AC_(id).kind, P = v => (v * 100).toFixed(1) + '%';
-  let acc = '', clip = '';
-  if (has(g.scarf)) acc += `<img class="acc" style="left:50%;top:80%;width:50%;transform:translate(-50%,-35%)" src="img/eq/${g.scarf}.webp">`;
-  if (has(g.glasses)) acc += `<img class="acc" style="left:${P(G.ex + .07)};top:${P(G.ey + .01)};width:${P(GLW[g.glasses] || .5)};transform:translate(-50%,-50%)" src="img/eq/${g.glasses}.webp">`;
-  const hatSrc = has(g.hat) ? `img/eq/${g.hat}.webp` : G.sig ? `img/hg/${chId}.webp` : null;
-  if (hatSrc) {
-    const h = has(g.hat) ? (HATG[g.hat] || { w: 1.3, ax: .5, ay: .82 }) : SIGG[chId];
-    if (h.clip !== 0) clip = `clip-path:inset(${(G.cut * 100).toFixed(1)}% -40% -10% -40%)`;
-    acc += `<img class="acc" style="left:${P(G.cx)};top:${P(G.cut + .08)};width:${P(h.w * G.hw)};transform:translate(-${h.ax * 100}%,-${h.ay * 100}%)" src="${hatSrc}">`;
-  }
-  return `<div class="hero ${cls || ''}"><div class="hsh"></div><img class="hboot" src="img/eq/${bootId}.webp"><div class="hhead" style="aspect-ratio:${G.w.toFixed(3)}"><img class="hface" style="${clip}" src="img/h/${chId}_${expr || 0}.webp">${acc}</div></div>`;
+function heroHTML(chId, bootId, cls, expr) {
+  return `<div class="hero ${cls || ''}"><div class="hsh"></div><img class="hboot" src="img/eq/${bootId}.webp"><div class="hhead"><img class="hface" src="img/h/${chId}_${expr || 0}.webp"></div></div>`;
 }
 const myHero = (cls, expr) => heroHTML(SV.char, SV.boot, cls, expr, SV.gear);
 function headHTML(chId, cls) { return `<img class="${cls || 'mini'}" src="img/h/${chId}_0.webp">`; }
@@ -170,6 +160,7 @@ function home() {
     <button class="sbtn2" data-a="shop"><img src="img/ic2/shop.webp"><small>Boutique</small></button>
     <button class="sbtn2" data-a="adchest"><img src="img/ch2/1_0.webp"><small>Pub = coffre</small>${adN > 0 ? `<em class="dot">${adN}</em>` : ''}</button>
     <button class="sbtn2" data-a="missions"><img src="img/ic2/tasks.webp"><small>Missions</small>${claim ? '<em class="dot">!</em>' : ''}</button>
+    <button class="sbtn2" data-a="venue"><img src="img/ic2/home.webp"><small>${SV.venue === 'auto' ? 'Stade auto' : venueNow().n.replace('Stade de ', '')}</small></button>
     <button class="sbtn2" data-a="demo"><img src="img/ui/hand.webp"><small>Démo</small></button>
   </div>
   <div class="hstage" data-a="vest"><div class="pedestal"></div>${myHero('big idle' + (p >= 15 ? ' evo3' : p >= 5 ? ' evo2' : ''))}
@@ -181,16 +172,16 @@ function home() {
       <div class="evp"><span class="timer">Fin : <i data-t="${weekEnd()}"></i></span></div></button>
     ${isDerbyWeek() ? '<div class="derby">🔥 SEMAINE DU DERBY : points du club ×2</div>' : ''}
   </div>
-  <div class="chestbar">${chestSlots()}</div>
+  <button class="chestcard" data-a="chests"><img class="cc1" src="img/ch2/${(SV.chests.find(x => x) || { r: 0 }).r}_${readyN() ? 1 : 0}.webp"><div><b>Salle des coffres</b><small>${readyN() ? readyN() + ' coffre(s) à ouvrir !' : runningChest() ? 'Ouverture : <i data-t="' + runningChest().end + '"></i>' : SV.chests.filter(x => x).length + ' / 4 coffres'}</small></div>${readyN() ? `<em class="dot">${readyN()}</em>` : ''}</button>
   <div class="bbar">
     <button class="playbtn2" data-a="play"><span>JOUER</span><small>Championnat • match ${Math.min(10, SV.season.n + 1)}/10</small></button>
-    <button class="nbtn" data-a="vest:char"><img src="img/ic2/cards.webp"><small>Joueurs</small></button>
-    <button class="nbtn" data-a="vest:boots"><img src="img/eq/${SV.boot}.webp"><small>Équipement</small></button>
-    <button class="nbtn" data-a="vest:pw"><img src="${PW(SV.pws[0]).icon}"><small>Pouvoirs</small></button>
-    <button class="nbtn" data-a="league"><img src="img/ic2/podium.webp"><small>Classements</small></button>
-    <button class="nbtn" data-a="cup"><img src="img/ic2/trophy.webp"><small>Coupe</small></button>
-    <button class="nbtn" data-a="clubs">${crest(SV.club || 'est', '')}<small>Club</small></button>
-    <button class="nbtn" data-a="venue"><img src="img/ic2/home.webp"><small>${venueNow().n.replace('Stade de ', '')}</small></button>
+    <button class="nbtn t1" data-a="vest:char"><img src="img/ic2/cards.webp"><small>Joueurs</small></button>
+    <button class="nbtn t2" data-a="vest:boots"><img src="img/eq/${SV.boot}.webp"><small>Chaussures</small></button>
+    <button class="nbtn t3" data-a="vest:pw"><img src="${PW(SV.pws[0]).icon}"><small>Pouvoirs</small></button>
+    <button class="nbtn t4" data-a="chests"><img src="img/ch2/2_1.webp"><small>Coffres</small>${readyN() ? `<em class="dot">${readyN()}</em>` : ''}</button>
+    <button class="nbtn t5" data-a="league"><img src="img/ic2/podium.webp"><small>Classements</small></button>
+    <button class="nbtn t6" data-a="cup"><img src="img/ic2/trophy.webp"><small>Coupe</small></button>
+    <button class="nbtn t7" data-a="clubs">${crest(SV.club || 'est', '')}<small>Club</small></button>
   </div>`, 'home2');
   if (SV.rew.length) setTimeout(showRewards, 300);
   else if (SV.daily.day !== DAY() && SV.tuto && SV.club) setTimeout(dailyGift, 400);
@@ -205,9 +196,20 @@ function chestSlots() {
     return `<button class="cslot r${x.r} ${rd ? 'ready' : ''}" data-a="chest:${i}"><img src="img/ch2/${x.r}_${rd ? 1 : 0}.webp"><b>${rd ? 'OUVRIR !' : run ? `<i data-t="${x.end}"></i>` : fmtMin(ch.min)}</b><small>${ch.n.replace('Coffre ', '')}</small></button>`;
   }).join('');
 }
+const readyN = () => SV.chests.filter(x => x && (x.end === 0 || (x.end && x.end <= Date.now()))).length;
+const runningChest = () => SV.chests.find(x => x && x.end > Date.now());
+function chestRoom() {
+  show(`<div class="bgimg" style="background-image:url(img/bg/chests.webp)"></div><div class="vign"></div>${topbar(1)}
+  <div class="croom"><h2><img src="img/ch2/4_1.webp">Salle des coffres</h2><p class="sm">Chaque victoire te donne un coffre. Un seul s'ouvre à la fois : démarre-le, puis reviens l'ouvrir.</p>
+   <div class="cpeds">${SV.chests.map((x, i) => { if (!x) return `<div class="cped empty"><div class="pd"></div><span>Place libre</span><small>Gagne un match</small></div>`;
+     const ch = CHESTS[x.r], rd = x.end === 0 || (x.end && x.end <= Date.now()), run = x.end && !rd;
+     return `<button class="cped r${x.r} ${rd ? 'ready' : run ? 'run' : ''}" data-a="chest:${i}"><img src="img/ch2/${x.r}_${rd ? 1 : 0}.webp"><div class="pd"></div><b>${ch.n.replace('Coffre ', '')}</b>
+       <span class="cbtn">${rd ? 'OUVRIR !' : run ? '<i data-t="' + x.end + '"></i>' : 'Démarrer • ' + fmtMin(ch.min)}</span></button>`; }).join('')}</div>
+   <div class="cfree"><button class="mbtn blue" data-a="adchest">📺 Coffre gratuit avec une pub (${adsLeft()}/10)</button><button class="mbtn yellow" data-a="shop">Boutique</button></div></div>`, 'shopv');
+}
 const fmtMin = m => m >= 60 ? (m / 60 | 0) + ' h' + (m % 60 ? ' ' + (m % 60) : '') : m + ' min';
 function fmtLeft(ms) { const s = Math.max(0, Math.ceil(ms / 1000)), d = s / 86400 | 0, h = (s % 86400) / 3600 | 0, m = (s % 3600) / 60 | 0, ss = s % 60; return d ? `${d}j ${h}h` : h ? `${h}h ${String(m).padStart(2, '0')}` : `${m}:${String(ss).padStart(2, '0')}`; }
-function tickTimers() { document.querySelectorAll('[data-t]').forEach(e => { const l = +e.dataset.t - Date.now(); e.textContent = l > 0 ? fmtLeft(l) : 'PRÊT'; if (l <= 0 && !e.dataset.done) { e.dataset.done = 1; if (ui.classList.contains('home2') && !document.querySelector('.pop,.chopen')) setTimeout(home, 300); } }); }
+function tickTimers() { document.querySelectorAll('[data-t]').forEach(e => { const l = +e.dataset.t - Date.now(); e.textContent = l > 0 ? fmtLeft(l) : 'PRÊT'; if (l <= 0 && !e.dataset.done) { e.dataset.done = 1; if (!document.querySelector('.pop,.chopen')) { if (ui.classList.contains('home2')) setTimeout(home, 300); else if (document.querySelector('.croom')) setTimeout(chestRoom, 300); } } }); }
 setInterval(tickTimers, 1000);
 const chestCost = x => x.end ? Math.max(1, Math.ceil((x.end - Date.now()) / 6e5)) : Math.max(1, Math.ceil(CHESTS[x.r].min / 10));
 function chestAct(i) {
@@ -240,7 +242,7 @@ function openChest(r) {
   const ch = CHESTS[r], dt = Math.round(rnd(ch.dt[0], ch.dt[1]) / 10) * 10, gm = Math.round(rnd(ch.gem[0], ch.gem[1]));
   const cards = grantCards(drawCards(ch.cards, r)); SV.dt += dt; SV.gem += gm; save();
   const items = [{ k: 'dt', n: dt }, ...(gm ? [{ k: 'gem', n: gm }] : []), ...cards];
-  const d = document.createElement('div'); d.className = 'chopen'; d.innerHTML = `<div class="chbg"></div><img class="chrays" src="img/fx2/burst.webp"><div class="chname">${ch.n.toUpperCase()}</div><img class="chbox shake" src="img/ch2/${r}_0.webp"><div class="chcards"></div><div class="chcount"></div><div class="un">Touche pour continuer</div>`;
+  const d = document.createElement('div'); d.className = 'chopen'; d.innerHTML = `<div class="chbg"></div><div class="chrays"></div><div class="chglow"></div><div class="chname">${ch.n.toUpperCase()}</div><img class="chbox shake" src="img/ch2/${r}_0.webp"><div class="chcards"></div><div class="chcount"></div><div class="un">Touche pour continuer</div>`;
   document.body.appendChild(d); sfx('chest');
   let i = -1, phase = 0;
   const box = d.querySelector('.chbox'), cc = d.querySelector('.chcards'), cnt = d.querySelector('.chcount');
@@ -265,16 +267,16 @@ function openChest(r) {
       cc.innerHTML = `<div class="sumgrid">${items.map(x => `<div class="smini">${itemCard(x)}</div>`).join('')}</div>`;
     }
   }
-  d.addEventListener('click', () => { if (phase === 1) next(); else if (phase === 2) { d.remove(); home(); } });
+  d.addEventListener('click', () => { if (phase === 1) next(); else if (phase === 2) { d.remove(); if (ui.classList.contains('shopv') && document.querySelector('.croom')) chestRoom(); else home(); } });
 }
 // ---------- pubs (placeholder tant que la régie n'est pas branchée) ----------
 function adsLeft() { if (SV.ads.day !== DAY()) SV.ads = { day: DAY(), n: 0 }; return 10 - SV.ads.n; }
-function showAd(done) {
-  if (adsLeft() <= 0) { toast('Plus de pubs aujourd\'hui, reviens demain'); return; }
-  const d = document.createElement('div'); d.className = 'adv'; let s = 5;
+function showAd(done, forced) {
+  if (!forced && adsLeft() <= 0) { toast('Plus de pubs aujourd\'hui, reviens demain'); return; }
+  const d = document.createElement('div'); d.className = 'adv'; let s = forced ? 4 : 5;
   d.innerHTML = `<div class="adbox"><small>PUBLICITÉ</small><img src="img/bg/title2.webp"><b>Kawarjia • Joue pour ton club !</b><div class="adc">${s}</div></div>`;
   document.body.appendChild(d);
-  const it = setInterval(() => { s--; d.querySelector('.adc').textContent = s > 0 ? s : '✔'; if (s <= 0) { clearInterval(it); setTimeout(() => { d.remove(); SV.ads.n++; save(); done(); }, 400); } }, 1000);
+  const it = setInterval(() => { s--; d.querySelector('.adc').textContent = s > 0 ? s : '✔'; if (s <= 0) { clearInterval(it); setTimeout(() => { d.remove(); if (!forced) SV.ads.n++; save(); done(); }, 400); } }, 1000);
 }
 // ---------- boutique ----------
 function shopScr() {
@@ -386,11 +388,11 @@ function cupScr() {
 }
 
 // ---------- vestiaire : cartes, étoiles, amélioration ----------
-const VTABS = [['char', 'Joueurs'], ['boots', 'Chaussures'], ['hat', 'Chapeaux'], ['glasses', 'Lunettes'], ['scarf', 'Écharpes'], ['ball', 'Ballons'], ['pw', 'Pouvoirs']];
+const VTABS = [['char', 'Joueurs'], ['boots', 'Chaussures'], ['ball', 'Ballons'], ['pw', 'Pouvoirs']];
 let VT = 'char', VS = {};
-function listFor(t) { return (t === 'char' ? CHARS.map(c => ({ ...c, type: 'char' })) : t === 'boots' ? BOOTS.map(b => ({ ...b, type: 'boots' })) : t === 'pw' ? POWERS.map(p => ({ ...p, type: 'pw' })) : ACC.filter(a => a.slot === t).map(a => ({ ...a, type: t }))); }
+function listFor(t) { return (t === 'char' ? CHARS.map(c => ({ ...c, type: 'char' })) : t === 'boots' ? BOOTS.map(b => ({ ...b, type: 'boots' })) : t === 'pw' ? POWERS.map(p => ({ ...p, type: 'pw' })) : ACC.filter(a => a.slot === t && a.kind).map(a => ({ ...a, type: t }))); }
 const equipped = (t, id) => t === 'char' ? SV.char === id : t === 'boots' ? SV.boot === id : t === 'pw' ? SV.pws.includes(id) : SV.gear[t] === id;
-const TICO = { char: () => `img/h/${SV.char}_0.webp`, boots: () => `img/eq/${SV.boot}.webp`, hat: () => 'img/eq/h_casq.webp', glasses: () => 'img/eq/g_sun.webp', scarf: () => 'img/eq/s_rb.webp', ball: () => 'img/eq/ba_cl.webp', pw: () => PW(SV.pws[0]).icon };
+const TICO = { char: () => `img/h/${SV.char}_0.webp`, boots: () => `img/eq/${SV.boot}.webp`, ball: () => `img/eq/${SV.gear.ball || 'ba_cl'}.webp`, pw: () => PW(SV.pws[0]).icon };
 function vest() {
   const L = listFor(VT); let id = VS[VT]; if (!L.some(x => x.id === id)) id = VS[VT] = (VT === 'char' ? SV.char : VT === 'boots' ? SV.boot : VT === 'pw' ? SV.pws[0] : SV.gear[VT]);
   const x = L.find(i => i.id === id) || L[0], none = x.id.endsWith('_none'), own = unlocked(x.id), eq = equipped(VT, x.id), rc = RCOL[x.r] || '#7a8599';
@@ -470,7 +472,7 @@ function act(a, el) {
     case 'league': return leagueScr();
     case 'ltab': LTAB = v; return leagueScr();
     case 'cup': return cupScr();
-    case 'cupplay': return vsScreen('cup');
+    case 'cupplay': return searchScreen('cup');
     case 'cupretry': { const go = () => { SV.cup = { week: WEEK(), round: 0, out: false, won: false, opps: [0, 1, 2, 3].map(i => oppFor(i * .06 + .02)), retry: (SV.cup.retry || 0) + 1 }; save(); cupScr(); }; if (v === 'ad') return showAd(go); if (!payGem(20)) return; return go(); }
     case 'clubs': return clubsScr(false);
     case 'club': { const first = !SV.club; if (SV.club !== v) SV.wk.cw = 0; SV.club = v; save(); sfx('unlock'); toast('Tu joues pour ' + CL(v).n + ' !'); return first ? home() : clubsScr(false); }
@@ -482,15 +484,17 @@ function act(a, el) {
     case 'buychest': { const r = +v; if (!payGem(CHESTS[r].gemPrice)) return; save(); return openChest(r); }
     case 'buydt': if (!payGem(25)) return; SV.dt += 1500; save(); sfx('coin'); refreshTop(); toast('+1 500 DT'); return;
     case 'chest': return chestAct(+v);
-    case 'cstart': SV.chests[+v].end = Date.now() + CHESTS[SV.chests[+v].r].min * 6e4; save(); closePop(); return home();
-    case 'cad': closePop(); return showAd(() => { const x = SV.chests[+v]; if (x && x.end) x.end -= 30 * 6e4; save(); home(); });
+    case 'chests': return chestRoom();
+    case 'cstart': SV.chests[+v].end = Date.now() + CHESTS[SV.chests[+v].r].min * 6e4; save(); closePop(); return chestRoom();
+    case 'cad': closePop(); return showAd(() => { const x = SV.chests[+v]; if (x && x.end) x.end -= 30 * 6e4; save(); chestRoom(); });
     case 'cnow': { const x = SV.chests[+v]; if (!payGem(chestCost(x))) return; SV.chests[+v] = null; save(); closePop(); return openChest(x.r); }
     case 'pclose': closePop(); if (SV.rew.length) setTimeout(showRewards, 200); return;
     case 'venue': { const ids = ['auto', ...VENUES.map(x => x.id)]; SV.venue = ids[(ids.indexOf(SV.venue) + 1) % ids.length]; save(); toast('Stade : ' + (SV.venue === 'auto' ? 'automatique' : venueNow().n)); return home(); }
     case 'demo': return startTuto();
-    case 'play': case 'again': return vsScreen('league');
+    case 'play': case 'again': return searchScreen('league');
+    case 'rematch': return rematch(el);
     case 'resume': document.querySelector('.pause')?.remove(); resumeMatch(); return;
-    case 'quit': document.querySelector('.pause')?.remove(); quitMatch(); return home();
+    case 'quit': { document.querySelector('.pause')?.remove(); const tu = M && M.tuto, sc = M ? [M.score[0], Math.max(M.score[0] + 1, M.score[1])] : [0, 1]; quitMatch(); if (tu) return home(); onMatchEnd({ score: sc, stats: {}, quit: 1 }); return; }
   }
 }
 
@@ -501,7 +505,7 @@ function oppFor(boost) {
   const okR = dv >= 8 ? ['commun', 'rare'] : dv >= 5 ? ['commun', 'rare', 'épique'] : dv >= 2 ? ['commun', 'rare', 'épique', 'légendaire'] : Object.keys(RCOL);
   const c = pick(CHARS.filter(x => x.id !== SV.char && okR.includes(x.r)));
   const boot = pick(BOOTS.filter(b => okR.includes(b.r))).id;
-  const gear = { ball: 'ba_cl' }; for (const s of ['hat', 'glasses', 'scarf']) if (Math.random() < .3 + (10 - dv) * .06) gear[s] = pick(ACC.filter(a => a.slot === s && a.kind && okR.includes(a.r))).id;
+  const gear = { ball: 'ba_cl' };
   let bp = 0, bd = 1e9;
   for (let p = 0; p <= PMAX; p++) { const d = Math.abs(statsFor(c.id, boot, gear, () => p).pow - target); if (d < bd) { bd = d; bp = p; } }
   const prog = { [c.id]: bp, [boot]: bp }; for (const s in gear) prog[gear[s]] = bp;
@@ -509,15 +513,38 @@ function oppFor(boost) {
   const riv = SV.club ? rivals(SV.club) : [], club = isDerbyWeek() && riv.length && Math.random() < .6 ? pick(riv) : pick(CLUBS.filter(x => x.id !== SV.club)).id;
   return { ch: c.id, boot, gear, prog, powers: pws, club, name: pick(NICKS) + '_' + (10 + Math.random() * 89 | 0), ai: clamp(.3 + (10 - dv) * .055 + rnd(-.05, .05) + boost * 2, .25, .95), pow: statsFor(c.id, boot, gear, () => bp).pow };
 }
-let MODE = 'league';
-async function vsScreen(mode) {
+let MODE = 'league', LASTOPP = null;
+// écran dynamique : recherche d'un adversaire
+function searchScreen(mode, opp) {
+  MODE = mode || 'league'; const o = opp || (MODE === 'cup' ? cupState().opps[SV.cup.round] : oppFor(0));
+  const faces = CHARS.map(c => c.id), t0 = Date.now(), dur = opp ? 1600 : rnd(2200, 4200);
+  show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="srdark"></div>
+   <div class="srch"><div class="radar"><i></i><i></i><i></i><div class="sweep"></div></div>
+    <div class="srL">${myHero('big idle', 0)}<div class="vsN">${SV.nick}</div><div class="vsC">⚡ ${String(myPow()).replace('.', ',')}</div></div>
+    <div class="srR"><div class="srface"><img id="sface" src="img/h/${pick(faces)}_0.webp"></div><div class="vsN" id="sname">???</div><div class="vsC" id="spow">⚡ ~ ${String(myPow()).replace('.', ',')}</div></div>
+    <div class="srtxt"><b id="stt">${MODE === 'cup' ? 'Coupe de Tunisie : tirage de l\'adversaire' : 'Recherche d\'un adversaire'}<span class="dots3"><i>.</i><i>.</i><i>.</i></span></b><small>${MODE === 'cup' ? ROUNDS[SV.cup.round] : 'Division ' + DIV_N[SV.div] + ' • puissance proche'} • <i id="stime">0 s</i></small></div>
+    <button class="mbtn red small srcancel" data-a="home">Annuler</button></div>`, 'search');
+  let k = 0;
+  const it = setInterval(() => {
+    if (!document.getElementById('sface')) { clearInterval(it); return; }
+    const el = Date.now() - t0; document.getElementById('stime').textContent = Math.floor(el / 1000) + ' s';
+    if (el < dur) { if (k++ % 2 === 0) { document.getElementById('sface').src = `img/h/${faces[(Math.random() * faces.length) | 0]}_0.webp`; sfx('tick'); } return; }
+    clearInterval(it); sfx('slam'); vib(80);
+    document.getElementById('sface').src = `img/h/${o.ch}_1.webp`; document.querySelector('.srR').classList.add('found');
+    document.getElementById('sname').textContent = o.name; document.getElementById('spow').textContent = '⚡ ' + String(o.pow).replace('.', ',') + ' • ' + CL(o.club).s;
+    document.getElementById('stt').innerHTML = 'Adversaire trouvé !'; document.querySelector('.srch').classList.add('done');
+    setTimeout(() => { if (document.querySelector('.srch.done')) vsScreen(MODE, o); }, 1300);
+  }, 120);
+}
+async function vsScreen(mode, oGiven) {
   MODE = mode || 'league';
-  const o = MODE === 'cup' ? cupState().opps[SV.cup.round] : oppFor(0), me = CH(SV.char), op = CH(o.ch), derby = isDerbyWeek() && rivals(SV.club || '').includes(o.club), V = venueNow();
+  const o = oGiven || (MODE === 'cup' ? cupState().opps[SV.cup.round] : oppFor(0)); LASTOPP = o;
+  const me = CH(SV.char), op = CH(o.ch), derby = isDerbyWeek() && rivals(SV.club || '').includes(o.club), V = venueNow();
   const tag = MODE === 'cup' ? `🏆 Coupe de Tunisie • ${ROUNDS[SV.cup.round]}` : `${derby ? '🔥 DERBY ! ' : ''}Division ${DIV_N[SV.div]} • Match ${SV.season.n + 1}/10`;
   show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="vsW">
    <div class="vsP L">${crest(SV.club, 'vscr')}${myHero('big', 1)}<div class="vsN">${SV.nick}</div><div class="vsC">${me.n} • ⚡ ${String(myPow()).replace('.', ',')}</div></div>
    <div class="vsBig">VS</div>
-   <div class="vsP R">${crest(o.club, 'vscr')}${heroHTML(op.id, o.boot, 'big flip', 1, o.gear)}<div class="vsN">${o.name}</div><div class="vsC">${op.n} • ⚡ ${String(o.pow).replace('.', ',')}</div></div>
+   <div class="vsP R">${crest(o.club, 'vscr')}${heroHTML(op.id, o.boot, 'big flip', 1)}<div class="vsN">${o.name}</div><div class="vsC">${op.n} • ⚡ ${String(o.pow).replace('.', ',')}</div></div>
    <div class="vsTag">${tag} • ${V.n}</div>
    <div class="vsLoad"><i id="ldb"></i></div></div>`, 'vs');
   sfx('whoosh'); setTimeout(() => sfx('slam'), 450);
@@ -526,7 +553,7 @@ async function vsScreen(mode) {
   setTimeout(() => {
     ui.className = ''; ui.innerHTML = '';
     newMatch({ me: { ch: SV.char, boot: SV.boot, name: SV.nick, club: SV.club, gear: SV.gear, prog: progMap(), powers: SV.pws }, op: { ...o }, venue: V.id, derby, golden: MODE === 'cup', mode: MODE });
-  }, Math.max(0, 2400 - (Date.now() - t0)));
+  }, Math.max(0, 2200 - (Date.now() - t0)));
 }
 async function startTuto() {
   show(`<div class="bgimg kb" style="background-image:url(img/bg/title2.webp)"></div><div class="tdark"></div><img class="tlogo" src="img/ui2/logo.webp"><div class="loadc"><b>Match démo</b><div class="vsLoad"><i id="ldb"></i></div></div>`, 'title');
@@ -536,11 +563,11 @@ async function startTuto() {
 }
 function onTutoEnd() { const first = !SV.tuto; SV.tuto = 1; if (first) { SV.dt += 200; addChest(1); } save(); resultScreen({ score: [1, 0], tuto: 1, gain: first ? 200 : 0, cards: [] }); }
 function onPause() {
-  const d = document.createElement('div'); d.className = 'pause'; d.innerHTML = `<div class="pbox"><h2>PAUSE</h2><button class="mbtn green wide" data-a="resume">Reprendre</button><button class="mbtn red wide" data-a="quit">Quitter le match</button></div>`;
+  const d = document.createElement('div'); d.className = 'pause'; d.innerHTML = `<div class="pbox"><h2>Quitter le match ?</h2><p class="sm">Le match comptera comme une défaite.</p><button class="mbtn green wide" data-a="resume">Continuer à jouer</button><button class="mbtn red wide" data-a="quit">Quitter</button></div>`;
   document.body.appendChild(d); d.querySelectorAll('[data-a]').forEach(el => el.addEventListener('click', () => { sfx('tap'); act(el.dataset.a, el); }));
 }
-// ---------- fin de match : argent et cartes aléatoires, championnat, classements, coupe ----------
 function onMatchEnd(r) {
+  MODE = MODE || 'league';
   const [a, b] = r.score, win = a > b, draw = a === b, st = r.stats || {};
   const mult = 1 + (10 - SV.div) * .08, gain = Math.round(((win ? 120 : draw ? 60 : 30) + a * 15) * mult * rnd(.9, 1.15) / 10) * 10;
   SV.played++; SV.goals += a; if (win) { SV.wins++; SV.streak++; SV.bestStreak = Math.max(SV.bestStreak, SV.streak); } else SV.streak = 0; SV.dt += gain;
@@ -567,26 +594,48 @@ function onMatchEnd(r) {
     }
   }
   save();
-  resultScreen({ score: r.score, gain, win, draw, cards, chest, end, cup, res: end || MODE === 'cup' ? null : SV.season.res.slice(), derbyX });
+  resultScreen({ score: r.score, gain, win, draw, cards, chest, end, cup, res: end || MODE === 'cup' ? null : SV.season.res.slice(), derbyX, quit: r.quit });
 }
+// fin de match : une pub, puis l'écran face à face avec l'adversaire (revanche possible)
 function resultScreen(r) {
-  const win = r.tuto || r.win, [a, b] = r.score;
-  const endTxt = r.end ? { title: `🏆 CHAMPION DE TUNISIE ! +5 000 DT`, up: `⬆ MONTÉE en Division ${DIV_N[r.end.to]} !`, down: `⬇ Descente en Division ${DIV_N[r.end.to]}`, stay: `Saison terminée : maintien en Division ${DIV_N[r.end.to]}` }[r.end.kind] : r.cup ? (r.cup.won ? '🏆 VAINQUEUR DE LA COUPE DE TUNISIE !' : r.cup.out ? 'Éliminé de la Coupe de Tunisie' : `Qualifié ! Prochain tour : ${ROUNDS[SV.cup.round]} (+${fmt(r.cup.bonus)} DT)`) : '';
+  if (r.tuto || r.quit) return postMatch(r);
+  showAd(() => postMatch(r), true);
+}
+function postMatch(r) {
+  const win = r.tuto || r.win, [a, b] = r.score, o = r.tuto ? { ch: 'chebbi', boot: 'b_base', name: 'Gardien', club: 'ca', pow: 8 } : LASTOPP;
+  const endTxt = r.end ? { title: `🏆 CHAMPION DE TUNISIE ! +5 000 DT`, up: `⬆ MONTÉE en Division ${DIV_N[r.end.to]} !`, down: `⬇ Descente en Division ${DIV_N[r.end.to]}`, stay: `Saison terminée : maintien en Division ${DIV_N[r.end.to]}` }[r.end.kind] : r.cup ? (r.cup.won ? '🏆 VAINQUEUR DE LA COUPE DE TUNISIE !' : r.cup.out ? 'Éliminé de la Coupe de Tunisie' : `Qualifié pour le ${ROUNDS[SV.cup.round].toLowerCase()} ! (+${fmt(r.cup.bonus)} DT)`) : '';
   const kind = r.end ? r.end.kind : r.cup ? (r.cup.out ? 'down' : 'up') : '';
-  show(`<div class="bgimg kb" style="background-image:url(img/bg/${win ? 'win2' : 'lose2'}.webp)"></div>${win ? '<div class="conf"></div>' : ''}
-  <div class="res2 ${win ? 'w' : r.draw ? 'd' : 'l'}">
-   <div class="rT">${r.tuto ? 'DÉMO RÉUSSIE !' : win ? 'VICTOIRE !' : r.draw ? 'MATCH NUL' : 'DÉFAITE'}</div>
-   <div class="rS">${a}<span>-</span>${b}</div>
-   <div class="rHero">${myHero('big ' + (win ? 'joy' : ''), win ? 3 : 2)}</div>
-   <div class="rGains">${r.gain ? `<div class="rg"><img src="img/ic2/coins.webp"><b id="gv">0</b><small>DT</small></div>` : ''}
+  const canRematch = !r.tuto && MODE !== 'cup' && o;
+  show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="pmdark"></div>${win ? '<div class="conf"></div>' : ''}
+  <div class="pm ${win ? 'w' : r.draw ? 'd' : 'l'}">
+   <div class="pmT">${r.tuto ? 'DÉMO RÉUSSIE !' : r.quit ? 'ABANDON' : win ? 'VICTOIRE !' : r.draw ? 'MATCH NUL' : 'DÉFAITE'}</div>
+   <div class="pmP L">${crest(SV.club || 'est', 'vscr')}${myHero('big ' + (win ? 'joy' : ''), win ? 3 : r.draw ? 0 : 2)}<div class="vsN">${SV.nick}</div></div>
+   <div class="pmS">${a}<span>-</span>${b}</div>
+   <div class="pmP R">${o ? crest(o.club, 'vscr') + heroHTML(o.ch, o.boot, 'big flip' + (!win && !r.draw ? ' joy' : ''), win ? 2 : r.draw ? 0 : 3) + `<div class="vsN">${o.name}</div>` : ''}</div>
+   <div class="pmG">${r.gain ? `<div class="rg"><img src="img/ic2/coins.webp"><b id="gv">0</b><small>DT</small></div>` : ''}
      ${(r.cards || []).map(c => `<div class="rg card">${cardHTML(ITEM(c.id), `<div class="kn">×${c.n}</div>`, c.fresh ? 'fresh' : '')}</div>`).join('')}
-     ${r.chest >= 0 ? `<div class="rg"><img src="img/ch2/${r.chest}_0.webp"><small>${CHESTS[r.chest].n}</small></div>` : r.chest === -2 ? '<div class="rg"><small>Coffres pleins : ouvre-les !</small></div>' : ''}</div>
-   ${r.tuto || !SV.club ? '' : `<div class="rInfo"><span>${crest(SV.club, 'pcr')} ${r.win ? '+' + r.derbyX + ' victoire' + (r.derbyX > 1 ? 's (derby)' : '') + ' pour ' + CL(SV.club).s : CL(SV.club).s}</span>${r.res ? `<span class="sres mini">${Array.from({ length: 10 }, (_, i) => `<i class="${r.res[i] || ''}"></i>`).join('')}</span>` : ''}</div>`}
+     ${r.chest >= 0 ? `<div class="rg"><img src="img/ch2/${r.chest}_0.webp"><small>${CHESTS[r.chest].n}</small></div>` : r.chest === -2 ? '<div class="rg"><small>Salle des coffres pleine</small></div>' : ''}
+     ${r.res ? `<div class="rg"><span class="sres mini">${Array.from({ length: 10 }, (_, i) => `<i class="${r.res[i] || ''}"></i>`).join('')}</span><small>${SV.season.pts} pts</small></div>` : ''}</div>
    ${endTxt ? `<div class="send ${kind}">${endTxt}</div>` : ''}
-   <div class="rB"><button class="mbtn blue" data-a="home">Menu</button>${r.tuto ? `<button class="mbtn green" data-a="${SV.club ? 'play' : 'start'}">${SV.club ? 'Premier match ▶' : 'Choisir mon club ▶'}</button>` : MODE === 'cup' ? `<button class="mbtn green" data-a="cup">Coupe ▶</button>` : '<button class="mbtn green" data-a="again">Match suivant ▶</button>'}</div>
-  </div>`, 'result');
+   <div class="pmwait" id="pmw"></div>
+   <div class="pmB"><button class="mbtn blue" data-a="home">Menu</button>
+     ${canRematch ? `<button class="mbtn orange" id="rbtn" data-a="rematch">⟲ Rejouer contre ${o.name.split('_')[0]}</button>` : ''}
+     ${r.tuto ? `<button class="mbtn green" data-a="${SV.club ? 'play' : 'start'}">${SV.club ? 'JOUER ▶' : 'Choisir mon club ▶'}</button>` : MODE === 'cup' ? `<button class="mbtn green" data-a="cup">Coupe ▶</button>` : '<button class="mbtn green" data-a="play">JOUER ▶</button>'}</div>
+  </div>`, 'result pmv');
   if (win) sfx('unlock');
   if (r.gain) { const e = document.getElementById('gv'), st = Date.now(); const f = () => { const k = Math.min(1, (Date.now() - st) / 900); if (e) e.textContent = fmt(r.gain * k); if (k < 1) requestAnimationFrame(f); else sfx('coin'); }; setTimeout(f, 500); }
+}
+// revanche : on attend la réponse de l'adversaire
+function rematch(el) {
+  const o = LASTOPP, w = document.getElementById('pmw'); if (!o || !w) return;
+  el.disabled = true; el.classList.add('waiting'); el.innerHTML = '<span class="spin"></span> En attente…';
+  w.innerHTML = `<div class="wcard">${headHTML(o.ch, 'pico')}<span>En attente de l'acceptation de <b>${o.name}</b><span class="dots3"><i>.</i><i>.</i><i>.</i></span></span></div>`;
+  const ok = Math.random() < .6;
+  setTimeout(() => {
+    if (!document.getElementById('pmw')) return;
+    if (ok) { w.innerHTML = `<div class="wcard ok">${headHTML(o.ch, 'pico')}<span><b>${o.name}</b> accepte la revanche !</span></div>`; sfx('unlock'); setTimeout(() => { if (document.getElementById('pmw')) vsScreen('league', o); }, 1200); }
+    else { w.innerHTML = `<div class="wcard no">${headHTML(o.ch, 'pico')}<span><b>${o.name}</b> a refusé la revanche.</span></div>`; sfx('bump'); el.remove(); }
+  }, rnd(2200, 4500));
 }
 
 // ---------- lancement ----------

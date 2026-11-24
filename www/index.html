@@ -52,21 +52,20 @@ b,small,span,em{font-style:normal}
 .pico{width:5.4vh;height:5.4vh;object-fit:contain;background:#fff;border-radius:50%;border:.3vh solid var(--o)}
 /* personnage HTML animé */
 .hero{position:relative;width:20vh;height:24vh}
-.hero .hboot{position:absolute;left:30%;bottom:0;width:66%;transform-origin:50% 90%}
-.hero .hboot{transform:scaleX(-1)}
-.hero .hhead{position:absolute;left:46%;bottom:19%;height:78%;aspect-ratio:1;transform:translateX(-50%);transform-origin:50% 90%}
-.hhead img{position:absolute}.hhead .hface{inset:0;width:100%;height:100%}
+.hero .hboot{position:absolute;left:31%;bottom:0;width:66%;transform-origin:40% 90%}
+.hero .hhead{position:absolute;left:50%;bottom:14%;height:70%;transform:translateX(-50%);transform-origin:50% 90%;display:flex}
+.hhead .hface{height:100%;width:auto;display:block}
 .hero.evo2{filter:drop-shadow(0 0 2vh #b060ff)}.hero.evo3{filter:drop-shadow(0 0 2.5vh #ffc400)}
 .hero .hsh{position:absolute;left:12%;right:12%;bottom:-2%;height:9%;border-radius:50%;background:radial-gradient(#0009,#0000 70%)}
 .hero.big{width:30vh;height:36vh}
 .hero.flip{transform:scaleX(-1)}
 .hero.idle .hhead{animation:hbob 1.6s ease-in-out infinite}.hero.idle .hboot{animation:hbt 1.6s ease-in-out infinite}.hero.idle{animation:hsq 1.6s ease-in-out infinite;transform-origin:50% 100%}
 @keyframes hbob{0%,100%{transform:translateX(-50%) rotate(-3deg)}50%{transform:translateX(-50%) translateY(-3%) rotate(3deg)}}
-@keyframes hbt{0%,100%{transform:scaleX(-1) rotate(0)}50%{transform:scaleX(-1) rotate(4deg)}}
+@keyframes hbt{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
 @keyframes hsq{0%,100%{transform:scale(1.03,.97)}50%{transform:scale(.98,1.03)}}
 .hero.joy{animation:hjump .7s cubic-bezier(.3,0,.5,1) infinite;transform-origin:50% 100%}
 @keyframes hjump{0%,100%{transform:translateY(0) scale(1.08,.92)}15%{transform:scale(.94,1.08)}50%{transform:translateY(-18%) scale(.97,1.04) rotate(-4deg)}85%{transform:translateY(0) scale(1,1)}}
-.hero.locked img{filter:brightness(0) drop-shadow(0 0 .4vh #fff8)}
+.hero.locked img{filter:grayscale(.75) brightness(.9) opacity(.8)}
 /* accueil */
 .beams i{position:absolute;top:-10vh;left:50%;width:20vh;height:100vh;background:linear-gradient(#fff6c06a,#fff6c000 80%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);transform-origin:50% 0;mix-blend-mode:screen;animation:beam 6s ease-in-out infinite alternate}
 .beams i:nth-child(1){margin-left:-24vh;animation-delay:-2s}.beams i:nth-child(2){margin-left:-10vh}.beams i:nth-child(3){margin-left:4vh;animation-delay:-4s}
@@ -225,7 +224,7 @@ b,small,span,em{font-style:normal}
 .scard{position:relative;flex:0 0 17vh;height:18vh;border-radius:1.6vh;border:.45vh solid var(--o);background:radial-gradient(circle at 50% 35%,#ffffff40,#0000 65%),linear-gradient(#3a5a9a,#1a2b55);overflow:hidden;box-shadow:0 .5vh 0 var(--o)}
 .scard.sel{box-shadow:0 0 0 .5vh #2fff8a,0 .5vh 0 var(--o);transform:translateY(-.6vh)}
 .scard img{position:absolute;left:50%;transform:translateX(-50%)}.scard .sh{top:4%;height:72%}.scard .si{top:20%;width:80%}.scard .sp{top:6%;height:66%}
-.scard.lock img{filter:grayscale(1) brightness(.6)}
+.scard.lock img{filter:grayscale(.7) brightness(.95);opacity:.85}
 .scard .sr{position:absolute;left:0;right:0;bottom:0;padding:.4vh 0;background:var(--rc);font-size:1.9vh;text-align:center;text-shadow:var(--ts)}
 .scard .slv{position:absolute;left:.6vh;top:.3vh;color:#ffd200;font-size:2.2vh;text-shadow:var(--ts)}
 .scard .chk{position:absolute;right:.6vh;top:.6vh;width:3.6vh;height:3.6vh;border-radius:1vh;background:linear-gradient(#b4ff3c,#3fae1a);border:.3vh solid var(--o);display:flex;align-items:center;justify-content:center;font-size:2.2vh}
@@ -282,7 +281,7 @@ b,small,span,em{font-style:normal}
 .kcard .kname{position:absolute;left:8%;right:8%;bottom:12%;text-align:center;font-size:1.7vh;line-height:1.05;text-shadow:var(--ts)}
 .kcard .kn{position:absolute;right:-1vh;top:-1vh;background:#e70013;border:.3vh solid var(--o);border-radius:2vh;padding:.2vh 1.2vh;font-family:"Luckiest Guy";font-size:2.8vh;text-shadow:var(--ts)}
 .kcard .knone{position:absolute;inset:0 0 20%;display:flex;align-items:center;justify-content:center;font-size:9vh;opacity:.5}
-.kcard.locked .kimg{filter:grayscale(1) brightness(.55)}
+.kcard.locked .kimg{filter:grayscale(.7) brightness(.95);opacity:.85}
 .kcard.fresh{animation:fresh 1s ease-in-out infinite}@keyframes fresh{50%{filter:drop-shadow(0 0 2.5vh #ffd200)}}
 .kbar{position:relative;height:3.4vh;background:#000a;border:.3vh solid var(--o);border-radius:2vh;overflow:hidden;margin-top:.6vh}.kbar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(#b4ff3c,#3fae1a)}
 .kbar small{position:relative;display:block;text-align:center;font-size:1.9vh;line-height:2.8vh;text-shadow:var(--ts)}.kbar.big{height:4.4vh}.kbar.big small{font-size:2.3vh;line-height:3.8vh}
@@ -360,6 +359,76 @@ b,small,span,em{font-style:normal}
 .money-card{width:20vh;aspect-ratio:268/360;border-radius:2vh;border:.5vh solid var(--o);background:radial-gradient(circle at 50% 35%,#fff6 0,#0000 60%),linear-gradient(var(--rc),#3a2400);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh;position:relative;filter:drop-shadow(0 .8vh .8vh #000a)}
 .money-card img{width:65%}.money-card b{font-family:"Luckiest Guy";font-size:3.6vh;text-shadow:var(--ts)}.fly .money-card{width:30vh}.smini .money-card{width:17vh}
 .panel.lg{display:flex;flex-direction:column}.panel.lg .lgb{flex:1;overflow-y:auto;min-height:0}.panel.lg{overflow:hidden}
+
+/* ================= V2.1 ================= */
+.events{top:12vh}.evc{height:30vh}
+.chestcard{position:absolute;right:2vh;bottom:18vh;width:min(86vh,46vw);height:13vh;border-radius:2.4vh;border:.5vh solid var(--o);background:linear-gradient(100deg,#6a2ab8,#2a1060 60%,#120830);box-shadow:inset 0 .5vh 0 #ffffff33,0 .7vh 0 var(--o);display:flex;align-items:center;gap:2vh;padding:0 2.4vh;text-align:left;text-shadow:var(--ts);overflow:visible}
+.chestcard .cc1{height:12vh;margin-top:-3vh;filter:drop-shadow(0 1vh 1vh #000a);animation:wob 1.8s ease-in-out infinite}
+.chestcard b{display:block;font-family:"Luckiest Guy";font-size:3.6vh;color:#ffd200}.chestcard small{font-size:2.4vh}
+.chestcard::after{content:'›';margin-left:auto;font-size:7vh;color:#ffd200}
+/* boutons de navigation : tuiles colorées */
+.bbar{gap:1vh}
+.nbtn{position:relative;border:.45vh solid var(--o);box-shadow:inset 0 .6vh 0 #ffffff40,0 .6vh 0 var(--o);transition:transform .12s;height:12.2vh;margin-top:-1vh}
+.nbtn:active{transform:translateY(.4vh) scale(.94)}
+.nbtn.t1{background:linear-gradient(#3f8cff,#1a4fc0)}.nbtn.t2{background:linear-gradient(#ff8a2a,#c8500a)}.nbtn.t3{background:linear-gradient(#ff4a5a,#b8102e)}.nbtn.t4{background:linear-gradient(#b65cff,#6a1ab8)}.nbtn.t5{background:linear-gradient(#ffd23a,#d89a00)}.nbtn.t6{background:linear-gradient(#3fd06a,#13852e)}.nbtn.t7{background:linear-gradient(#5ad8ff,#1a8ac8)}
+.nbtn img{animation:bob2 2.4s ease-in-out infinite}.nbtn:nth-child(odd) img{animation-delay:-1.2s}
+@keyframes bob2{50%{transform:translateY(-.6vh) rotate(-3deg)}}
+.sbtn2{transition:transform .12s;background:linear-gradient(#3a6ae0,#162a7a)}.sbtn2:active{transform:scale(.92)}
+.playbtn2{position:relative;overflow:hidden}.playbtn2::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,#0000 40%,#fff7 50%,#0000 60%) -200% 0/200% 100% no-repeat;animation:shine 2.4s infinite}
+.mbtn{animation:popin .35s cubic-bezier(.2,1.6,.4,1) both}@keyframes popin{from{transform:scale(.6);opacity:0}}
+/* salle des coffres */
+.croom{position:absolute;inset:11vh 3vh 3vh;text-shadow:var(--ts);text-align:center}
+.croom h2{font-family:"Luckiest Guy";font-size:5vh;color:#ffd200;display:flex;align-items:center;justify-content:center;gap:1.4vh}.croom h2 img{height:8vh}
+.cpeds{display:flex;justify-content:center;gap:3vh;margin-top:3vh}
+.cped{position:relative;width:30vh;height:44vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.8vh;padding-bottom:1vh}
+.cped img{position:absolute;bottom:17vh;width:24vh;filter:drop-shadow(0 1.5vh 1.5vh #000c);z-index:1}
+.cped .pd{position:absolute;bottom:10vh;width:26vh;height:9vh;border-radius:50%;background:radial-gradient(ellipse at 50% 35%,#ffe9a0,#c88a1a 45%,#5a3a05 70%);box-shadow:0 0 4vh #ffb34766}
+.cped b{font-family:"Luckiest Guy";font-size:3vh;z-index:1}
+.cbtn{z-index:1;min-width:24vh;padding:1vh 2vh;border-radius:2vh;border:.4vh solid var(--o);background:linear-gradient(#4a7ae0,#1a3a9a);font-size:2.6vh;box-shadow:0 .5vh 0 var(--o)}
+.cped.ready .cbtn{background:linear-gradient(#b4ff3c,#3fae1a);animation:pulse 1s infinite}.cped.ready img{animation:wob .8s infinite}.cped.ready .pd{box-shadow:0 0 7vh #ffd200}
+.cped.run .cbtn{background:linear-gradient(#ffd23a,#d89a00)}
+.cped.empty{opacity:.6}.cped.empty .pd{filter:grayscale(1)}.cped.empty span{font-size:2.6vh;z-index:1}.cped.empty small{font-size:2vh}
+.cfree{display:flex;justify-content:center;gap:2vh;margin-top:2vh}
+/* ouverture de coffre : rayons en CSS */
+.chrays{position:absolute;left:50%;top:48%;width:150vh;height:150vh;transform:translate(-50%,-50%) scale(.2);opacity:0;border-radius:50%;background:repeating-conic-gradient(#ffd24a55 0 7deg,#0000 7deg 18deg);-webkit-mask:radial-gradient(circle,#000 10%,#0000 62%);mask:radial-gradient(circle,#000 10%,#0000 62%);transition:opacity .6s,transform .6s}
+.chopen.opened .chrays{opacity:1;transform:translate(-50%,-50%) scale(1);animation:spin2 18s linear infinite}
+.chglow{position:absolute;left:50%;top:48%;width:70vh;height:70vh;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff3c0aa,#ffb34733 40%,#0000 70%);opacity:0;transition:opacity .6s}.chopen.opened .chglow{opacity:1}
+.chbox{top:55%;width:40vh}.chopen.opened .chbox{top:auto;bottom:-2vh;transform:translate(-50%,0);width:26vh;opacity:.9}
+.chopen.sum .chbox{opacity:.15}
+.chcards{top:46%}
+/* recherche d'adversaire */
+.srdark{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,#0000,#000b 75%)}
+.srch{position:absolute;inset:0;text-shadow:var(--ts)}
+.radar{position:absolute;left:50%;top:45%;width:60vh;height:60vh;transform:translate(-50%,-50%)}
+.radar i{position:absolute;inset:0;border-radius:50%;border:.5vh solid #ffd200;opacity:0;animation:ping 2.4s ease-out infinite}.radar i:nth-child(2){animation-delay:.8s}.radar i:nth-child(3){animation-delay:1.6s}
+@keyframes ping{from{transform:scale(.2);opacity:.9}to{transform:scale(1.2);opacity:0}}
+.sweep{position:absolute;inset:8%;border-radius:50%;background:conic-gradient(#ffd20088,#0000 25%);animation:spin3 1.4s linear infinite}@keyframes spin3{to{transform:rotate(360deg)}}
+.srch.done .radar{display:none}
+.srL,.srR{position:absolute;top:16vh;display:flex;flex-direction:column;align-items:center}.srL{left:8vw}.srR{right:8vw}
+.srL .hero.big{width:34vh;height:40vh}
+.srface{width:36vh;height:36vh;border-radius:50%;background:radial-gradient(circle,#2a4a9a,#0b1430);border:.7vh solid var(--o);box-shadow:0 0 0 .5vh #ffd200,0 0 5vh #000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.srface img{height:85%;transform:scaleX(-1);filter:brightness(.25) blur(.2vh)}
+.srR.found .srface{animation:found .5s cubic-bezier(.2,1.6,.4,1)}.srR.found .srface img{filter:none}
+@keyframes found{from{transform:scale(1.4)}}
+.srtxt{position:absolute;left:0;right:0;bottom:14vh;text-align:center}.srtxt b{display:block;font-family:"Luckiest Guy";font-size:5.4vh;color:#ffd200}.srtxt small{font-size:2.6vh}
+.srch.done .srtxt b{color:#7dff2c;animation:pulse .6s 2}
+.dots3 i{font-style:normal;animation:dot 1.2s infinite}.dots3 i:nth-child(2){animation-delay:.2s}.dots3 i:nth-child(3){animation-delay:.4s}@keyframes dot{0%,60%,100%{opacity:.2}30%{opacity:1}}
+.srcancel{position:absolute;left:50%;bottom:3vh;transform:translateX(-50%)}
+/* après-match */
+.pmdark{position:absolute;inset:0;background:linear-gradient(#0008,#0003 40%,#000a)}
+.pm{position:absolute;inset:0;text-shadow:var(--ts)}
+.pmT{position:absolute;top:2vh;left:0;right:0;text-align:center;font-family:"Luckiest Guy";font-size:8vh;color:#ffd200}.pm.l .pmT{color:#ff6b6b}.pm.d .pmT{color:#fff}
+.pmP{position:absolute;top:12vh;display:flex;flex-direction:column;align-items:center}.pmP.L{left:6vw}.pmP.R{right:6vw}.pmP .hero.big{width:34vh;height:40vh}
+.pmP .vscr{height:9vh;margin-bottom:-1vh}
+.pmS{position:absolute;left:50%;top:22vh;transform:translateX(-50%);font-family:"Luckiest Guy";font-size:12vh;background:#0b1430d8;border:.6vh solid var(--o);border-radius:3vh;padding:1vh 4vh;line-height:1}.pmS span{opacity:.5;margin:0 2vh}
+.pmG{position:absolute;left:50%;top:44vh;transform:translateX(-50%);display:flex;gap:1.4vh;align-items:center;flex-wrap:wrap;justify-content:center;max-width:60vw}
+.pmG .rg.card .kcard{width:11vh}
+.pm .send{position:absolute;left:50%;transform:translateX(-50%);bottom:24vh;white-space:nowrap}
+.pmwait{position:absolute;left:50%;bottom:14vh;transform:translateX(-50%)}
+.wcard{display:flex;align-items:center;gap:1.4vh;background:#0b1430e6;border:.45vh solid #ffd200;border-radius:3vh;padding:.8vh 2.4vh .8vh .8vh;font-size:2.6vh;animation:popin .3s both}.wcard.ok{border-color:#7dff2c}.wcard.no{border-color:#ff4a4a}
+.pmB{position:absolute;left:0;right:0;bottom:3vh;display:flex;justify-content:center;gap:2vh}
+.mbtn.waiting{filter:grayscale(.4)}.spin{width:3vh;height:3vh;border:.5vh solid #fff;border-top-color:#0000;border-radius:50%;animation:spin3 .8s linear infinite;display:inline-block}
+.pause .pbox h2{font-size:4.4vh}.pause .pbox p{text-shadow:var(--ts)}
 </style>
 </head>
 <body>
