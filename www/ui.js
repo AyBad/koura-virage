@@ -118,6 +118,7 @@ function heroHTML(chId, bootId, cls, expr) {
 const myHero = (cls, expr) => heroHTML(SV.char, SV.boot, cls, expr, SV.gear);
 function headHTML(chId, cls) { return `<img class="${cls || 'mini'}" src="img/h/${chId}_0.webp">`; }
 const crest = (id, cls) => `<img class="${cls || 'crest'}" src="img/cr/${CL(id).cr}.webp">`;
+const clubTag = id => { const c = CL(id); return `<div class="pmtag" style="--c1:${hex(c.c1)};--c2:${hex(c.c2)}"><img src="img/cr/${c.cr}.webp"><div><b>${c.s}</b><br><small>${c.n}</small></div></div>`; };
 const stars = (p, big) => { const s = Math.floor(p / 5), f = p % 5; let h = ''; for (let i = 0; i < 5; i++) h += `<i class="${i < s ? 'on' : i === s && f ? 'part' : ''}" style="--f:${i === s ? f * 20 : 0}%">★</i>`; return `<span class="stars ${big ? 'big' : ''}">${h}</span>`; };
 // carte à collectionner (cadre selon la rareté)
 function cardHTML(it, extra, cls) {
@@ -242,12 +243,13 @@ function openChest(r) {
   const ch = CHESTS[r], dt = Math.round(rnd(ch.dt[0], ch.dt[1]) / 10) * 10, gm = Math.round(rnd(ch.gem[0], ch.gem[1]));
   const cards = grantCards(drawCards(ch.cards, r)); SV.dt += dt; SV.gem += gm; save();
   const items = [{ k: 'dt', n: dt }, ...(gm ? [{ k: 'gem', n: gm }] : []), ...cards];
-  const d = document.createElement('div'); d.className = 'chopen'; d.innerHTML = `<div class="chbg"></div><div class="chrays"></div><div class="chglow"></div><div class="chname">${ch.n.toUpperCase()}</div><img class="chbox shake" src="img/ch2/${r}_0.webp"><div class="chcards"></div><div class="chcount"></div><div class="un">Touche pour continuer</div>`;
+  const d = document.createElement('div'); d.className = 'chopen'; d.innerHTML = `<div class="chbg"></div><div class="chrays"></div><div class="chglow"></div><div class="chname">${ch.n.toUpperCase()}</div><div class="chw"><img class="chbox drop" src="img/ch2/${r}_0.webp"></div><div class="chflash"></div><div class="chcards"></div><div class="chcount"></div><div class="un">Touche pour continuer</div>`;
   document.body.appendChild(d); sfx('chest');
   let i = -1, phase = 0;
   const box = d.querySelector('.chbox'), cc = d.querySelector('.chcards'), cnt = d.querySelector('.chcount');
-  setTimeout(() => { box.src = `img/ch2/${r}_1.webp`; box.classList.remove('shake'); box.classList.add('pop'); sfx('unlock'); vib(60); }, 900);
-  setTimeout(() => { box.src = `img/ch2/${r}_2.webp`; d.classList.add('opened'); phase = 1; next(); }, 1500);
+  setTimeout(() => { box.className = 'chbox shake'; sfx('chest'); }, 650);
+  setTimeout(() => { box.src = `img/ch2/${r}_1.webp`; box.className = 'chbox shake2'; vib(40); }, 1350);
+  setTimeout(() => { box.src = `img/ch2/${r}_2.webp`; box.className = 'chbox burst'; d.classList.add('opened'); sfx('unlock'); vib(90); phase = 1; next(); }, 1900);
   function itemCard(x) {
     if (x.k === 'dt') return `<div class="money-card" style="--rc:#f2a900"><img src="img/ic2/coins.webp"><b>+${fmt(x.n)} DT</b></div>`;
     if (x.k === 'gem') return `<div class="money-card" style="--rc:#2c8cf0"><img src="img/ic2/gem.webp"><b>+${x.n}</b></div>`;
@@ -261,7 +263,7 @@ function openChest(r) {
       const x = items[i], it = x.id ? ITEM(x.id) : null, rare = it && it.r !== 'commun';
       cc.innerHTML = `<div class="fly ${rare ? 'rare' : ''}" style="--rc:${it ? RCOL[it.r] : '#f2a900'}">${rare ? `<img class="cglow" src="img/fx2/${it.r === 'rare' ? 'glow_b' : it.r === 'épique' ? 'glow_v' : 'glow_o'}.webp">` : ''}${itemCard(x)}</div>`;
       cnt.textContent = (items.length - i - 1) ? (items.length - i - 1) + ' restante(s)' : '';
-      sfx(rare ? 'unlock' : 'coin'); if (x.fresh) vib(120);
+      sfx(rare ? 'unlock' : 'coin'); if (x.fresh) vib(120); box.className = 'chbox'; void box.offsetWidth; box.className = 'chbox bump';
     } else {
       phase = 2; d.classList.add('sum'); cnt.textContent = '';
       cc.innerHTML = `<div class="sumgrid">${items.map(x => `<div class="smini">${itemCard(x)}</div>`).join('')}</div>`;
@@ -520,7 +522,7 @@ function searchScreen(mode, opp) {
   const faces = CHARS.map(c => c.id), t0 = Date.now(), dur = opp ? 1600 : rnd(2200, 4200);
   show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="srdark"></div>
    <div class="srch"><div class="radar"><i></i><i></i><i></i><div class="sweep"></div></div>
-    <div class="srL">${myHero('big idle', 0)}<div class="vsN">${SV.nick}</div><div class="vsC">⚡ ${String(myPow()).replace('.', ',')}</div></div>
+    <div class="srL">${myHero('big idle', 0)}<div class="vsN">${SV.nick}</div><div class="vsC">⚡ ${String(myPow()).replace('.', ',')}</div>${clubTag(SV.club || 'est')}</div>
     <div class="srR"><div class="srface"><img id="sface" src="img/h/${pick(faces)}_0.webp"></div><div class="vsN" id="sname">???</div><div class="vsC" id="spow">⚡ ~ ${String(myPow()).replace('.', ',')}</div></div>
     <div class="srtxt"><b id="stt">${MODE === 'cup' ? 'Coupe de Tunisie : tirage de l\'adversaire' : 'Recherche d\'un adversaire'}<span class="dots3"><i>.</i><i>.</i><i>.</i></span></b><small>${MODE === 'cup' ? ROUNDS[SV.cup.round] : 'Division ' + DIV_N[SV.div] + ' • puissance proche'} • <i id="stime">0 s</i></small></div>
     <button class="mbtn red small srcancel" data-a="home">Annuler</button></div>`, 'search');
@@ -531,7 +533,7 @@ function searchScreen(mode, opp) {
     if (el < dur) { if (k++ % 2 === 0) { document.getElementById('sface').src = `img/h/${faces[(Math.random() * faces.length) | 0]}_0.webp`; sfx('tick'); } return; }
     clearInterval(it); sfx('slam'); vib(80);
     document.getElementById('sface').src = `img/h/${o.ch}_1.webp`; document.querySelector('.srR').classList.add('found');
-    document.getElementById('sname').textContent = o.name; document.getElementById('spow').textContent = '⚡ ' + String(o.pow).replace('.', ',') + ' • ' + CL(o.club).s;
+    document.getElementById('sname').textContent = o.name; document.getElementById('spow').innerHTML = '⚡ ' + String(o.pow).replace('.', ',') + clubTag(o.club);
     document.getElementById('stt').innerHTML = 'Adversaire trouvé !'; document.querySelector('.srch').classList.add('done');
     setTimeout(() => { if (document.querySelector('.srch.done')) vsScreen(MODE, o); }, 1300);
   }, 120);
@@ -542,9 +544,9 @@ async function vsScreen(mode, oGiven) {
   const me = CH(SV.char), op = CH(o.ch), derby = isDerbyWeek() && rivals(SV.club || '').includes(o.club), V = venueNow();
   const tag = MODE === 'cup' ? `🏆 Coupe de Tunisie • ${ROUNDS[SV.cup.round]}` : `${derby ? '🔥 DERBY ! ' : ''}Division ${DIV_N[SV.div]} • Match ${SV.season.n + 1}/10`;
   show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="vsW">
-   <div class="vsP L">${crest(SV.club, 'vscr')}${myHero('big', 1)}<div class="vsN">${SV.nick}</div><div class="vsC">${me.n} • ⚡ ${String(myPow()).replace('.', ',')}</div></div>
+   <div class="vsP L">${myHero('big', 1)}<div class="vsN">${SV.nick}</div>${clubTag(SV.club || 'est')}<div class="vsC">${me.n} • ⚡ ${String(myPow()).replace('.', ',')}</div></div>
    <div class="vsBig">VS</div>
-   <div class="vsP R">${crest(o.club, 'vscr')}${heroHTML(op.id, o.boot, 'big flip', 1)}<div class="vsN">${o.name}</div><div class="vsC">${op.n} • ⚡ ${String(o.pow).replace('.', ',')}</div></div>
+   <div class="vsP R">${heroHTML(op.id, o.boot, 'big flip', 1)}<div class="vsN">${o.name}</div>${clubTag(o.club)}<div class="vsC">${op.n} • ⚡ ${String(o.pow).replace('.', ',')}</div></div>
    <div class="vsTag">${tag} • ${V.n}</div>
    <div class="vsLoad"><i id="ldb"></i></div></div>`, 'vs');
   sfx('whoosh'); setTimeout(() => sfx('slam'), 450);
@@ -609,9 +611,9 @@ function postMatch(r) {
   show(`<div class="bgimg" style="background-image:url(img/bg/vs2.webp)"></div><div class="pmdark"></div>${win ? '<div class="conf"></div>' : ''}
   <div class="pm ${win ? 'w' : r.draw ? 'd' : 'l'}">
    <div class="pmT">${r.tuto ? 'DÉMO RÉUSSIE !' : r.quit ? 'ABANDON' : win ? 'VICTOIRE !' : r.draw ? 'MATCH NUL' : 'DÉFAITE'}</div>
-   <div class="pmP L">${crest(SV.club || 'est', 'vscr')}${myHero('big ' + (win ? 'joy' : ''), win ? 3 : r.draw ? 0 : 2)}<div class="vsN">${SV.nick}</div></div>
+   <div class="pmP L">${myHero('big ' + (win ? 'joy' : ''), win ? 3 : r.draw ? 0 : 2)}<div class="vsN">${SV.nick}</div>${clubTag(SV.club || 'est')}</div>
    <div class="pmS">${a}<span>-</span>${b}</div>
-   <div class="pmP R">${o ? crest(o.club, 'vscr') + heroHTML(o.ch, o.boot, 'big flip' + (!win && !r.draw ? ' joy' : ''), win ? 2 : r.draw ? 0 : 3) + `<div class="vsN">${o.name}</div>` : ''}</div>
+   <div class="pmP R">${o ? heroHTML(o.ch, o.boot, 'big flip' + (!win && !r.draw ? ' joy' : ''), win ? 2 : r.draw ? 0 : 3) + `<div class="vsN">${o.name}</div>` + clubTag(o.club) : ''}</div>
    <div class="pmG">${r.gain ? `<div class="rg"><img src="img/ic2/coins.webp"><b id="gv">0</b><small>DT</small></div>` : ''}
      ${(r.cards || []).map(c => `<div class="rg card">${cardHTML(ITEM(c.id), `<div class="kn">×${c.n}</div>`, c.fresh ? 'fresh' : '')}</div>`).join('')}
      ${r.chest >= 0 ? `<div class="rg"><img src="img/ch2/${r.chest}_0.webp"><small>${CHESTS[r.chest].n}</small></div>` : r.chest === -2 ? '<div class="rg"><small>Salle des coffres pleine</small></div>' : ''}

@@ -38,7 +38,7 @@ function genTex() {
   TEX.band = mk(8, 128, x => { const g = x.createLinearGradient(0, 0, 0, 128); g.addColorStop(0, '#2a3552'); g.addColorStop(.08, '#1a2238'); g.addColorStop(1, '#0c1120'); x.fillStyle = g; x.fillRect(0, 0, 8, 128); x.fillStyle = 'rgba(255,255,255,.18)'; x.fillRect(0, 0, 8, 3); });
 }
 const IMG_LIST = () => {
-  const a = ['img/ui/kick.webp', 'img/ui/lob.webp', 'img/ui/jump.webp', 'img/ui/left.webp', 'img/ui/right.webp', 'img/ui/pause.webp', 'img/ui/hand.webp', 'img/fx2/fire.webp', 'img/fx2/honey.webp', 'img/fx2/ice.webp', 'img/fx2/sandal.webp', 'img/fx2/stars.webp', 'img/fx2/halo.webp', 'img/ic2/gem.webp'];
+  const a = ['img/ui2/b_left.webp', 'img/ui2/b_right.webp', 'img/ui2/b_lo.webp', 'img/ui2/b_hi.webp', 'img/ui2/b_jump.webp', 'img/ui2/buuut_or.webp', 'img/ui2/buuut_rouge.webp', 'img/ui/hand.webp', 'img/ui/pause.webp', 'img/ui/hand.webp', 'img/fx2/fire.webp', 'img/fx2/honey.webp', 'img/fx2/ice.webp', 'img/fx2/sandal.webp', 'img/fx2/stars.webp', 'img/fx2/halo.webp', 'img/ic2/gem.webp'];
   for (const v of VENUES) a.push(v.img);
   for (const c of CHARS) for (let i = 0; i < 5; i++) a.push('img/h/' + c.id + '_' + i + '.webp');
   for (const b of BOOTS) a.push('img/eq/' + b.id + '.webp');
@@ -60,7 +60,7 @@ async function loadAssets(onProg) {
 // =====================================================================
 const INP = { ax: 0, jumpEdge: false, jumpHold: false, lo: false, hi: false, pw1: false, pw2: false, k: {} };
 // Commandes façon Head Ball : 2 flèches à gauche, SAUT / TIR BAS / TIR HAUT à droite, pouvoirs en haut
-const BTN = { left: { id: null, r: 62 }, right: { id: null, r: 62 }, jump: { id: null, r: 58 }, lo: { id: null, r: 58 }, hi: { id: null, r: 58 }, pw1: { id: null, r: 44 }, pw2: { id: null, r: 44 }, quit: { id: null, r: 30 } };
+const BTN = { left: { id: null, r: 66 }, right: { id: null, r: 66 }, jump: { id: null, r: 70 }, lo: { id: null, r: 64 }, hi: { id: null, r: 64 }, pw1: { id: null, r: 44 }, pw2: { id: null, r: 44 }, quit: { id: null, r: 30 } };
 for (const k in BTN) Object.assign(BTN[k], { x: -999, y: -999, t: 0 });
 let VIEW = { k: 1, w: W, ox: 0 };
 function toView(e) { const r = app.view.getBoundingClientRect(); return { x: (e.clientX - r.left) / VIEW.k, y: (e.clientY - r.top) / VIEW.k }; }
@@ -232,7 +232,6 @@ function drawGoal(g, s, part, wob) {
     net(BN, FN, FF, BF, 8, 3, .45);
     tube([BN, FN], 10); tube([FN, FF], 10); tube([FNb, FN], 12);
     g.lineStyle(0); g.beginFill(0x000000, .25); g.drawEllipse(FNb[0], FNb[1] + 2, 14, 4); g.endFill();
-    if (M.bigGoal[s] > 0) { g.lineStyle({ width: 4, color: 0xffd200, alpha: .6 + .4 * Math.sin(performance.now() * .01) }); g.drawRoundedRect(Math.min(X(d), X(bk)) - 6, top - 34, Math.abs(d - bk) + 12, G - top + 40, 14); }
   }
 }
 
@@ -249,20 +248,19 @@ function buildHUD() {
   S.hIco = [0, 1].map(i => { const P = M.P[i], c = new PIXI.Container(); const ring = new PIXI.Graphics(); ring.beginFill(P.club.c1); ring.lineStyle(4, 0x14171f); ring.drawCircle(0, 0, 34); ring.endFill(); c.addChild(ring);
     const m = new PIXI.Graphics(); m.beginFill(0xffffff); m.drawCircle(0, 0, 30); m.endFill(); c.addChild(m);
     const s = new PIXI.Sprite(T('img/h/' + P.ch.id + '_0.webp')); s.anchor.set(.5, .48); const k = 68 / s.texture.height; s.scale.set(k * (i ? -1 : 1), k); s.mask = m; c.addChild(s);
-    const cr = new PIXI.Sprite(T('img/cr/' + P.club.cr + '.webp')); cr.anchor.set(.5); cr.width = 28; cr.height = 30; cr.x = i ? -28 : 28; cr.y = 24; c.addChild(cr);
     c.x = i ? 210 : -210; c.y = 38; sb.addChild(c);
-    const n = txt(P.name, 18); n.anchor.set(i ? 1 : 0, .5); n.x = i ? 158 : -158; n.y = 86; sb.addChild(n); return c; });
+    const n = txt(P.name, 18); n.anchor.set(i ? 1 : 0, .5); n.x = i ? 158 : -158; n.y = 86; sb.addChild(n);
+    // équipe bien visible : écusson + sigle sur la couleur du club
+    const tag = new PIXI.Container(); tag.x = i ? 210 : -210; tag.y = 120; sb.addChild(tag);
+    const tl = txt(P.club.s, 20); tl.anchor.set(0, .5); const tw = tl.width + 50;
+    const bg = new PIXI.Graphics(); bg.beginFill(P.club.c1); bg.lineStyle(3, 0x14171f); bg.drawRoundedRect(-tw / 2, -17, tw, 34, 17); bg.endFill(); bg.beginFill(P.club.c2, .9); bg.lineStyle(0); bg.drawRoundedRect(-tw / 2 + 4, 6, tw - 8, 7, 3); bg.endFill(); tag.addChild(bg);
+    const cr = new PIXI.Sprite(T('img/cr/' + P.club.cr + '.webp')); cr.anchor.set(.5); cr.width = 36; cr.height = 38; cr.x = -tw / 2 + 18; tag.addChild(cr);
+    tl.x = -tw / 2 + 38; tag.addChild(tl); return c; });
   // boutons ronds brillants
   S.btn = {};
-  const mk = (k, src, label, col, r, rot) => { const c = new PIXI.Container(); h.addChild(c);
-    const sh = new PIXI.Graphics(); sh.beginFill(0x000000, .35); sh.drawCircle(0, 6, r); sh.endFill(); c.addChild(sh);
-    const d = new PIXI.Graphics(); d.beginFill(col[0]); d.lineStyle(5, 0x14171f); d.drawCircle(0, 0, r); d.endFill(); d.beginFill(col[1]); d.lineStyle(0); d.drawCircle(0, r * .12, r * .82); d.endFill(); d.beginFill(0xffffff, .35); d.drawEllipse(-r * .15, -r * .48, r * .55, r * .25); d.endFill(); c.addChild(d);
-    if (src) { const s = new PIXI.Sprite(T(src)); s.anchor.set(.5); const kk = r * 1.45 / Math.max(s.texture.width, s.texture.height); s.scale.set(kk); if (rot) s.rotation = rot; c.addChild(s); }
-    else { const a = new PIXI.Graphics(); a.beginFill(0xffffff); a.lineStyle(5, 0x14171f, 1); const w = r * .55; a.drawPolygon(k === 'left' ? [w * .6, -w, w * .6, w, -w, 0] : [-w * .6, -w, -w * .6, w, w, 0]); a.endFill(); c.addChild(a); }
-    if (label) { const t = txt(label, 15); t.anchor.set(.5); t.y = r + 8; c.addChild(t); }
-    S.btn[k] = c; return c; };
-  mk('left', null, '', [0x1f6fd8, 0x3fa0ff], 62); mk('right', null, '', [0x1f6fd8, 0x3fa0ff], 62);
-  mk('jump', 'img/ui/jump.webp', 'SAUT', [0x2f9e14, 0x6fdc2a], 58); mk('lo', 'img/ui/kick.webp', 'TIR BAS', [0xd8570a, 0xffa11a], 58); mk('hi', 'img/ui/lob.webp', 'TIR HAUT', [0xc2181f, 0xff4a3a], 58);
+  const mk = (k, src, w) => { const c = new PIXI.Container(); h.addChild(c); const sp = new PIXI.Sprite(T(src)); sp.anchor.set(.5); const kk = w / sp.texture.width; sp.scale.set(kk); c.addChild(sp); S.btn[k] = c; return c; };
+  mk('left', 'img/ui2/b_left.webp', 150); mk('right', 'img/ui2/b_right.webp', 150);
+  mk('lo', 'img/ui2/b_lo.webp', 156); mk('hi', 'img/ui2/b_hi.webp', 156); mk('jump', 'img/ui2/b_jump.webp', 170);
   // deux pouvoirs, en haut : jauge, icône, nombre de cartes (ou prix en diamants quand il n'y en a plus)
   S.pwB = M.P[0].pws.map((id, i) => { const c = new PIXI.Container(); h.addChild(c);
     const glow = new PIXI.Sprite(TEX.glow); glow.anchor.set(.5); glow.blendMode = PIXI.BLEND_MODES.ADD; glow.width = glow.height = 150; glow.alpha = 0; c.addChild(glow);
@@ -277,7 +275,9 @@ function buildHUD() {
   S.bQuit = new PIXI.Container(); h.addChild(S.bQuit); const q = new PIXI.Graphics(); q.beginFill(0xd8261c); q.lineStyle(4, 0x14171f); q.drawCircle(0, 0, 26); q.endFill(); q.lineStyle(6, 0xffffff); q.moveTo(-9, -9); q.lineTo(9, 9); q.moveTo(9, -9); q.lineTo(-9, 9); S.bQuit.addChild(q);
   S.oppPw = new PIXI.Container(); h.addChild(S.oppPw); S.oppRing = [];
   M.P[1].pws.forEach((id, i) => { const d = new PIXI.Graphics(); d.beginFill(0x1d2a55); d.drawCircle(0, 0, 22); d.endFill(); d.x = -i * 56; S.oppPw.addChild(d); const op = new PIXI.Sprite(T(PW(id).icon)); op.anchor.set(.5); const k = 34 / Math.max(op.texture.width, op.texture.height); op.scale.set(k); op.x = d.x; S.oppPw.addChild(op); const r = new PIXI.Graphics(); r.x = d.x; S.oppPw.addChild(r); S.oppRing.push(r); });
-  S.msgC = new PIXI.Container(); h.addChild(S.msgC); S.cardC = new PIXI.Container(); h.addChild(S.cardC); S.tuto = new PIXI.Container(); h.addChild(S.tuto);
+  S.msgC = new PIXI.Container(); h.addChild(S.msgC); S.msgBox = new PIXI.Container(); S.msgC.addChild(S.msgBox);
+  S.buuut = ['img/ui2/buuut_or.webp', 'img/ui2/buuut_rouge.webp'].map(src => { const sp = new PIXI.Sprite(T(src)); sp.anchor.set(.5); sp.k = 620 / 900; sp.visible = false; h.addChild(sp); return sp; });
+  S.tuto = new PIXI.Container(); h.addChild(S.tuto);
 }
 function rotPts(pts, a, ox, oy) { const r = []; for (const [x, y] of pts) r.push(ox + x * Math.cos(a) - y * Math.sin(a), oy + x * Math.sin(a) + y * Math.cos(a)); return r; }
 function mkBtn(src, label, sz) { const c = new PIXI.Container(); const s = new PIXI.Sprite(T(src)); s.anchor.set(.5); s.width = s.height = sz; c.addChild(s); const t = txt(label, 14); t.anchor.set(.5); t.y = sz / 2 + 4; c.addChild(t); return c; }
@@ -294,7 +294,7 @@ function layout() {
   drawPitch();
   S.band.width = vw; S.sb.x = vw / 2;
   const cy = (BAND + H) / 2 - 6;
-  const P = { left: [90, cy], right: [235, cy], jump: [vw - 395, cy], lo: [vw - 250, cy], hi: [vw - 100, cy], pw1: [vw / 2 + 300, 52], pw2: [vw / 2 + 400, 52], quit: [40, 40] };
+  const P = { left: [95, cy], right: [255, cy], lo: [vw - 450, cy], hi: [vw - 280, cy], jump: [vw - 100, cy], pw1: [vw / 2 + 300, 52], pw2: [vw / 2 + 400, 52], quit: [40, 40] };
   for (const k in P) { BTN[k].x = P[k][0]; BTN[k].y = P[k][1]; }
   for (const k in S.btn) { S.btn[k].x = BTN[k].x; S.btn[k].y = BTN[k].y; }
   S.pwB.forEach((b, i) => { const B = BTN['pw' + (i + 1)]; b.c.x = B.x; b.c.y = B.y; });
@@ -341,7 +341,7 @@ function tryKick(p, type) {
 }
 function header(p) {
   const b = M.b; p.hd = 14;
-  if (p.kt === 'hi') aimLob(p, b, .9); else { b.vx = p.face * 12.5 * p.hdp; b.vy = Math.min(b.vy, -5.5); }
+  if (p.kt === 'hi') { b.vx = p.face * 9 * p.hdp; b.vy = -10; } else { b.vx = p.face * 10.5 * p.hdp; b.vy = Math.min(b.vy, -5); }
   afterShot(p, b, 'head'); impact(b.x, b.y, 4, .7); sfx('head'); if (p.side === 0) { M.ev.head = 1; M.stats.heads++; }
 }
 // tir haut précis : trajectoire calculée pour retomber sous la barre adverse
@@ -353,8 +353,9 @@ function aimLob(p, b, pw) {
   b.vx = vx; b.vy = Math.max(vy, -22);
 }
 function shoot(p, b) {
-  if (p.kt === 'hi') aimLob(p, b, 1);
-  else { b.vx = p.face * 15.5 * p.kp; b.vy = -3.5 - Math.max(0, (GROUND - 40 - b.y)) * .01; }
+  // tir haut : une frappe puissante qui monte (pas un lob) ; tir bas : tendu au ras du sol
+  if (p.kt === 'hi') { b.vx = p.face * 10.5 * p.kp; b.vy = -10.5 - (p.kp - 1) * 4; }
+  else { b.vx = p.face * 11.5 * p.kp; b.vy = -2.5 - Math.max(0, (GROUND - 40 - b.y)) * .01; }
   afterShot(p, b, p.kt); impact(b.x, b.y, 5, 1); sfx('kick'); if (p.side === 0) { M.ev[p.kt] = 1; M.stats.shots++; }
 }
 function afterShot(p, b, t) {
@@ -405,7 +406,7 @@ function barBounce(b, x1, x2, y) {
 function stepBall() {
   const b = M.b;
   b.vy += b.fire > 0 ? G_BALL * .4 : G_BALL; b.vx *= .996; if (b.hot > 0) b.hot--; if (b.fire > 0) b.fire--;
-  const sp = Math.hypot(b.vx, b.vy), mx = b.fire > 0 ? 23 : 19; if (sp > mx) { b.vx *= mx / sp; b.vy *= mx / sp; }
+  const sp = Math.hypot(b.vx, b.vy), mx = b.fire > 0 ? 19 : 15; if (sp > mx) { b.vx *= mx / sp; b.vy *= mx / sp; }
   const touched = [false, false];
   for (let s = 0; s < 3; s++) {
     b.x += b.vx / 3; b.y += b.vy / 3;
@@ -435,7 +436,7 @@ function goal(side) {
   if (M.state !== 'play') return;
   M.score[side]++; M.state = 'goal'; M.st = 140; M.hs = 8; M.slow = 40; M.net[1 - side] = 1; M.shake = 12; M.celeb = { side }; M.flash = side === 0 ? .6 : .25;
   const gx = side ? 70 : W - 70;
-  if (side === 0) { const cols = [0xe70013, 0xffffff, 0xffd200, M.P[0].club.c1]; for (let i = 0; i < 140; i++) confetti(gx, gtop(1) + 60, cols); sfx('goal'); crowdRoar(); vib(120); }
+  if (side === 0) { const cols = [0xe70013, 0xffffff, 0xffd200, M.P[0].club.c1]; for (let i = 0; i < 45; i++) confetti(gx, gtop(1) + 60, cols); sfx('goal'); crowdRoar(); vib(120); }
   else { sfx('concede'); vib(60); }
   M.card = { side, t: 0, type: M.b.lastT, mine: side === 0 }; if (side === 0 && M.b.lastT === 'head') M.stats.hg++;
   bumpScore(side); if (M.tuto) M.ev.goal = 1;
@@ -568,27 +569,19 @@ function showMsg(s, col, kind) {
   tx.anchor.set(.5); M.msg = { tx, t: 0, d: kind === 'count' ? 40 : 60, kind };
 }
 function renderMsg() {
-  S.msgC.removeChildren(); const m = M.msg; if (!m) return; m.t++;
-  const c = new PIXI.Container(); c.x = VIEW.w / 2; c.y = m.kind === 'count' ? 300 : 230; const k = clamp(m.t / 10, 0, 1); c.scale.set(m.kind === 'count' ? 1.9 - k * .9 : .5 + k * .6); c.alpha = Math.min(1, (m.d - m.t) / 10); c.addChild(m.tx); S.msgC.addChild(c);
-  if (m.t >= m.d) M.msg = null;
+  const m = M.msg, c = S.msgBox;
+  if (!m) { if (c.children.length) { c.removeChildren().forEach(x => x.destroy()); } return; }
+  if (m.tx.parent !== c) { c.removeChildren().forEach(x => x !== m.tx && x.destroy()); c.addChild(m.tx); }
+  m.t++; c.x = VIEW.w / 2; c.y = m.kind === 'count' ? 300 : 230; const k = clamp(m.t / 10, 0, 1); c.scale.set(m.kind === 'count' ? 1.9 - k * .9 : .5 + k * .6); c.alpha = Math.min(1, (m.d - m.t) / 10);
+  if (m.t >= m.d) { M.msg = null; c.removeChildren().forEach(x => x.destroy()); }
 }
-// carte du but : dorée quand je marque, rouge sombre quand l'adversaire marque
+// but : une seule image « BUUUT » (dorée pour moi, rouge fissurée pour l'adversaire), sans rien créer à chaque image
 function renderCard() {
-  S.cardC.removeChildren(); const cd = M.card; if (!cd) return; cd.t++;
-  const mine = cd.mine, P = M.P[cd.side], O = M.P[1 - cd.side];
-  const inK = clamp(cd.t / 14, 0, 1), e = 1 - Math.pow(1 - inK, 3), out = clamp((cd.t - 100) / 14, 0, 1);
-  const c = new PIXI.Container(); c.x = VIEW.w / 2; c.y = 270; c.scale.set((.3 + .7 * e) * (1 - out * .3)); c.alpha = 1 - out; S.cardC.addChild(c);
-  const rays = new PIXI.Graphics(); rays.beginFill(mine ? 0xffd200 : 0xff3b3b, mine ? .22 : .12); for (let i = 0; i < 14; i++) { const a = i * Math.PI / 7 + cd.t * .015; rays.drawPolygon([0, 0, Math.cos(a - .1) * 560, Math.sin(a - .1) * 560, Math.cos(a + .1) * 560, Math.sin(a + .1) * 560]); } rays.endFill(); rays.blendMode = PIXI.BLEND_MODES.ADD; c.addChild(rays);
-  const pan = new PIXI.Graphics(); pan.beginFill(mine ? 0xb86a00 : 0x3a0a12, .96); pan.lineStyle(6, 0x14171f); pan.drawRoundedRect(-330, -110, 660, 220, 36); pan.endFill();
-  pan.beginFill(mine ? 0xffc400 : 0x8a1424); pan.lineStyle(0); pan.drawRoundedRect(-322, -102, 644, 104, 30); pan.endFill(); pan.beginFill(0xffffff, .15); pan.drawRoundedRect(-310, -96, 620, 34, 18); pan.endFill(); c.addChild(pan);
-  const hS = new PIXI.Sprite(T('img/h/' + P.ch.id + '_3.webp')); hS.anchor.set(.5, .8); const k = 240 / hS.texture.height; hS.scale.set(k * (mine ? 1 : -1), k); hS.x = mine ? -230 : 230; hS.y = 40 + Math.sin(cd.t * .25) * 6; c.addChild(hS);
-  const hO = new PIXI.Sprite(T('img/h/' + O.ch.id + '_2.webp')); hO.anchor.set(.5, .8); const k2 = 140 / hO.texture.height; hO.scale.set(k2 * (mine ? -1 : 1), k2); hO.x = mine ? 250 : -250; hO.y = 70; c.addChild(hO);
-  const title = mine ? (cd.type === 'head' ? 'TÊTE !!!' : cd.type === 'hi' ? 'LOB !!!' : 'GOOOL !!!') : 'BUT ADVERSE…';
-  const t1 = new PIXI.Text(title, { fontFamily: FONT, fontSize: mine ? 84 : 62, fill: mine ? [0xfffbe0, 0xffd200] : [0xffffff, 0xffb0b0], fillGradientStops: [.2, .8], stroke: 0x14171f, strokeThickness: 12, lineJoin: 'round', dropShadow: true, dropShadowDistance: 6, dropShadowAngle: Math.PI / 2, dropShadowColor: 0x000000, padding: 20 });
-  t1.anchor.set(.5); t1.y = -48; t1.x = mine ? 30 : -30; t1.rotation = -.04; t1.scale.set(1 + .05 * Math.sin(cd.t * .3)); c.addChild(t1);
-  const sub = txt(mine ? P.name + ' marque !' : P.name + ' marque… réagis !', 28); sub.anchor.set(.5); sub.y = 50; sub.x = mine ? 30 : -30; c.addChild(sub);
-  const sc = txt(M.score[0] + ' - ' + M.score[1], 38); sc.anchor.set(.5); sc.y = 92; c.addChild(sc);
-  if (cd.t > 114) M.card = null;
+  const cd = M.card, sp = S.buuut[cd ? (cd.mine ? 0 : 1) : 0];
+  S.buuut.forEach(x => x.visible = false); if (!cd) return; cd.t++;
+  const inK = clamp(cd.t / 10, 0, 1), e = 1 - Math.pow(1 - inK, 3), out = clamp((cd.t - 70) / 12, 0, 1);
+  sp.visible = true; sp.x = VIEW.w / 2; sp.y = 250; sp.scale.set(sp.k * (.3 + .8 * e - .1 * Math.sin(cd.t * .4) * (1 - inK)) * (1 + out * .3)); sp.alpha = 1 - out; sp.rotation = -.05 + Math.sin(cd.t * .15) * .03;
+  if (cd.t > 82) { M.card = null; sp.visible = false; }
 }
 
 // =====================================================================
@@ -610,7 +603,7 @@ function tutoStep() {
   if (M.ev[st.k] && Tt.t > 10) { Tt.i++; Tt.t = 0; sfx('coin'); if (TUTO[Tt.i]) showMsg(Tt.i === 5 ? 'BRAVO !' : 'BIEN !', 0x7dff2c, 'small'); else endTuto(); }
 }
 function renderTuto(now) {
-  S.tuto.removeChildren(); const Tt = M.tuto; if (!Tt) return; const st = TUTO[Tt.i]; if (!st) return;
+  S.tuto.removeChildren().forEach(x => x.destroy({ children: true })); const Tt = M.tuto; if (!Tt) return; const st = TUTO[Tt.i]; if (!st) return;
   const bar = new PIXI.Container(); bar.x = VIEW.w / 2; bar.y = 140; S.tuto.addChild(bar);
   const bg = new PIXI.Graphics(); bg.beginFill(0x0b1a3a, .9); bg.lineStyle(4, 0xffd200); bg.drawRoundedRect(-320, -30, 640, 60, 30); bg.endFill(); bar.addChild(bg);
   const t = txt(st.t, 26); t.anchor.set(.5); bar.addChild(t);
@@ -661,7 +654,7 @@ function step() {
   }
   const I0 = M.P[0].ai ? stepAI(M.P[0]) : readInput(), I1 = (M.tuto && M.tuto.i < 5) ? { ax: 0 } : stepAI(M.P[1]);
   stepPlayer(M.P[0], I0); stepPlayer(M.P[1], I1);
-  const a = M.P[0], c = M.P[1], dx = c.x - a.x, min = 80; if (Math.abs(dx) < min && Math.abs(a.y - c.y) < 80) { const push = (min - Math.abs(dx)) / 2 * (dx >= 0 ? 1 : -1); a.x -= push; c.x += push; }
+  const a = M.P[0], c = M.P[1], dx = c.x - a.x, min = 104; if (Math.abs(dx) < min && Math.abs(a.y - c.y) < 80) { const push = (min - Math.abs(dx)) / 2 * (dx >= 0 ? 1 : -1); a.x -= push; c.x += push; }
   animPlayer(a); animPlayer(c);
   if (M.state === 'play' || M.state === 'goal') stepBall(); else M.b.rot += .03;
   stepProj();
@@ -670,6 +663,6 @@ function step() {
 }
 function pauseMatch() { if (!M || M.state === 'end' || M.paused) return; M.paused = true; for (const k in BTN) BTN[k].id = null; onPause(); }
 function resumeMatch() { if (!M) return; M.paused = false; last = performance.now(); }
-function quitMatch() { crowdSound(false); M = null; app.ticker.stop(); app.stage.removeChildren(); S = null; }
+function quitMatch() { crowdSound(false); M = null; app.ticker.stop(); if (S) { app.stage.removeChildren(); S.root.destroy({ children: true }); } S = null; }
 function endMatch() { const r = { score: M.score.slice(), o: M.o, stats: M.stats }; M.state = 'end'; sfx('whistle3'); crowdSound(false); setTimeout(() => { quitMatch(); onMatchEnd(r); }, 900); }
 function endTuto() { const o = M.o; setTimeout(() => { quitMatch(); onTutoEnd(o); }, 1400); }

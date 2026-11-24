@@ -429,6 +429,21 @@ b,small,span,em{font-style:normal}
 .pmB{position:absolute;left:0;right:0;bottom:3vh;display:flex;justify-content:center;gap:2vh}
 .mbtn.waiting{filter:grayscale(.4)}.spin{width:3vh;height:3vh;border:.5vh solid #fff;border-top-color:#0000;border-radius:50%;animation:spin3 .8s linear infinite;display:inline-block}
 .pause .pbox h2{font-size:4.4vh}.pause .pbox p{text-shadow:var(--ts)}
+
+/* V2.2 coffre dynamique */
+.chopen .chbox{position:static;transform:none;top:auto;left:auto;width:100%;opacity:1;transition:none;filter:drop-shadow(0 2vh 2.5vh #000c)}
+.chopen.opened .chbox,.chopen.sum .chbox{width:100%;opacity:1;transform:none;top:auto;bottom:auto}
+.chw{position:absolute;left:50%;bottom:6vh;width:40vh;transform:translateX(-50%);transition:width .5s,bottom .5s;z-index:1}
+.chopen.opened .chw{width:30vh;bottom:2vh}.chopen.sum .chw{opacity:.35}
+.chbox.drop{animation:cdrop .65s cubic-bezier(.3,1.5,.5,1) both}@keyframes cdrop{from{transform:translateY(-80vh) scale(.6)}}
+.chbox.shake{animation:cshk .09s infinite}@keyframes cshk{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-.5vh)}}
+.chbox.shake2{animation:cshk2 .06s infinite}@keyframes cshk2{0%,100%{transform:rotate(-6deg) scale(1.05)}50%{transform:rotate(6deg) scale(1.1) translateY(-1vh)}}
+.chbox.burst{animation:cburst .5s cubic-bezier(.2,1.6,.4,1)}@keyframes cburst{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+.chbox.bump{animation:cbump .35s}@keyframes cbump{40%{transform:scale(1.12,.9) translateY(.6vh)}}
+.chflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}.chopen.opened .chflash{animation:cflash .5s}@keyframes cflash{0%{opacity:.9}100%{opacity:0}}
+.fly{animation:fly2 .6s cubic-bezier(.2,1.3,.4,1) both}@keyframes fly2{from{transform:translateY(42vh) scale(.15) rotate(-30deg);opacity:0}60%{opacity:1}}
+.pmtag{display:flex;align-items:center;gap:.8vh;padding:.3vh 1.8vh .3vh .4vh;border-radius:3vh;border:.4vh solid var(--o);background:var(--c1);box-shadow:inset 0 -.8vh 0 var(--c2);font-family:"Luckiest Guy";font-size:3vh;text-shadow:var(--ts);margin-top:.6vh}
+.pmtag img{height:6vh}.pmtag small{font-family:"Lilita One";font-size:1.8vh;opacity:.95;max-width:22vh;line-height:1.05}
 </style>
 </head>
 <body>
